@@ -11,76 +11,13 @@ import pandas as pd
 from pandas import DataFrame
 import random
 
+from .statistic import DataStatisitc
+from 
 
-		
-def _create_static_list():
-	uids_list = []
-		# using set is a best way for quick search of same uid
-	for index, row in df.iterrows():
-		uid = [row[user_col], row[item_col]] 
-		if user_id not in uids_list:
-			user_id.append(uid)
-	return uids_list
-	
-	
-	
-def _create_static_list_temp():
-	uids_list = []
-		# using set is a best way for quick search of same uid
-	for index, row in df.iterrows():
-		uid = [row[user_col], row[item_col]] 
-		user_id.append(uid)
-	return list(set(uids_list))
-	
-	
-	
-	
-def _create_uid_dict(df, typeCol, nType):
-	uid_dict = {{} for i in range(nType)}
-	for index, row in df.iterrows():
-		uid = [row[user_col], row[item_col]]
-		type = row[type]
-		if uid in uid_dict:
-			uid_dict[uid][type] += 1
-		else:
-			uid_dict[uid][type] = 1
-	return uid_dict
-		
-			
-			
-			
-def _create_uid_dict_by_uidList(df, typeCol, nType, uidList):
-	uid_dict = {{} for i in range(nType)}
-	for index, row in df.iterrows():
-		uid = [row[user_col], row[item_col]]
-		type = row[type]
-		if uid in uidList:
-			if uid in uid_dict:
-				uid_dict[uid][type] += 1
-			else:
-				uid_dict[uid][type] = 1
-	return uid_dict	
+## ---------------------------
+## extract fearure
+## ---------------------------		
 
-		
-def _extract_feat_byTime(df, uidCols, featCols, 
-							timeList, timeFormat)
-	user_col = uidCols[0]
-	item_col = uidCols[1]
-	time_col = featCols[0]
-	type_col = featCols[1]
-	nType = len(set(df[type_col].values))
-	
-	nTime = len(timeList)
-	for i in range(nTime):
-		df_temp = df[df[time_col].dt.strftime(timeFormat)]
-		df_time[i] = df[df_temp == timeList[i]]
-		
-	# uid_dicts = {{} for i in range(nTime)}
-	uid_dicts = {}
-	for i in range(nTime):
-		uid_dicts[timeList[i]] = _create_uid_dict(df_time[i], type_col,
-													nType)
-	return uid_dicts
 			
 def _extract_feat_by_group(df, columns, uidList):
 	pass
@@ -91,8 +28,11 @@ def _extract_feat_by_group(df, columns, uidList):
 class UidFeatureExtracter(object):
 	"""define a extracter class for extracting uid features'
 	"""
+	def __init_(self):
+		self._statis = DataStatisitc()
+		
 	def extractUidList(self, df, columns):
-		"""all uids from input data'
+		"""extract all uids from input data'
 		df : DataFrame
 			input data
 		columns : list
@@ -108,16 +48,54 @@ class UidFeatureExtracter(object):
 		user_col = column[0]
 		item_col = column[1]
 		
-		uidList = _create_static_list()
-		# uidList = _create_static_list_temp()
-		# uidList = _create_statis_dict()
+		uidList = _statis._create_uinque_statistic(df, [user_col, item_col])
 		return uidList
 		
 		
-	def extractUidFeats_typeStatis(self, df, uidList):
+	def extractFeat(self, df, uidList):
 		"""
 		"""
-		_create_uid_dict_by_uidList(df, typeCol, nType, uidList)
+		
+		
+		
+	def extractDiscreteFeat_byTime(df, uidCols, featCol, timeCol
+							timeList, timeFormat)
+		""" extract discre features by time from input data
+		df : DataFrame
+			input data
+		uidCols : list
+			columns of uid
+		featCol : str
+			column of feature
+		timeCol : str
+			column of time
+		columns : list
+			user_id and item_id column name
+		"""
+		user_col = uidCols[0]
+		item_col = uidCols[1]
+		type_col = featCol
+		time_col = timeCol
+		
+		nType = len(set(df[type_col].values))
+	
+		nTime = len(timeList)
+		for i in range(nTime):
+			df_temp = df[df[time_col].dt.strftime(timeFormat)]
+			df_time[i] = df[df_temp == timeList[i]]
+		
+		# uid_dicts = {{} for i in range(nTime)}
+		uid_dicts = {}
+		for i in range(nTime):
+			uid_dicts[timeList[i]] = _statis.createStatisForColumns(df_time[i], 
+														type_col, nType)
+														
+		
+		return uid_dicts
+		
+		
+
+		
 		
 		
 			
