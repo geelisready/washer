@@ -1,0 +1,6 @@
+框架的内核包括如下文件夹：
+	repairer、rebuilder、featureExtracter、sqlHandle
+	其分别的功能为：数据修复，数据重建、特征提取、sql文件处理
+其他文件夹：
+	explorer、dataset、demo
+	其功能为：数据的预览与探索、测试用数据集、测试用脚本或比赛脚本
