@@ -1,4 +1,4 @@
-from .isolatedRepairer import UidFeatureExtracter
+from .isolatedExtracter import UidFeatureExtracter
 
 
 __all__ = ['UidFeatureExtracter']
