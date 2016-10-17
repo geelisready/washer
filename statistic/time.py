@@ -5,7 +5,7 @@
 	time statistic class for DataFrame
 """
 # Author: Geel
-
+# import pdb
 import pandas as pd
 
 from .base import BaseStatis
@@ -32,8 +32,8 @@ class TimeStatis(BaseStatis):
 		return df
 
 	def divideByTime(self, df, timeCol, timeList, timeFormat):
-	
-		if isinstance(df[timeCol][0], pd.tslib.Timestamp) == False:
+		# pdb.set_trace()
+		if isinstance(df[timeCol].iloc[0], pd.tslib.Timestamp) == False:
 			# 如果格式不对，则转化成datetimr格式
 			df = self.formatTime(df, timeCol)
 			

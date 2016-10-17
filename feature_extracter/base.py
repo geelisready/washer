@@ -10,7 +10,6 @@ __all__ = ["BaseExtracter"]
 
 class BaseExtracter(object):
 
-	@abstractmethod
 	def __init__():
 		pass
 

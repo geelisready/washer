@@ -13,6 +13,8 @@ from pandas import DataFrame
 import random
 from datetime import datetime
 
+from ..sample.data import DataSampler
+
 
 
 def _get_unique_list(df, column):
@@ -70,6 +72,8 @@ def _extract_by_content_list(df, col, content):
 class GeneralRebuilder(object):
 	"""define DataRebuilder class'
 	"""
+	def __init__(self):
+		self._sampler = DataSampler()
 		
 	def pickSample(self, df, nSample = 1000, by = 'common'):
 		"""pick samples from input data'

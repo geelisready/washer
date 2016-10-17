@@ -46,10 +46,10 @@ def featureExtract(df):
 	
 	
 	# extract features
-	ufe = UidFeatureExtracter()
-	uidList = ufe.extractUidList(df_3days, columns = ['user_id', 'item_id'])
+	ufe = UidFeatureExtracter(df, uidCols = ['user_id', 'item_id'])
+	uidList = ufe.extractUidList(df_3days)
 	
-	dataset = ufe.extractDiscreteFeat_byTime(df_3days, uidCols = ['user_id', 'item_id'],
+	dataset = ufe.extractDiscreteFeat_byTime(df_3days,
 											featCol = 'behavior_type', timeCol = 'time', 
 											timeList = ['2014-11-20', '2014-11-21', '2014-11-22'],
 											timeFormat = '%Y-%m-%d')

@@ -11,25 +11,40 @@ import pandas as pd
 from pandas import DataFrame
 import random
 
-from .base import BaseExtractor
+from .base import BaseExtracter
 from ..statistic.dataStatistic import UidStatis
-from ..sample.dataSample import Data
+from ..sample.data import DataSampler
 
 ## ---------------------------
 ## extract fearure
 ## ---------------------------		
 
+def is_uidCols_legal(df, uidCols):
+	df_columns = df.columns
+	for column in uidCols:
+		if column not in df_columns:
+			raise(ValueError, 'the uidCols is illegal!')
 
-
-class UidFeatureExtracter(BaseExtractor):
+class UidFeatureExtracter(BaseExtracter):
 	"""define a extracter class for extracting uid features'
 	"""
-	def __init__(self):
-		self._statis = UidStatis()
-		self._sampler = 
-	
+	def __init__(self, df, uidCols):
+
+		## robust code
+		try:
+			assert len(uidCols) == 2, "colunm input must be two args!"
+		except AssertionError, reason:
+			print('Error: ' + reason.__class__.__name__)	
 		
-	def extractUidList(self, df, columns):
+		is_uidCols_legal(df, uidCols)
+		
+		self.uidCols = uidCols
+		self._statis = UidStatis(uidCols)
+		# self._sampler = DataSampler()
+		
+
+		
+	def extractUidList(self, df):
 		"""extract all uids from input data'
 		df : DataFrame
 			input data
@@ -37,27 +52,16 @@ class UidFeatureExtracter(BaseExtractor):
 			user_id and item_id column name
 		"""
 		
-		## robust code
-		try:
-			assert len(columns) == 2, "colunm input must be two args!"
-		except AssertionError, reason:
-			print('Error: ' + reason.__class__.__name__)
-			
-		df_columns = df.columns
-		for column in columns:
-			if column not in df_columns:
-				raise(ValueError, 'the column is not exist')
-		
 		## functional code
-		user_col = df_columns[0]
-		item_col = df_columns[1]
+		user_col = self.uidCols[0]
+		item_col = self.uidCols[1]
 		
-		uidList = self._statis.createUniStatis(df, [user_col, item_col])
+		uidList = self._statis.getSetOfCols(df, [user_col, item_col])
 		return uidList
 		
 		
 		
-	def extractDiscreteFeat_byTime(self, df, uidCols, featCol, timeCol,
+	def extractDiscreteFeat_byTime(self, df, featCol, timeCol,
 								timeList, timeFormat):
 		"""extract a specified feature of every uid by time
 		df : DataFrame
@@ -77,12 +81,13 @@ class UidFeatureExtracter(BaseExtractor):
 		
 			
 		## functional code
-		uidList, uid_listOfDicts, searchDict_feat = self._statis.createStatisForFeat_byTime(df, uidCols, featCol, timeCol,
-							timeList, timeFormat)
+		uidList = self._statis.getSetOfCols(df, self.uidCols, codeType = 'str')
+		uid_listOfDicts = self._statis.statisForFeat_byTime(
+												df, featCol, timeCol, timeList, timeFormat)
 			# make statisitc for feat of every uid by time
 							
 		nTime = len(timeList)
-		nFeat = len(self._statis.createUniStatis(df, featCol))
+		nFeat = len(self._statis.getSetOfCols(df, featCol))
 		uidFeats = []
 		for uid in uidList:
 			uidFeat = []
@@ -91,7 +96,7 @@ class UidFeatureExtracter(BaseExtractor):
 					if uid in uid_listOfDicts[i][featType] else 0
 					for featType in range(nFeat)])
 			uidFeats.append(uidFeat)
-		pdb.set_trace()
+		# pdb.set_trace()
 		return DataFrame(uidFeats)	
 
 

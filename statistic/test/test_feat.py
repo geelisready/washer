@@ -9,11 +9,11 @@ from pandas import Series, DataFrame
 
 # -------- import my package ---------
 import washer.utils.path.pathHandle as ph
-from washer.statistic.item import ItemStatis
+from washer.statistic.feat import FeatStatis
 
 targetPath = ph.getDir_nLevel(__file__, 3)
 df = pd.read_csv(targetPath + "/dataset/train_sample_5000.csv")
-sta = ItemStatis()
+sta = FeatStatis()
 
 uidCols = ['user_id', 'item_id']
 featCol = 'behavior_type'

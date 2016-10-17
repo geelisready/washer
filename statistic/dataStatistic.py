@@ -12,11 +12,11 @@ from pandas import DataFrame
 
 # from .basic import BasicStatis
 from .time import TimeStatis
-from .item import ItemStatis
+from .feat import FeatStatis
 
 	
 	
-class UidStatis(TimeStatis, ItemStatis):
+class UidStatis(TimeStatis, FeatStatis):
 	"""define a class for data statistic'
 	"""
 	def __init__(self, uidCols):
