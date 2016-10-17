@@ -71,7 +71,7 @@ class GeneralRebuilder(object):
 	"""define DataRebuilder class'
 	"""
 		
-	def pickSample(self, df, nSample = 1000, mode = 'common'):
+	def pickSample(self, df, nSample = 1000, by = 'common'):
 		"""pick samples from input data'
 		df : DataFrame
 			input data

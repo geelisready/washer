@@ -6,16 +6,15 @@ from pandas import DataFrame
 class Repairer(object):
 	'define DataRepairer class'
 	# @abstractmethod
+	
+	def getInfo_VA():
+		pass
+		
 	def repairVA(self, df):
 		pass
 		
 	# def fillVA(df, value):
 		
-		
-
-	
-
-	
 	
 	
 

@@ -9,7 +9,7 @@ from pandas import Series, DataFrame
 # -------- import my package ---------
 from washer.repairer.isolatedRepairer import GeneralRepairer
 from washer.rebuilder.isolatedRebuilder import GeneralRebuilder
-from washer.featureExtracter.isolatedExtracter import UidFeatureExtracter
+from washer.feature_extracter.isolatedExtracter import UidFeatureExtracter
 
 
 
