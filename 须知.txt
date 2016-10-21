@@ -1,6 +1,13 @@
-框架的内核包括如下文件夹：
-	repairer、rebuilder、featureExtracter、sqlHandle
-	其分别的功能为：数据修复，数据重建、特征提取、sql文件处理
+框架的内核包括：
+	repairer、rebuilder、feature_extracter、model_trainer
+	其分别的功能为：数据修复，数据重建、特征提取、模型训练
+
+基础功能：
+	explore、statistic、sample、utils
+	其功能为：数据的预览与探索、统计、抽样、及与内核无关的常用工具函数包
+
 其他文件夹：
-	explorer、dataset、demo
-	其功能为：数据的预览与探索、测试用数据集、测试用脚本或比赛脚本
+	dataset、demo
+	测试用数据集、测试运行程序
+
+本人较懒，还没画UML图╮(╯_╰)╭
