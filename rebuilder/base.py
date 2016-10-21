@@ -7,12 +7,11 @@
 # Author: Geel
 
 
+__all__ = ["BaseRebuilder"]
 
 class BaseRebuilder(object):
-	
-	def getSample():
-	"""
-	"""
+	def __init__(self):
+		pass
 	
 	
 	

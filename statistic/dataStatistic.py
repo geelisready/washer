@@ -19,13 +19,11 @@ from .feat import FeatStatis
 class UidStatis(TimeStatis, FeatStatis):
 	"""define a class for data statistic'
 	"""
-	def __init__(self, uidCols):
-		if (isinstance(uidCols, list) and len(uidCols))== False:
-			raise(TypeError, "input uidCols must be list")
-			
-		super(UidStatis,self).__init__()
+	def __init__(self, codeType):
+	
+		FeatStatis.__init__(self, codeType)
+		TimeStatis.__init__(self)
 			# 调用所有父类的初始化函数
-		self._uidCols = uidCols
 		
 	# def createUniStatis(self, df, columns):
 		"""make unique statistic for a column of input data
@@ -35,9 +33,14 @@ class UidStatis(TimeStatis, FeatStatis):
 			target column name
 		"""
 		# return _create_uinque_statistic(df, columns)
-	
 		
-	def statisForFeat_byTime(self, df, featCol, 
+	def setCodeType(self, codeType):
+		self.codeType = codeType
+		
+	def statisForFeat(self, df, uidCols, featCol):
+		return self.createFeatStatis(df, uidCols, featCol)
+		
+	def statisForFeat_byTime(self, df, uidCols, featCol,
 								timeCol, timeList, timeFormat):
 		""" extract discre features by time from input data
 		df : DataFrame
@@ -62,7 +65,7 @@ class UidStatis(TimeStatis, FeatStatis):
 		# pdb.set_trace()
 		uidDicts_listOfTime = []
 		for i in range(nTime):
-			dicts = self.createFeatStatis(df_dates[i], self._uidCols, type_col)
+			dicts = self.createFeatStatis(df_dates[i], uidCols, type_col)
 			uidDicts_listOfTime.append(dicts)
 			
 		return uidDicts_listOfTime

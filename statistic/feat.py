@@ -7,7 +7,7 @@
 # Author: Geel
 import pdb
 
-from .base import BaseStatis
+from .item import ItemStatis
 from ..utils import coder
 
 
@@ -15,12 +15,15 @@ __all__ = ["FeatStatis"]
 
 
 	
-class FeatStatis(BaseStatis):
+class FeatStatis(ItemStatis):
 
-	def __init__(self):
+	def __init__(self, codeType):
+		ItemStatis.__init__(self, codeType)
 		self.searchDicts = {}
 
-	def createFeatStatis(self, df, itemCols, featCol, itemCodeType = 'set'):
+	def createFeatStatis(self, df, itemCols, featCol):
+	
+		itemCodeType = self.codeType
 		if isinstance(itemCols, str):
 			dict = self._items_statis_of_feat(df, itemCols, featCol, 
 												func = coder.noCode)
@@ -39,10 +42,11 @@ class FeatStatis(BaseStatis):
 	
 	def createSearchDictOfFeat(self, df, featCol):
 		listOfFeat	= self._get_uniList_of_feat(df, featCol)
-		
 		return coder.getDiscreteCodeDict(listOfFeat)
 		
 	def getSearchDictOfFeat(self, df, featCol):
+		if isinstance(self.searchDicts[featCol], dict) == False:
+			self.searchDicts[featCol] = createSearchDictOfFeat(df, featCol)
 		return self.searchDicts[featCol]
 		
 	
@@ -75,7 +79,9 @@ class FeatStatis(BaseStatis):
 			feat = searchDict_feat[row[featCol]]
 			# pdb.set_trace()
 			if item in dicts[feat]:
+				# print('here: ' + str(feat) + '  ' + item)
 				dicts[feat][item] += 1
 			else:
 				dicts[feat][item] = 1
+		# pdb.set_trace()
 		return dicts

@@ -8,14 +8,16 @@ from pandas import Series, DataFrame
 
 # -------- import my package ---------
 from washer.repairer.isolatedRepairer import GeneralRepairer
-from washer.rebuilder.isolatedRebuilder import GeneralRebuilder
+from washer.rebuilder.data import DataRebuilder
+from washer.rebuilder.sampleSet import SampleSetRebuilder
 from washer.feature_extracter.isolatedExtracter import UidFeatureExtracter
 
 
 
 # --------- path of files -----------
 PATH = 'F:/codeGit/dataset/tianchi/'
-FILE_TRAIN = 'train_sample_5000.csv'
+# FILE_TRAIN = 'train_sample_5000.csv'
+FILE_TRAIN = 'train_sample_100000.csv'
 FILE_ITEM = 'item.csv'
 
 ## wash data
@@ -32,8 +34,8 @@ def washData(df):
 def featureExtract(df):		
 	## extract data
 	
-	# rebuil data
-	drb = GeneralRebuilder()
+	# rebuild data
+	drb = DataRebuilder()
 	
 	df_3days = drb.extractDataByTime(df, timeCol = 'time', 
 								format = '%Y-%m-%d',
@@ -46,30 +48,40 @@ def featureExtract(df):
 	
 	
 	# extract features
-	ufe = UidFeatureExtracter(df, uidCols = ['user_id', 'item_id'])
-	uidList = ufe.extractUidList(df_3days)
-	
-	dataset = ufe.extractDiscreteFeat_byTime(df_3days,
+	ufe = UidFeatureExtracter(df, uidCols = ['user_id', 'item_id'], codeType = 'str')
+	# uidList = ufe.extractUidList(df_3days)
+
+	labels = ufe.extractBinaryLabel(df_buyDay, labelCol = 'behavior_type',
+										posLabelVal = 4)
+	uidList = ufe.extractUidList(labels, uidCols = 'item')									
+	featureSet = ufe.extractDiscreteFeat_byTime(df_3days,
 											featCol = 'behavior_type', timeCol = 'time', 
 											timeList = ['2014-11-20', '2014-11-21', '2014-11-22'],
-											timeFormat = '%Y-%m-%d')
-										
+											timeFormat = '%Y-%m-%d', uidList = uidList)
+	return featureSet, labels
 	
-	
+def makeDataSet(featureSet, labels):
+	sampleSet = pd.merge(featureSet, labels, on = 'item')
+	# pdb.set_trace()
+	ssr = SampleSetRebuilder()
+	sampleSet = ssr.sampleBalance(sampleSet, 'label')
+	trainSet, testSet = ssr.divideToTwoSet(sampleSet, ratio = 2)
 	pdb.set_trace()
+	return sampleSet
 	
 	
-	# trainSet, testSet = drb.createTrai0nSet(df)
-	
-	pdb.set_trace()
-	return trainSet, testSet	
+def train():
+	pass
 	
 	
 ## main function
 def main():
 	df_train = pd.read_csv(PATH + FILE_TRAIN)
 	df_train = washData(df_train)
-	df_train = featureExtract(df_train)
+	featureSet, labels = featureExtract(df_train)
+	trainSet, testSet  = makeDataSet(featureSet, labels) 
+	
+	
 
 if __name__ == '__main__':
 	main()

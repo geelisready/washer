@@ -11,6 +11,6 @@ import pandas as pd
 def seriesToDtSeries(series):
 	return pd.to_datetime(series)
 	
-def shapeDtSeries(dtSeries, timeFormat):
+def shapeDtSeriesWithFormat(dtSeries, timeFormat):
 	return dtSeries.dt.strftime(timeFormat)
 	

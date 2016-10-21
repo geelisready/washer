@@ -20,7 +20,7 @@ __all__ = ["DataSampler"]
 class DataSampler(BaseSampler):
 
 	def __init__(self):
-		self._statis = ItemStatis()
+		self._statis = ItemStatis(codeType = ' str')
 		
 	def reindex(self, df):
 		pass
