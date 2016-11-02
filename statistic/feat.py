@@ -7,7 +7,7 @@
 # Author: Geel
 import pdb
 
-from .item import ItemStatis
+from .base import BaseItemStatis
 from ..utils import coder
 
 
@@ -15,10 +15,10 @@ __all__ = ["FeatStatis"]
 
 
 	
-class FeatStatis(ItemStatis):
+class FeatStatis(BaseItemStatis):
 
 	def __init__(self, codeType):
-		ItemStatis.__init__(self, codeType)
+		BaseItemStatis.__init__(self, codeType)
 		self.searchDicts = {}
 
 	def createFeatStatis(self, df, itemCols, featCol):

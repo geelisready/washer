@@ -10,10 +10,11 @@ import pdb
 import pandas as pd
 from pandas import DataFrame
 import random
+import time
 
 from .base import BaseExtracter
 from ..statistic.dataStatistic import UidStatis
-from ..sample.data import DataSampler
+from ..sample.time import TimeSampler
 
 ## ---------------------------
 ## extract fearure
@@ -35,8 +36,6 @@ def setColsName(len_df, type = 'feat'):
 	return colsName
 
 	
-	
-	
 class UidFeatureExtracter(BaseExtracter):
 	"""define a extracter class for extracting uid features'
 	"""
@@ -55,7 +54,7 @@ class UidFeatureExtracter(BaseExtracter):
 		
 		self._uidCols = uidCols
 		self._statis = UidStatis(codeType)
-		# self._sampler = DataSampler()
+		self._sampler = TimeSampler()
 		
 	def setUidCols(self, uidCols):
 		self._uidCols = uidCols
@@ -79,8 +78,8 @@ class UidFeatureExtracter(BaseExtracter):
 		
 		
 		
-	def extractDiscreteFeat_byTime(self, df, featCol, timeCol,
-								timeList, timeFormat, uidList = 'none'):
+	def extractDiscreteFeat_byTime(self, list_df, featCol, timeCol,
+								timeList, uidList = 'none'):
 		"""extract a specified feature of every uid by time
 		df : DataFrame
 			input data
@@ -92,22 +91,20 @@ class UidFeatureExtracter(BaseExtracter):
 			the columnn of time
 		timeList : list
 			a list records the date you offer
-		timeFormat : str 
-			the format of your input date
 		"""		
 		## robust code
 		
 			
 		## functional code
 		if uidList == 'none':
+			df = pd.concat([sub_df for sub_df in list_df])
 			uidList = self._statis.getSetOfCols(df, self._uidCols)
 			
-		uid_listOfDicts = self._statis.statisForFeat_byTime(df, self._uidCols, featCol, 
-													timeCol, timeList, timeFormat)
+		uid_listOfDicts = self._statis.statisForFeat_byTime(list_df, self._uidCols, featCol, timeCol, timeList)
 			# make statisitc for feat of every uid by time
 							
 		nTime = len(timeList)
-		nFeat = len(self._statis.getSetOfCols(df, featCol))
+		nFeat = len(self._statis.getSearchDictOfFeat(list_df[0], featCol))
 		uidFeats = []
 		for uid in uidList:
 			uidFeat = []
@@ -121,19 +118,21 @@ class UidFeatureExtracter(BaseExtracter):
 		colsName = setColsName(len(uidFeat), type = 'feat')
 		# pdb.set_trace()
 		return DataFrame(uidFeats, columns = colsName)	
+		
 
 
 	def extractBinaryLabel(self, df, labelCol, posLabelVal, uidList = 'none'):
 		
 		if uidList == 'none':
 			uidList = self._statis.getSetOfCols(df, self._uidCols)
-		
+
 		uid_listOfDict = self._statis.createFeatStatis(df, self._uidCols, labelCol)
-		nFeat = len(self._statis.getSetOfCols(df, labelCol))
+
 		uidLabels = []
-		
-		posLabel = self._statis.getSearchDictOfFeat(df, labelCol)[posLabelVal]
-		
+		searchDict = self._statis.getSearchDictOfFeat(df, labelCol)
+		posLabel = searchDict[posLabelVal]
+		nFeat = len(searchDict)
+
 		for uid in uidList:
 			uidLabel = []
 			uidLabel.append(uid)
@@ -141,6 +140,7 @@ class UidFeatureExtracter(BaseExtracter):
 			uidLabels.append(uidLabel)
 		# pdb.set_trace()	
 		colsName = setColsName(len(uidLabel), type = 'label')
+
 		return DataFrame(uidLabels, columns = colsName)	
 		
 		

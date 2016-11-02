@@ -12,15 +12,11 @@ from pandas import DataFrame
 
 # from .basic import BasicStatis
 from .base import BaseSampler
-from ..statistic.item import ItemStatis
 
 __all__ = ["DataSampler"]
 
 
 class DataSampler(BaseSampler):
-
-	def __init__(self):
-		self._statis = ItemStatis(codeType = ' str')
 		
 	def reindex(self, df):
 		pass

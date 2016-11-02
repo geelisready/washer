@@ -6,7 +6,7 @@
 """
 # Author: Geel
 import random
-from ..statistic.base import BaseStatis
+from ..statistic.base import BaseItemStatis
 
 __all__ = ["BaseSampler"]
 
@@ -49,7 +49,7 @@ def _pick_sample_byItem(df, itemCol, itemList, nItem):
 class BaseSampler(object):
 
 	def __init__(self):
-		self._statis = BaseStatis()
+		self._statis = BaseItemStatis(codeType = 'str')
 
 	
 	def packSample(self, df, nSample, by = 'default'):

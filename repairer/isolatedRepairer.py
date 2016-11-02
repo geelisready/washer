@@ -4,6 +4,8 @@ import pdb
 import pandas as pd
 from pandas import DataFrame
 
+from ..utils.time import timeHandle as th
+
 def _drop_all_va(df, axis):
 	if axis == 'line':
 		df = df.dropna(axis = 0, how = 'any')
@@ -26,7 +28,7 @@ def _repair_va(df, columns):
 def _format_time(df, columns):
 	
 	for column in columns:
-		df[column] = pd.to_datetime(df[column])
+		df[column] = th.seriesToDtSeries(df[column])
 
 	# df['day'] = (df['time'] - datetime(2014, 11, 18)).dt.days
 	# df = df.drop(['time'], axis=1) 

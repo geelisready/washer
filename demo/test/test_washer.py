@@ -12,12 +12,12 @@ from washer.rebuilder.data import DataRebuilder
 from washer.rebuilder.sampleSet import SampleSetRebuilder
 from washer.feature_extracter.isolatedExtracter import UidFeatureExtracter
 
+import washer.utils.path.pathHandle as ph
 
 
 # --------- path of files -----------
-PATH = 'F:/codeGit/dataset/tianchi/'
 # FILE_TRAIN = 'train_sample_5000.csv'
-FILE_TRAIN = 'train_sample_100000.csv'
+FILE_TRAIN = 'train_sample_5000.csv'
 FILE_ITEM = 'item.csv'
 
 ## wash data
@@ -61,6 +61,7 @@ def featureExtract(df):
 	return featureSet, labels
 	
 def makeDataSet(featureSet, labels):
+
 	sampleSet = pd.merge(featureSet, labels, on = 'item')
 	# pdb.set_trace()
 	ssr = SampleSetRebuilder()
@@ -71,12 +72,13 @@ def makeDataSet(featureSet, labels):
 	
 	
 def train():
-	pass
+	
 	
 	
 ## main function
 def main():
-	df_train = pd.read_csv(PATH + FILE_TRAIN)
+	targetPath = ph.getDir_nLevel(__file__, 3)
+	df_train = pd.read_csv(targetPath + "/dataset/" + FILE_TRAIN)
 	df_train = washData(df_train)
 	featureSet, labels = featureExtract(df_train)
 	trainSet, testSet  = makeDataSet(featureSet, labels) 

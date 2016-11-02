@@ -40,8 +40,8 @@ class UidStatis(TimeStatis, FeatStatis):
 	def statisForFeat(self, df, uidCols, featCol):
 		return self.createFeatStatis(df, uidCols, featCol)
 		
-	def statisForFeat_byTime(self, df, uidCols, featCol,
-								timeCol, timeList, timeFormat):
+	def statisForFeat_byTime(self, list_df, uidCols, featCol,
+								timeCol, timeList):
 		""" extract discre features by time from input data
 		df : DataFrame
 			input data
@@ -59,13 +59,12 @@ class UidStatis(TimeStatis, FeatStatis):
 		time_col = timeCol
 	
 		nTime = len(timeList)
-		df_dates = self.divideByTime(df, timeCol, timeList, timeFormat)
 			# divide data into part of date
 		
 		# pdb.set_trace()
 		uidDicts_listOfTime = []
 		for i in range(nTime):
-			dicts = self.createFeatStatis(df_dates[i], uidCols, type_col)
+			dicts = self.createFeatStatis(list_df[i], uidCols, type_col)
 			uidDicts_listOfTime.append(dicts)
 			
 		return uidDicts_listOfTime

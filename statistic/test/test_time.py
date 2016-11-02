@@ -22,9 +22,7 @@ timeList = ['2014-11-20', '2014-11-21', '2014-11-22']
 timeFormat = '%Y-%m-%d'
 # pdb.set_trace()
 
-dict_a = sta.divideByTime(df, timeCol = timeCol, 
-								timeList = timeList, 
-								timeFormat = timeFormat)
+df = sta.addTimeCol(df, timeCol)
 
 
 # print(dict_a); print(dict_b); print(dict_c)

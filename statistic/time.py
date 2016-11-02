@@ -8,7 +8,7 @@
 # import pdb
 import pandas as pd
 
-from .item import ItemStatis
+from .base import BaseItemStatis
 from ..utils.time import timeHandle as th
 
 __all__ = ["TimeStatis"]
@@ -21,7 +21,7 @@ def _format_time(df, column):
 	return df
 
 	
-class TimeStatis(ItemStatis):
+class TimeStatis(BaseItemStatis):
 
 	def __init__(self):
 		pass
@@ -36,16 +36,12 @@ class TimeStatis(ItemStatis):
 		
 		return df
 
-	def divideByTime(self, df, timeCol, timeList, timeFormat):
-		# pdb.set_trace()
-		df = self.formatTime(df, timeCol)
-			
-		nDate = len(timeList)
-		df_dates = []
-		for i in range(nDate):
-			# 这里需要先将timeCol这一列转化成datatime格式
-			date_format = th.shapeDtSeriesWithFormat(df[timeCol], timeFormat)
-			df_dates.append(df[date_format.values == timeList[i]])
-			
-		return df_dates
+	def addTimeCol(self, df, originTimeCol, type):
+		df = self.formatTime(df, originTimeCol)
+		if type == 'weekday':
+			df[type] = df[originTimeCol].dt.weekday		
+		return df
+
+		
+	
 	
