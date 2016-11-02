@@ -11,7 +11,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.naive_bayes import GaussianNB
 
 
-PATH = 'F:/codeGit/my project/python/washer/dataset/tianchi/'
+PATH = 'F:/codeGit/my project/python/dataset/tianchi/'
 FILE_TRAIN = '2014-11-21_3days.csv'
 FILE_TEST = '2014-11-22_3days.csv'
 

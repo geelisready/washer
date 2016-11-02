@@ -8,7 +8,7 @@
 # import pdb
 import pandas as pd
 
-from .base import BaseItemStatis
+from .base import BaseStatis
 from ..utils.time import timeHandle as th
 
 __all__ = ["TimeStatis"]
@@ -21,12 +21,13 @@ def _format_time(df, column):
 	return df
 
 	
-class TimeStatis(BaseItemStatis):
+class TimeStatis(BaseStatis):
 
 	def __init__(self):
 		pass
 
 	def formatTime(self, df, columns):
+	
 		if isinstance(columns, str):
 			columns = [columns]
 		for timeCol in columns:
@@ -36,12 +37,39 @@ class TimeStatis(BaseItemStatis):
 		
 		return df
 
-	def addTimeCol(self, df, originTimeCol, type):
+		
+	def createTimeCol(self, df, originTimeCol, type):
+	
 		df = self.formatTime(df, originTimeCol)
-		if type == 'weekday':
-			df[type] = df[originTimeCol].dt.weekday		
+		if type == 'year':
+			df[type] = df[originTimeCol].dt.year
+		elif type == 'season'：
+			df[type] = df[originTimeCol].dt.season
+		elif type == 'month':
+			df[type] = df[originTimeCol].dt.month
+		elif type == 'day':
+			df[type] = df[originTimeCol].dt.day
+		elif type == 'weekday':
+			df[type] = df[originTimeCol].dt.weekday
+		elif type == 'isWeekend':
+			df[type] = df[originTimeCol].dt.weekday
+			df[type][df[type] >= 6] = 1
+			df[type][df[type] < 6] = 0
+		elif type == 'hour':
+			df[type] = df[originTimeCol].dt.hour
+		elif type == 'minute':
+			df[type] = df[originTimeCol].dt.minute
+		elif type == 'second':
+			df[type] = df[originTimeCol].dt.second
+			
 		return df
 
+		
+	def getTimeInterval(self, beginCol, endCol, unit = 'hour'):
+		pass
+		
+	
+		
 		
 	
 	

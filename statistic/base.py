@@ -23,8 +23,14 @@ def _get_set_of_col(df, col):
 	
 
 class BaseStatis(object):
+
 	def __init__():
 		pass
+	
+	def getSetOfCols(self, df, col):
+		set = _get_set_of_cols(df, col)
+
+	return set
 
 	
 class BaseItemStatis(BaseStatis):
@@ -52,5 +58,7 @@ class BaseItemStatis(BaseStatis):
 		else: raise(TypeError, 
 						'the input "columns" must be a list or a string')
 		return set
+		
 	
+    
 	
