@@ -12,8 +12,34 @@ from ..utils import coder
 
 
 __all__ = ["FeatStatis"]
-
-
+		
+def _statis_feat_by_itemDict(itemDict, featCol, searchDict, itemList):
+	
+	nDiscreteVal = len(searchDict)
+	dicts = [{} for i in range(nDiscreteVal)]
+	
+	if itemList == 'default':
+		for itemName in itemDict:
+			df = itemDict[itemName]
+			featCntTable = df[featCol].count()
+			pdb.set_trace()
+			for feat in featCntTable:
+				featLoc = searchDict[feat]
+					# print('here: ' + str(feat) + '  ' + item)
+				dicts[featLoc][itemName] = featCntTable[feat]					
+	else:	
+		for itemName in itemList:
+			if itemName in itemDict:
+				df = itemDict[itemName]
+				featCntTable = df[featCol].count()
+				pdb.set_trace()
+				for feat in featCntTable:
+					featLoc = searchDict[feat]
+							# print('here: ' + str(feat) + '  ' + item)
+					dicts[featLoc][itemName] = featCntTable[feat]	
+	return dicts
+	
+	
 	
 class FeatStatis(BaseItemStatis):
 
@@ -38,36 +64,29 @@ class FeatStatis(BaseItemStatis):
 		
 		return dict
 		
+	def createFeatStatis_byItemDict(itemDict, featCol, searchDict, itemList = 'default'):
+		return _statis_feat_by_itemDict(itemDict, featCol, searchDict, itemList)
 		
-	
-	def createSearchDictOfFeat(self, df, featCol):
-		listOfFeat	= self._get_uniList_of_feat(df, featCol)
-		return coder.getDiscreteCodeDict(listOfFeat)
 		
 	def getSearchDictOfFeat(self, df, featCol):
 		if isinstance(self.searchDicts[featCol], dict) == False:
-			self.searchDicts[featCol] = createSearchDictOfFeat(df, featCol)
+			self.searchDicts[featCol] = _create_SearchDict_Of_Feat(df, featCol)
 		return self.searchDicts[featCol]
 		
-	
+
+	## ******** private ************
 	def _get_uniList_of_feat(self, df, featCol):
 		return sorted(self.getSetOfCols(df, featCol))	
 		
-		
+	def _create_SearchDict_Of_Feat(self, df, featCol):
+		listOfFeat	= self._get_uniList_of_feat(df, featCol)
+		return coder.getDiscreteCodeDict(listOfFeat)
+
 		
 		
 	def _items_statis_of_feat(self, df, itemCols, featCol, func):
-		"""make statistic for columns of input data
-		df : DataFrame
-			input data
-		itemCols :  string
-			identify column
-		featCol : string
-			feature column
-		func : the funcion to code item label
-		"""
-		
-		searchDict_feat = self.createSearchDictOfFeat(df, featCol)
+
+		searchDict_feat = self.getSearchDictOfFeat(df, featCol)
 		self.searchDicts[featCol] = searchDict_feat
 		
 		nDiscreteVal = len(searchDict_feat)
@@ -75,13 +94,13 @@ class FeatStatis(BaseItemStatis):
 		dicts = [{} for i in range(nDiscreteVal)]
 			# a dict with some sub dicts
 		for index, row in df.iterrows():
-			item = func(row, itemCols)
+			itemName = func([row[item] for item in itemCols])
 			feat = searchDict_feat[row[featCol]]
 			# pdb.set_trace()
-			if item in dicts[feat]:
+			if itemName in dicts[feat]:
 				# print('here: ' + str(feat) + '  ' + item)
-				dicts[feat][item] += 1
+				dicts[feat][itemName] += 1
 			else:
-				dicts[feat][item] = 1
+				dicts[feat][itemName] = 1
 		# pdb.set_trace()
 		return dicts

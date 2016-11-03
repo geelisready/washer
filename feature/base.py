@@ -7,3 +7,8 @@
 # Author: Geel
 
 __all__ = ["BaseFeatureEngine"]
+
+
+class BaseFeatureEngine(object):
+	pass
+	

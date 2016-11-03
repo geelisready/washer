@@ -13,11 +13,14 @@ from washer.statistic.feat import FeatStatis
 
 targetPath = ph.getDir_nLevel(__file__, 3)
 df = pd.read_csv(targetPath + "/dataset/train_sample_5000.csv")
-sta = FeatStatis()
+sta = FeatStatis(codeType = 'str')
 
 uidCols = ['user_id', 'item_id']
 featCol = 'behavior_type'
-# pdb.set_trace()
+
+itemDict = sta.createItemDict(df, uidCols)
+sta._statis_of_feat(itemDict, itemCols = uidCols, featCol = featCol)
+pdb.set_trace()
 
 dict_a, temp = sta.createFeatStatis(df, itemCols = uidCols, featCol = featCol)
 dict_b, temp = sta.createFeatStatis(df, itemCols = uidCols, featCol = featCol, itemCodeType = 'str')

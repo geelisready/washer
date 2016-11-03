@@ -14,13 +14,11 @@ __all__ = ["BaseStatis",
 def _get_set_of_cols(df, cols, func):
 	setOfCol = []
 	for index, row in df.iterrows():
-		setOfCol.append(func(row, cols))
+		setOfCol.append(func([row[item] for item in cols]))
 	return list(set(setOfCol))
 	
 def _get_set_of_col(df, col):
 	return df[col].unique().tolist()	   
-
-	
 
 class BaseStatis(object):
 
@@ -30,15 +28,14 @@ class BaseStatis(object):
 	def getSetOfCols(self, df, col):
 		set = _get_set_of_cols(df, col)
 
-	return set
+		return set
 
 	
 class BaseItemStatis(BaseStatis):
 
 	def __init__(self, codeType):
 		self.codeType = codeType
-
-		
+	
 	def getSetOfCols(self, df, columns):
 		"""make unique statistic for a column of input data
 		df : DataFrame
@@ -58,6 +55,8 @@ class BaseItemStatis(BaseStatis):
 		else: raise(TypeError, 
 						'the input "columns" must be a list or a string')
 		return set
+	
+
 		
 	
     

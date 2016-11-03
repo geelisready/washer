@@ -8,7 +8,7 @@
 # import pdb
 import pandas as pd
 
-from .base import BaseStatis
+from .base import BaseItemStatis
 from ..utils.time import timeHandle as th
 
 __all__ = ["TimeStatis"]
@@ -21,10 +21,11 @@ def _format_time(df, column):
 	return df
 
 	
-class TimeStatis(BaseStatis):
+class TimeStatis(BaseItemStatis):
 
 	def __init__(self):
-		pass
+		BaseItemStatis.__init__(self, codeType = 'str')
+
 
 	def formatTime(self, df, columns):
 	
@@ -43,7 +44,7 @@ class TimeStatis(BaseStatis):
 		df = self.formatTime(df, originTimeCol)
 		if type == 'year':
 			df[type] = df[originTimeCol].dt.year
-		elif type == 'season'：
+		elif type == 'season':
 			df[type] = df[originTimeCol].dt.season
 		elif type == 'month':
 			df[type] = df[originTimeCol].dt.month

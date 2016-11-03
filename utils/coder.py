@@ -31,13 +31,13 @@ def labelCode(listOfLabel):
 	return searchDict_label
 	
 	
-def codeToStr(row, itemCols):
-	return '_'.join([str(row[item]) for item in itemCols])
+def codeToStr(row):
+	return '_'.join([str(item) for item in row])
 	
-def codeToSet(row, itemCols):
-	return (row[item] for item in itemCols)
+def codeToSet(row):
+	return (item for item in row)
 		## "set" is hashable but "list" is unhashable
 		
-def noCode(row, itemCol):
-	return row[itemCol]
+def noCode(row):
+	return row
 	
