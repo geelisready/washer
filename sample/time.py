@@ -5,7 +5,7 @@
 	class of data sampling by time for DataFrame
 """
 # Author: Geel
-
+import pdb
 import pandas as pd
 
 from .base import BaseSampler
@@ -13,7 +13,10 @@ from ..utils.time import timeHandle as th
 
 __all__ = ["TimeSampler"]
 
-
+def _reconize_time_freq(df, timeCol):
+	freq = '1' + th.getTimeUnit(df.iloc[0][timeCol])
+	return freq
+	
 def _format_time(df, column):
 	df[column] = th.seriesToDtSeries(df[column])
 	return df
@@ -24,8 +27,8 @@ def _pick_sample_byTime():
 	"""	
 	pass
 	
-def _timeList_to_dtRange(timeList, timeUnit, freq):
-	return th.listToDtRange(timeList, timeUnit, freq)	
+def _timeList_to_dtRange(timeList, freq):
+	return th.listToDtRange(timeList, freq)	
 	
 
 class TimeSampler(BaseSampler):
@@ -40,23 +43,25 @@ class TimeSampler(BaseSampler):
 		
 		return df
 
-	def sampleByTime(self, df, timeCol, timeList, timeUnit, freq):
+	def sampleByTime(self, df, timeCol, timeList):
 		# pdb.set_trace()
 		df = self.formatTime(df, timeCol)
-		dtRange = _timeList_to_dtRange(timeList, timeUnit, freq)
+		dtRange = _timeList_to_dtRange(timeList, _reconize_time_freq(df, timeCol))
 		return df[df[timeCol].isin(dtRange)]
 			
-	def sampleByTime_divided(self, df, timeCol, timeList, timeUnit, freq):
+	def sampleByTime_divided(self, df, timeCol, timeList):
+		## 最好在这里辨识掉时间参数
 		df = self.formatTime(df, timeCol)
-
 		nDate = len(timeList)
-		df_dates = []
+		timeDict = {}
+		
+		freq = '1' + th.getTimeUnit(df.iloc[0][timeCol])
 		for i in range(nDate):
-			dtRange = _timeList_to_dtRange([timeList[i]], timeUnit, freq)
+			dtRange = _timeList_to_dtRange([timeList[i]], _reconize_time_freq(df, timeCol))
 
-			df_dates.append(df[df[timeCol].isin(dtRange)])
-			
-		return df_dates
+			timeDict[timeList[i]] = df[df[timeCol].isin(dtRange)]
+			# pdb.set_trace()
+		return timeDict
 			
 	
 		

@@ -15,7 +15,7 @@ __all__ = ["ItemStatis"]
 class ItemStatis(BaseItemStatis):
 	
 	def __init__(self, itemCols):
-		BaseItemStatis.__init__(self, codeType = str)
+		BaseItemStatis.__init__(self, codeType = 'str')
 		self._itemCols = itemCols if isinstance(itemCols, list) else [itemCols]
 		
 			

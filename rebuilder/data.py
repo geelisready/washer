@@ -43,7 +43,7 @@ class DataRebuilder(BaseRebuilder):
 		
 		return df_extract	
 	
-	def extractDataByTime(self, df, timeCol, timeList, timeUnit, freq, divide = 1):
+	def extractDataByTime(self, df, timeCol, timeList, divide = 1):
 		"""extract data by a list on a column
 			
 		"""		
@@ -53,9 +53,9 @@ class DataRebuilder(BaseRebuilder):
 		# check if format vaild
 		df = self._sampler.formatTime(df, timeCol)
 		if divide == 0 or len(timeList) == 1:
-			df_extract = self._sampler.sampleByTime(df, timeCol, timeList, timeUnit, freq)
+			df_extract = self._sampler.sampleByTime(df, timeCol, timeList)
 		else:
-			df_extract = self._sampler.sampleByTime_divided(df, timeCol, timeList, timeUnit, freq)
+			df_extract = self._sampler.sampleByTime_divided(df, timeCol, timeList)
 		# timeList = 
 		# pdb.set_trace()
 		# df_time = th.shapeDtSeriesWithFormat(df[timeCol], format)

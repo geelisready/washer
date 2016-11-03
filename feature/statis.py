@@ -5,39 +5,62 @@
 	some classes for creating statistic feature
 """
 # Author: Geel
+import pdb
+
+from pandas import DataFrame
 from .base import BaseFeatureEngine
-from .item import ItemStatis
 from ..statistic.feat import FeatStatis
 from ..sample.data import ItemSampler
 from ..sample.time import TimeSampler
 
 __all__ = ["StatisFeatureEngine"]
 
+def _set_cols_name(len_df, type = 'feat'):
+	colsName = []
+	colsName.append('item')
+	if type == 'label' and len_df == 2:
+		colsName.append('label')
+	else:
+		colsName.extend(range(len_df - 1))
+	return colsName
+
 
 class StatisFeatureEngine(BaseFeatureEngine):
 
 	def __init__(self, itemCols):
-		self._statis = FaetStatis(codeType = 'str')
+		self._statis = FeatStatis(codeType = 'str')
 		self._itemSampler = ItemSampler()
 		self._timeSampler = TimeSampler()
 		
 		self._itemCols = itemCols
 		
 		
-	def createFeat(self, df, featCol, itemDict = 'defaule', itemList = 'default'):
+	def createFeat(self, df, featCol, itemDict = 'default', itemList = 'default'):
 	
 		if itemDict == 'default':
 			itemDict = self._itemSampler.createItemDict(df, self._itemCols)
 
 		searchDict = self._statis.getSearchDictOfFeat(df, featCol)
 		dicts = self._statis.createFeatStatis_byItemDict(itemDict, featCol, searchDict, itemList)
+		nFeat = len(searchDict)
 		
+		if itemList == 'default':
+			itemList = self._statis.getSetOfCols(df, self._itemCols)
+		
+		uidFeats = []
 		for item in itemList:
+			uidFeat = []
+			uidFeat.append(item)
+			uidFeat.extend([dicts[featType][item]
+					if item in dicts[featType] else 0
+					for featType in range(nFeat)])
+			uidFeats.append(uidFeat)
+		colsName = _set_cols_name(len(uidFeat), type = 'feat')	
+		
+		return DataFrame(uidFeats, columns = colsName)
 	
-	def createFeat_byTime(self, df, uidCols, featCol,
-								timeCol, timeList, timeUnit, freq):
-								
-		## 需要整体重构，去掉时间切分
+	
+	def createFeat_byTime(self, df, featCol, timeCol, timeList, timeDict = 'default', itemList = 'default'):
 		""" extract discre features by time from input data
 		df : DataFrame
 			input data
@@ -51,15 +74,53 @@ class StatisFeatureEngine(BaseFeatureEngine):
 			user_id and item_id column name
 		"""
 							
-		type_col = featCol
-		time_col = timeCol
+		if timeDict == 'default':
+			timeDict = self._timeSampler.sampleByTime_divided(df, timeCol, timeList)
+		if itemList == 'default':
+			itemList = self._statis.getSetOfCols(df, self._itemCols)
+		nTime = len(timeList)	
 		
-		list_df = self._timeSampler.sampleByTime_divided(df, timeCol, timeList, timeUnit, freq)
+		dicts = self._statis.createDoubleFeatStatis(timeDict, self._itemCols, featCol, timeCol, timeList)
+			# make statisitc for feat of every uid by time
+							
 		nTime = len(timeList)
-			# divide data into part of date
-		
 		# pdb.set_trace()
-		uidDicts_listOfTime = []
-		for i in range(nTime):
-			dicts = self.createFeatStatis(list_df[i], uidCols, type_col)
-			uidDicts_listOfTime.append(dicts)
+		nFeat = len(self._statis.getSearchDictOfFeat(timeDict[timeList[0]], featCol))
+		uidFeats = []
+		for item in itemList:
+			uidFeat = []
+			uidFeat.append(item)
+			for i in range(nTime):
+				uidFeat.extend([dicts[timeList[i]][featType][item]
+					if item in dicts[timeList[i]][featType] else 0
+					for featType in range(nFeat)])
+			uidFeats.append(uidFeat)
+		
+		colsName = _set_cols_name(len(uidFeat), type = 'feat')
+		# pdb.set_trace()
+		return DataFrame(uidFeats, columns = colsName)	
+		
+			
+	def createLabel(self, df, labelCol, posLabelVal, itemList = 'default'):
+	
+		if itemList == 'default':
+			itemList = self._statis.getSetOfCols(df, self._itemCols)
+
+		dicts = self._statis.createFeatStatis(df, self._itemCols, labelCol)
+
+		uidLabels = []
+		searchDict = self._statis.getSearchDictOfFeat(df, labelCol)
+		posLabel = searchDict[posLabelVal]
+		nFeat = len(searchDict)
+
+		for item in itemList:
+			uidLabel = []
+			uidLabel.append(item)
+			uidLabel.append( 1 if item in dicts[posLabel] else 0 )
+			uidLabels.append(uidLabel)
+		# pdb.set_trace()	
+		colsName = _set_cols_name(len(uidLabel), type = 'label')
+
+		return DataFrame(uidLabels, columns = colsName)		
+
+		

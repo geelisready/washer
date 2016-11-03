@@ -28,10 +28,23 @@ class TimeFeatureEngine(BaseFeatureEngine):
 		
 		return df
 		
-	def createTimeFeat(self, df originTimeCol, timeFeat, itemDict = 'defaule', itemList = 'default'):
+	def createTimeFeat(self, df, originTimeCol, timeFeat, itemDict = 'default', itemList = 'default'):
 		df = addTimeCol(df, originTimeCol, timeFeat)
 		if itemList == 'default':
 			itemList = self._itemStatis.getSetOfCols(df, self._itemCols)
 		if itemDict == 'default':
 			itemDict = self._itemSampler.createItemDict(df, itemList)
+		
+	def createLastTimeFeat(self, df, timeCol, featCol, featVal, itemDict = 'default', itemList = 'default'):
+		if itemList == 'default':
+			itemList = self._itemStatis.getSetOfCols(df, self._itemCols)
+		if itemDict == 'default':
+			itemDict = self._itemSampler.createItemDict(df, itemList)
+			
+			
+	def createEarlyTimeFeat
+			
+	def createCommonTimeFeat
+			
+			
 			

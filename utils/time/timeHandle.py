@@ -16,11 +16,33 @@ def seriesToDtSeries(series):
 def listToDtSeries(list, format):
 	return pd.to_datetime(Series(list), format = format)
 	
-def listToDtRange(list, timeUnit, freq = '1h'):
+def getTimeUnit(time):
+	if isinstance(time, str) == True:
+		time = seriesToDtSeries(Series([time])).iloc[0]
+		
+	# pdb.set_trace()
+	if time.second == 0:
+		if time.minute == 0:
+			if time.hour == 0:
+				if time.day == 0:
+					if time.month == 0:
+						timeUnit = 'Y'
+					else: timeUnit = 'M'
+				else: timeUnit = 'D'
+			else: timeUnit = 'h'
+		else: timeUnit = 'm'
+	else: timeUnit = 's'
+
+	return timeUnit
+	
+	
+def listToDtRange(list, freq = '1h'):
 	dateList = []
+
+	timeUnit = getTimeUnit(list[0])
 	for date in list:
 		startAndEndTime = pd.date_range(start = date, periods = 2, freq = timeUnit)
-		timeInDate = pd.date_range(startAndEndTime[0], startAndEndTime[1], freq = '1h')
+		timeInDate = pd.date_range(startAndEndTime[0], startAndEndTime[1], freq = freq)
 		
 		for time in timeInDate:
 			# pdb.set_trace()
@@ -36,4 +58,8 @@ def shapeDtSeriesWithFormat(dtSeries, timeFormat):
 	
 	
 if __name__ == '__main__':
-	listToDtRange(['2014-11-21', '2014-11-22'], timeUnit = 'D', freq = '1h')
+	timeUnit = getTimeUnit('2014-11-21')
+	pdb.set_trace()
+	listToDtRange(['2014-11-21', '2014-11-22'], freq = '1h')
+	
+	

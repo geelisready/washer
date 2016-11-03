@@ -64,13 +64,24 @@ class FeatStatis(BaseItemStatis):
 		
 		return dict
 		
+	def createDoubleFeatStatis(self, feat2Dict, itemCols, feat1Col, feat2Col, feat2List):
+	
+		dicts = {}
+		nFeat2 = len(feat2Dict)
+		
+		for i in range(nFeat2):
+			dicts[feat2List[i]] = self.createFeatStatis(feat2Dict[feat2List[i]], itemCols, feat1Col)
+			
+		return dicts
+
+		
 	def createFeatStatis_byItemDict(itemDict, featCol, searchDict, itemList = 'default'):
 		return _statis_feat_by_itemDict(itemDict, featCol, searchDict, itemList)
 		
 		
 	def getSearchDictOfFeat(self, df, featCol):
-		if isinstance(self.searchDicts[featCol], dict) == False:
-			self.searchDicts[featCol] = _create_SearchDict_Of_Feat(df, featCol)
+		if featCol not in self.searchDicts:
+			self.searchDicts[featCol] = self._create_SearchDict_Of_Feat(df, featCol)
 		return self.searchDicts[featCol]
 		
 
@@ -104,3 +115,5 @@ class FeatStatis(BaseItemStatis):
 				dicts[feat][itemName] = 1
 		# pdb.set_trace()
 		return dicts
+		
+		
