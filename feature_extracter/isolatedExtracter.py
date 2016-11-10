@@ -24,7 +24,7 @@ def is_uidCols_legal(df, uidCols):
 	df_columns = df.columns
 	for column in uidCols:
 		if column not in df_columns:
-			raise(ValueError, 'the uidCols is illegal!')
+			raise ValueError('the uidCols is illegal!')
 			
 def setColsName(len_df, type = 'feat'):
 	colsName = []

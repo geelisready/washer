@@ -6,6 +6,7 @@
 """
 # Author: Geel
 import pdb
+import numpy
 
 from .base import BaseItemStatis
 from ..utils import coder
@@ -22,7 +23,8 @@ def _statis_feat_by_itemDict(itemDict, featCol, searchDict, itemList):
 		for itemName in itemDict:
 			df = itemDict[itemName]
 			featCntTable = df[featCol].count()
-			pdb.set_trace()
+			if isinstance(featCntTable, numpy.int):
+					featCntTable = {df[featCol].iloc[0] : featCntTable}
 			for feat in featCntTable:
 				featLoc = searchDict[feat]
 					# print('here: ' + str(feat) + '  ' + item)
@@ -32,7 +34,9 @@ def _statis_feat_by_itemDict(itemDict, featCol, searchDict, itemList):
 			if itemName in itemDict:
 				df = itemDict[itemName]
 				featCntTable = df[featCol].count()
-				pdb.set_trace()
+				if isinstance(featCntTable, numpy.int):
+					featCntTable = {df[featCol].iloc[0] : featCntTable}
+				# pdb.set_trace()
 				for feat in featCntTable:
 					featLoc = searchDict[feat]
 							# print('here: ' + str(feat) + '  ' + item)
@@ -43,8 +47,8 @@ def _statis_feat_by_itemDict(itemDict, featCol, searchDict, itemList):
 	
 class FeatStatis(BaseItemStatis):
 
-	def __init__(self, codeType):
-		BaseItemStatis.__init__(self, codeType)
+	def __init__(self):
+		BaseItemStatis.__init__(self, codeType = 'str')
 		self.searchDicts = {}
 
 	def createFeatStatis(self, df, itemCols, featCol):
@@ -75,7 +79,7 @@ class FeatStatis(BaseItemStatis):
 		return dicts
 
 		
-	def createFeatStatis_byItemDict(itemDict, featCol, searchDict, itemList = 'default'):
+	def createFeatStatis_byItemDict(self, itemDict, featCol, searchDict, itemList = 'default'):
 		return _statis_feat_by_itemDict(itemDict, featCol, searchDict, itemList)
 		
 		

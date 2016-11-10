@@ -13,6 +13,7 @@ from pandas import DataFrame
 # from .basic import BasicStatis
 from .base import BaseSampler
 from ..statistic.base import BaseItemStatis
+from ..utils import coder
 
 __all__ = ["ItemSampler"]
 
@@ -35,8 +36,9 @@ def _get_dict_of_item(df, col):
 
 class ItemSampler(BaseSampler):
 
-	def __init__(self):
-		self._statis = BaseItemStatis(codeType = 'str')
+	def __init__(self, codeType):
+		self._statis = BaseItemStatis(codeType = codeType)
+		self._codeType = codeType 
 		
 	def createItemDict(self, df, itemCols):
 		"""create a dict statistic for a columns of special item
@@ -45,7 +47,7 @@ class ItemSampler(BaseSampler):
 		itemCols : list
 			target column name
 		"""
-		codeType = self.codeType
+		codeType = self._codeType
 		
 		if isinstance(itemCols, str):
 			dict = _get_dict_of_item(df, itemCols)

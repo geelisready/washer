@@ -42,14 +42,13 @@ def listToDtRange(list, freq = '1h'):
 	timeUnit = getTimeUnit(list[0])
 	for date in list:
 		startAndEndTime = pd.date_range(start = date, periods = 2, freq = timeUnit)
-		timeInDate = pd.date_range(startAndEndTime[0], startAndEndTime[1], freq = freq)
 		
-		for time in timeInDate:
-			# pdb.set_trace()
-			dateList.append(time)
-	return Series(dateList).unique()
-	# dtRange = pd.concat([time for time in dateList])
+		timeInDate = pd.date_range(startAndEndTime[0], startAndEndTime[1], freq = freq)
+
+		dateList.extend(timeInDate[:-1])
 	# pdb.set_trace()
+	return Series(dateList)
+
 		
 def shapeDtSeriesWithFormat(dtSeries, timeFormat):
 	return dtSeries.dt.strftime(timeFormat)

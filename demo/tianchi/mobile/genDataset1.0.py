@@ -17,9 +17,9 @@ from washer.feature_extracter.uid import UidFeatureExtracter
 
 from washer.utils import store
 
-PATH = 'F:/codeGit/dataset/tianchi/'
-FILE = 'train.csv'
-FILE_TEST = 'train_sample_10000.csv'
+PATH = 'F:/codeGit/dataset/tianchi_mobile/'
+FILE = 'tianchi_fresh_comp_train_user.csv'
+FILE_TEST = 'train_sample_100000.csv'
 	
 
 def washData(df):
@@ -40,45 +40,67 @@ def featExtract(df, featTimeList, labelTimeList):
 	drb = DataRebuilder()
 		#　如果能够输入df，即可获取所有时间参数就好了
 	print("	rebuilding data...")
-	df_3days = drb.extractDataByTime(df, timeCol = 'time', 
+	df_days = drb.extractDataByTime(df, timeCol = 'time', 
 								timeList = featTimeList, 
 								divide = 0)
 	df_buyDay = drb.extractDataByTime(df, timeCol = 'time', 
 								timeList = labelTimeList)
 	
-	# userList = drb.getUniqueList(df_buyDay, column = 'user_id')
-	# itemList = drb.getUniqueList(df_buyDay, column = 'item_id')
 	
 	
 	# extract features
 	
 	ufe = UidFeatureExtracter(df, uidCols = ['user_id', 'item_id'])
-	# uidList = ufe.extractUidList(df_3days)
-	
+	itemDict_buyDay = ufe.createItemDict(df_buyDay, itemCols = ['user_id', 'item_id'])
+	itemDict_days = ufe.createItemDict(df_days, itemCols = ['user_id', 'item_id'])
+		# use itemDict to speed up the process
 	print("	extracting label...")
 	# pdb.set_trace()
-	labels = ufe.extractBinaryLabel(df_buyDay, labelCol = 'behavior_type', posLabelVal = 4)
+	labels = ufe.extractBinaryLabel(df_buyDay, labelCol = 'behavior_type',
+									itemDict = itemDict_buyDay, 
+									posLabelVal = 4)
+	# pdb.set_trace()								
 	print("		number of pos labels: ", sum(labels.label))
 	
 	print("	extracting uid feature...")
-	uidList = ufe.extractUidList(labels, uidCols = 'item')									
-	featureSet = ufe.extractFeatByTime(df_3days,
+	uidList = ufe.extractUidList(labels, uidCols = 'item')
+	# pdb.set_trace()	
+	bahavirfeatSet = ufe.extractFeatByTime(df_days,
 											featCol = 'behavior_type', 
 											timeCol = 'time', 
+											# itemDict = itemDict,
 											timeList = featTimeList,
 											uidList = uidList)
-	return featureSet, labels
+	# timeFeatureSet = ufe.extractTimeFeat(df_days, timeCol = 'time',
+										# featCol = 'behavior_type',
+										# itemDict = itemDict_days,
+										# uidList = uidList，
+										# featValList = [1, 2, 3])
+	timeFeatureSet = ufe.extractTimeIntervalFeat(df_days, 
+											featCol = 'behavior_type', 
+											timeCol = 'time',
+											settleTime = labelTimeList[0],											
+											itemList = uidList, 
+											itemDict = itemDict_days, 
+											invailFeatValList = [1, 2, 3], 
+											)
+	# pdb.set_trace()
+	featureSet = pd.merge(bahavirfeatSet, timeFeatureSet, on = 'item')
+	# pdb.set_trace()
+	featureSet = ufe.resetFeatSetColsName(featureSet)
+	featureSet = pd.merge(featureSet, labels, on = 'item')
+	# pdb.set_trace()
+	return featureSet
 	
 	
-def makeDataSet(featureSet, labels, labelTimeList, length):
+def makeDataSet(featureSet, labelTimeList, length):
 	
 	print("making dataset for model input...")
-	sampleSet = pd.merge(featureSet, labels, on = 'item')
-	
 	ssr = SampleSetRebuilder()
-	sampleSet = ssr.removeNoise(sampleSet)
+	# pdb.set_trace()
+	sampleSet = ssr.removeNoise(featureSet)
 	sampleSet = ssr.sampleBalance(sampleSet, 'label')
-	store.saveToCsv(sampleSet, labelTimeList[0] + '_' + str(length) + 'days.csv')
+	store.saveToCsv(sampleSet, labelTimeList[0] + '_' + str(length) + 'days_ver1.0.csv')
 	return sampleSet
 	
 
@@ -86,16 +108,16 @@ def makeDataSet(featureSet, labels, labelTimeList, length):
 def main():
 	warnings.filterwarnings("ignore")
 	print("reading data...")
-	df_train = pd.read_csv(PATH + FILE_TEST)
+	df_train = pd.read_csv(PATH + FILE)
 	df_train = washData(df_train)
 	
-	featTimeList = ['2014-11-18', '2014-11-19', '2014-11-20', '2014-11-21', '2014-11-22']
-	labelTimeList = ['2014-11-23']
+	featTimeList = ['2014-11-18', '2014-11-19', '2014-11-20']
+	labelTimeList = ['2014-11-21']
 	
 	# pdb.set_trace()
 	while(labelTimeList[0] != '2014-12-19'):
-		featureSet, labels = featExtract(df_train, featTimeList, labelTimeList)
-		makeDataSet(featureSet, labels, labelTimeList, len(featTimeList)) 
+		featureSet = featExtract(df_train, featTimeList, labelTimeList)
+		makeDataSet(featureSet, labelTimeList, len(featTimeList)) 
 	
 		featTimeList = [elem.strftime("%Y-%m-%d") for elem in pd.date_range(start = featTimeList[1], periods = len(featTimeList), freq = '1d')] 
 		labelTimeList = [pd.date_range(start = labelTimeList[0], periods = 2, freq = '1d')[1].strftime("%Y-%m-%d")]

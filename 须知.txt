@@ -1,5 +1,5 @@
 框架的内核包括：
-	repairer、rebuilder、feature_extracter、model_trainer
+	repairer、rebuilder、feature、model_trainer
 	其分别的功能为：数据修复，数据重建、特征提取、模型训练
 
 基础功能：
@@ -7,7 +7,7 @@
 	其功能为：数据的预览与探索、统计、抽样、及与内核无关的常用工具函数包
 
 其他文件夹：
-	dataset、demo
-	测试用数据集、测试运行程序
+	dataset、demo、feature_extracor
+	测试用数据集、测试运行程序、测试用特征抽取打包类
 
 本人较懒，还没画UML图╮(╯_╰)╭

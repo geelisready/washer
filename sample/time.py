@@ -44,9 +44,10 @@ class TimeSampler(BaseSampler):
 		return df
 
 	def sampleByTime(self, df, timeCol, timeList):
-		# pdb.set_trace()
+		
 		df = self.formatTime(df, timeCol)
 		dtRange = _timeList_to_dtRange(timeList, _reconize_time_freq(df, timeCol))
+		# pdb.set_trace()
 		return df[df[timeCol].isin(dtRange)]
 			
 	def sampleByTime_divided(self, df, timeCol, timeList):

@@ -14,7 +14,9 @@ import time
 
 from .base import BaseExtracter
 from ..feature.statis import StatisFeatureEngine
+from ..feature.time import TimeFeatureEngine
 from ..sample.time import TimeSampler
+from ..sample.data import ItemSampler
 from ..statistic.item import ItemStatis
 
 ## ---------------------------
@@ -46,8 +48,9 @@ class UidFeatureExtracter(BaseExtracter):
 		
 		self._uidCols = uidCols
 		self._statisFeatEngine = StatisFeatureEngine(self._uidCols)
-		self._timeFeatEngine = TimeFeatEngine()
-		self._statis = ItemStatis(self._uidCols)
+		self._timeFeatEngine = TimeFeatureEngine(self._uidCols)
+		self._statis = ItemStatis(self._uidCols, codeType = 'str')
+		self._sampler = ItemSampler(codeType  = 'str')
 		
 	def setUidCols(self, uidCols):
 		self._uidCols = uidCols
@@ -65,17 +68,40 @@ class UidFeatureExtracter(BaseExtracter):
 		uidList = self._statis.getSetOfCols(df, uidCols)
 
 		return uidList
-
+		
+	def createItemDict(self, df, itemCols):
+		return self._sampler.createItemDict(df, itemCols)
+		
 		
 	def extractFeatByTime(self, df, featCol, timeCol, timeList, timeDict = 'default', uidList = 'default'):
-	
-		return self._statisFeatEngine.createFeat_byTime(df, featCol = 	featCol, timeCol = timeCol, timeList = timeList, timeDict = timeDict, itemList = uidList)
+		return self._statisFeatEngine.createFeat_byTime(df, featCol = featCol, timeCol = timeCol, timeList = timeList, timeDict = timeDict, itemList = uidList)
+	 
 		
-
-
-
-	def extractBinaryLabel(self, df, labelCol, posLabelVal, itemList = 'default'):
-		return self._statisFeatEngine.createLabel(df, labelCol, posLabelVal, itemList)
+	def extractTimeFeat(self, df, timeCol, featCol, itemDict = 'default', uidList = 'default', featValList = 'default'):
 		
+		df_earlyTime =  self._timeFeatEngine.createTimeFeat(df, timeCol, featCol, itemDict, itemList = uidList, timeType = 'early', featValList = featValList)
+		df_lastTime = self._timeFeatEngine.createTimeFeat(df, timeCol, featCol, itemDict, itemList = uidList, timeType = 'last', featValList = featValList)
+		
+		len1 = len(df_earlyTime.columns)
+		len2 = len(df_lastTime.columns)
+		
+		colNames = [df_lastTime.columns[0]]
+		colNames.extend([str(col) for col in range(len1 + len2 - 2)[len1-1:]])
+		
+		df_lastTime.columns = colNames
+		# pdb.set_trace()
+		return pd.merge(df_earlyTime, df_lastTime, on = 'item')
 	
+	def extractTimeIntervalFeat(self, df, featCol, timeCol, settleTime, itemList, itemDict, invailFeatValList):
+		return self._timeFeatEngine.createTimeIntervalFeat(df, featCol, timeCol, settleTime, invailFeatValList, itemList, itemDict)
+		
+	def extractBinaryLabel(self, df, labelCol, posLabelVal, itemDict = 'default',itemList = 'default'):
+		return self._statisFeatEngine.createLabel(df, labelCol, posLabelVal, itemDict, itemList)
+		
+	def resetFeatSetColsName(self, df):
+		cols_df = len(df.columns)
+		colsName = self._statisFeatEngine.resetColsName(cols_df, type = 'feat')
+		df.columns = colsName
+		return df
+		
 		

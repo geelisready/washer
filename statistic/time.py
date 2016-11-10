@@ -5,8 +5,9 @@
 	time statistic class for DataFrame
 """
 # Author: Geel
-# import pdb
+import pdb
 import pandas as pd
+import numpy as np
 
 from .base import BaseItemStatis
 from ..utils.time import timeHandle as th
@@ -64,10 +65,32 @@ class TimeStatis(BaseItemStatis):
 			df[type] = df[originTimeCol].dt.second
 			
 		return df
+			
+		
+	def getEarlyTime(self, df, timeCol):
+		return df.sort_index(by = timeCol, ascending = True)[timeCol].iloc[0]
+		
+	
+	def getLastTime(self, df, timeCol):
+		return df.sort_index(by = timeCol, ascending = False)[timeCol].iloc[0]
 
 		
-	def getTimeInterval(self, beginCol, endCol, unit = 'hour'):
-		pass
+		
+	def getTimeInterval(self, df, timeCol, settleTime, unit = 'h'):
+		# pdb.set_trace()	
+		df_period = pd.to_datetime(settleTime) - df[timeCol]
+		df_seconds = df_period.dt.seconds
+		df_days = df_period.dt.days
+		if unit == 's':
+			df_new = df_seconds + df_days * 3600 * 24
+		elif unit == 'm':
+			df_new = df_seconds / 60 + df_days * 60 * 24
+		elif unit == 'h':
+			df_new = df_seconds / 3600 + df_days * 24
+		elif unit == 'D':
+			df_new = df_days
+
+		return df_new
 		
 	
 		

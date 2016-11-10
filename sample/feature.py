@@ -30,16 +30,20 @@ class FeatSampler(BaseSampler):
 			# 为标签的统计量排序	
 		nLabel = len(labels)
 		# pdb.set_trace()
-		
+		# if sum(df['label']) > 0:
+			# pdb.set_trace()
 			# 选取标签数量最少作为平衡化的数量标准
-		if labels[-1] > 0:
-			ratio_sup = (labels[-1] / labels[-2])
+
+		if nLabel > 1:
+			cntOfLeastLabel = label_counts[labels[-1]]
+			cntOfSecLeastLabel = label_counts[labels[-2]]
+			
+			ratio_sup = (cntOfSecLeastLabel / cntOfLeastLabel)
 			if ratio < ratio_sup:
-				nSampPerLabel = [int(label_counts[labels[-1]] * ratio) for i in range(nLabel - 1)]
-				nSampPerLabel.append(label_counts[labels[-1]])
+				nSampPerLabel = [int(cntOfLeastLabel * ratio) for i in range(nLabel - 1)]
 			else:
-				nSampPerLabel = [(label_counts[labels[-1]]* ratio_sup) for i in range(nLabel - 1)]
-				nSampPerLabel.append(label_counts[labels[-1]])
+				nSampPerLabel = [(cntOfLeastLabel* ratio_sup) for i in range(nLabel - 1)]			
+			nSampPerLabel.append(cntOfLeastLabel)
 		
 			balancedSamples = pd.DataFrame()
 			for n in range(nLabel):

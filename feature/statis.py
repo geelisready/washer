@@ -6,8 +6,8 @@
 """
 # Author: Geel
 import pdb
-
 from pandas import DataFrame
+
 from .base import BaseFeatureEngine
 from ..statistic.feat import FeatStatis
 from ..sample.data import ItemSampler
@@ -15,21 +15,12 @@ from ..sample.time import TimeSampler
 
 __all__ = ["StatisFeatureEngine"]
 
-def _set_cols_name(len_df, type = 'feat'):
-	colsName = []
-	colsName.append('item')
-	if type == 'label' and len_df == 2:
-		colsName.append('label')
-	else:
-		colsName.extend(range(len_df - 1))
-	return colsName
-
 
 class StatisFeatureEngine(BaseFeatureEngine):
 
 	def __init__(self, itemCols):
-		self._statis = FeatStatis(codeType = 'str')
-		self._itemSampler = ItemSampler()
+		self._statis = FeatStatis()
+		self._itemSampler = ItemSampler(codeType = 'str')
 		self._timeSampler = TimeSampler()
 		
 		self._itemCols = itemCols
@@ -55,7 +46,7 @@ class StatisFeatureEngine(BaseFeatureEngine):
 					if item in dicts[featType] else 0
 					for featType in range(nFeat)])
 			uidFeats.append(uidFeat)
-		colsName = _set_cols_name(len(uidFeat), type = 'feat')	
+		colsName = self.resetColsName(len(uidFeat), type = 'feat')	
 		
 		return DataFrame(uidFeats, columns = colsName)
 	
@@ -73,11 +64,11 @@ class StatisFeatureEngine(BaseFeatureEngine):
 		columns : list
 			user_id and item_id column name
 		"""
-							
+		if itemList == 'default':
+			itemList = self._statis.getSetOfCols(df, self._itemCols)							
 		if timeDict == 'default':
 			timeDict = self._timeSampler.sampleByTime_divided(df, timeCol, timeList)
-		if itemList == 'default':
-			itemList = self._statis.getSetOfCols(df, self._itemCols)
+
 		nTime = len(timeList)	
 		
 		dicts = self._statis.createDoubleFeatStatis(timeDict, self._itemCols, featCol, timeCol, timeList)
@@ -94,22 +85,28 @@ class StatisFeatureEngine(BaseFeatureEngine):
 				uidFeat.extend([dicts[timeList[i]][featType][item]
 					if item in dicts[timeList[i]][featType] else 0
 					for featType in range(nFeat)])
-			uidFeats.append(uidFeat)
+				# pdb.set_trace()
+			if sum(uidFeat[1:]) != 0:
+				uidFeats.append(uidFeat)
 		
-		colsName = _set_cols_name(len(uidFeat), type = 'feat')
+		colsName = self.resetColsName(len(uidFeat), type = 'feat')
 		# pdb.set_trace()
 		return DataFrame(uidFeats, columns = colsName)	
 		
 			
-	def createLabel(self, df, labelCol, posLabelVal, itemList = 'default'):
+	def createLabel(self, df, labelCol, posLabelVal, itemDict = 'default', itemList = 'default'):
 	
+		if itemDict == 'default':
+			itemDict = self._itemSampler.createItemDict(df, self._itemCols)
 		if itemList == 'default':
 			itemList = self._statis.getSetOfCols(df, self._itemCols)
 
-		dicts = self._statis.createFeatStatis(df, self._itemCols, labelCol)
+		# dicts = self._statis.createFeatStatis(df, self._itemCols, labelCol)
+		searchDict = self._statis.getSearchDictOfFeat(df, labelCol)
+		dicts = self._statis.createFeatStatis_byItemDict(itemDict, labelCol, searchDict, itemList)
 
 		uidLabels = []
-		searchDict = self._statis.getSearchDictOfFeat(df, labelCol)
+		
 		posLabel = searchDict[posLabelVal]
 		nFeat = len(searchDict)
 
@@ -119,7 +116,7 @@ class StatisFeatureEngine(BaseFeatureEngine):
 			uidLabel.append( 1 if item in dicts[posLabel] else 0 )
 			uidLabels.append(uidLabel)
 		# pdb.set_trace()	
-		colsName = _set_cols_name(len(uidLabel), type = 'label')
+		colsName = self.resetColsName(len(uidLabel), type = 'label')
 
 		return DataFrame(uidLabels, columns = colsName)		
 
