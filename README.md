@@ -8,7 +8,7 @@
 * rebuild：基于DataFrame的常用复杂表操作
 * statistic：统计的一些算法
 * sql：python访问sql操作
-### 其他模块：utils、test、log、dataset、demo
+### 其他模块：utils、test、log、dataset
 * utils：常用工具
 * test：单元测试
 * log：日志
