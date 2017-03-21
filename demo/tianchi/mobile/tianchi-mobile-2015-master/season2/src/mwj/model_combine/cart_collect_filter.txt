@@ -1,4 +1,0 @@
-drop table if exists 17day_combine_car_col;
-create table 17day_combine_car_col as 
-select * from 17day_combine
-where last_cart_hour>-1 or last_collect_hour>-1;

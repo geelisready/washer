@@ -1,4 +1,0 @@
---------user_interact_buy_days_rate_bf_19--------用户交互日与用户购买日比率----------------
---(u_recent_nd_buy_days+1)/(u_recent_nd_interact_days+1)
---u_recent_2d_interact_buy_prob,u_recent_3d_interact_buy_prob,u_recent_4d_interact_buy_prob,u_recent_5d_interact_buy_prob,
---u_recent_7d_interact_buy_prob,u_recent_15d_interact_buy_prob,u_recent_26d_interact_buy_prob
