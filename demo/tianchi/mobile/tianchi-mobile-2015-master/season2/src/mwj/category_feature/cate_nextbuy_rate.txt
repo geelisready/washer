@@ -1,0 +1,266 @@
+  ----更细的话，加入behavior_type--------uci在第n天交互，第n+1天购买------------
+drop table if exists uic_next1day_buy;
+create table uic_next1day_buy as 
+select t1.user_id,t1.item_id,t1.item_category,t1.behavior_type,
+       t1.date_time as t1date_time,t2.date_time as t2date_time from 
+    (select distinct user_id,item_id,item_category,substr(time,1,10) as date_time,behavior_type from 
+     mobile_recommend_train_user_filter_item ) t1 
+join 
+     (select distinct user_id,item_id,item_category,substr(time,1,10) as date_time from 
+     mobile_recommend_train_user_filter_item where behavior_type=4) t2 
+ on t1.user_id=t2.user_id 
+ and t1.item_id=t2.item_id and 
+ t2.date_time=substr(cast(dateadd(cast(concat(t1.date_time,' 00:00:00') as datetime),1,'dd') as string), 1, 10);
+ -----------------------u c uc i最近3 4 9 14 21 26，如果uc稀疏就4 9 26-------------------
+drop table if exists uic_next1day_buy_remove4;
+create table uic_next1day_buy_remove4 as    
+select allui.*
+from
+    (select user_id,item_id from uic_next1day_buy
+    group by user_id,item_id
+    having max(behavior_type)!=4) nobuy
+    ----当天没有购买ui-----
+    join
+    (select  user_id,item_id,item_category,behavior_type,t1date_time,t2date_time
+     from uic_next1day_buy
+     ) allui
+    on nobuy.user_id=allui.user_id
+    and nobuy.item_id=allui.item_id;
+    
+-----------------------------前一天crt的隔天购买-------------------------------------    
+drop table if exists uic_next1day_buy_remove4_crt_dist_uic;
+create table uic_next1day_buy_remove4_crt_dist_uic as    
+select distinct user_id,item_id,item_category,t1date_time from uic_next1day_buy_remove4
+where behavior_type=3;
+
+-----------------------distin uic---------一天交互一件商品算一次（一个商品交互多天记多次）----------
+drop table if exists uic_next1day_buy_remove4_dist_uic;
+create table uic_next1day_buy_remove4_dist_uic as    
+select distinct allui.user_id,allui.item_category,allui.item_id,allui.t1date_time
+from
+    (select user_id,item_id from uic_next1day_buy
+    group by user_id,item_id
+    having max(behavior_type)!=4) nobuy
+    ----当天没有购买ui-----
+    join
+    (select  user_id,item_id,item_category,behavior_type,t1date_time,t2date_time
+     from uic_next1day_buy
+     ) allui
+    on nobuy.user_id=allui.user_id
+    and nobuy.item_id=allui.item_id;
+ 
+ 
+--------------------uc-----raw--------------------
+
+---------------去当天购买的隔天购买商品，用户前一天与商品所在类下所有交互-----------------------
+drop table if exists uc_next1day_buy_uc_raw1;
+create table uc_next1day_buy_uc_raw1 as 
+ select t1.*
+ from
+ (select * from  mobile_recommend_train_user_filter_item) t1
+ join
+ (select * from uic_next1day_buy_remove4_dist_uic) t2
+ on t1.user_id=t2.user_id
+ and t1.item_category=t2.item_category
+ and substr(t1.time,1,10)=t2.t1date_time;
+ ------------------------------------------------------------------------------------------------
+
+--------------前一天类下所有交互商品个数------------------------------------------------------------
+drop table if exists uc_next1day_buy_uc_raw2;
+create table uc_next1day_buy_uc_raw2 as
+select user_id,item_category,substr(time,1,10) as datetime1,count(distinct item_id) as cnt
+from uc_next1day_buy_uc_raw1
+group by user_id,item_category,substr(time,1,10);
+--------------------------------------------------------------------------------------------------
+
+-------------前一天类下所有商品交互总次数--------------------------------------------------------------
+drop table if exists uc_next1day_buy_uc_raw3;
+create table uc_next1day_buy_uc_raw3 as
+select user_id,item_category,substr(t1date_time,1,10) as datetime1,count(item_id) as cnt
+from uc_next1day_buy_uc_raw1
+group by user_id,item_category,substr(t1date_time,1,10);
+--------------------------------------------------------------------------------------------------
+    
+    ------------------------------------------------------------------------------------
+    ------------------------------------buy/inter---------------------------------------
+    -----------------------------------------------------------------------------------
+    
+-----------------------不包括当天购买的uc隔天购买发生次数/uc前一天交互次数------------------------------- 
+drop table if exists uic_next1day_buy_17day_uc_rate1;
+create table uic_next1day_buy_17day_uc_rate1 as 
+select user_id,item_category,
+       case when uc_next1day_pro4_num_mwj=0 then -1 else   uc_next1day_pro4_buynum_mwj/uc_next1day_pro4_num_mwj end as uc_next1day_pro4_inter_to_buy,
+       case when uc_next1day_pro9_num_mwj=0 then -1 else   uc_next1day_pro9_buynum_mwj/uc_next1day_pro9_num_mwj end as uc_next1day_pro9_inter_to_buy,
+       case when uc_next1day_pro26_num_mwj=0 then -1 else  uc_next1day_pro26_buynum_mwj/uc_next1day_pro26_num_mwj end as uc_next1day_pro26_inter_to_buy
+from
+(
+select all_uc.user_id,all_uc.item_category,
+      coalesce(t1.uc_next1day_pro4_num_mwj, 0)  uc_next1day_pro4_num_mwj,
+      coalesce(t1.uc_next1day_pro9_num_mwj, 0)  uc_next1day_pro9_num_mwj,
+      coalesce(t1.uc_next1day_pro26_num_mwj, 0)  uc_next1day_pro26_num_mwj,
+      coalesce(t2.uc_next1day_pro4_buynum_mwj, 0)  uc_next1day_pro4_buynum_mwj,
+      coalesce(t2.uc_next1day_pro9_buynum_mwj, 0)  uc_next1day_pro9_buynum_mwj,
+      coalesce(t2.uc_next1day_pro26_buynum_mwj, 0)  uc_next1day_pro26_buynum_mwj
+from
+(   select user_id,item_category
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) = substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    group by user_id,item_category---17日前一天活跃商品
+) all_uc
+left outer join
+    (
+    select user_id,item_category,
+    sum(case when datetime1 >= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-4,'dd') as string), 1, 10) then cnt 
+                else 0 end) as uc_next1day_pro4_num_mwj, 
+    sum(case when datetime1 >= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-9,'dd') as string), 1, 10) then cnt 
+                else 0 end) as uc_next1day_pro9_num_mwj,
+    sum(case when datetime1 >= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-26,'dd') as string), 1, 10) then cnt 
+                else 0 end) as uc_next1day_pro26_num_mwj 
+    from uc_next1day_buy_uc_raw3
+    where datetime1<substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    group by user_id,item_category
+    )  t1
+on all_uc.user_id=t1.user_id
+and all_uc.item_category=t1.item_category
+left outer join
+uic_next1day_buy_17day_uc_num t2
+on t1.user_id=t2.user_id
+and t1.item_category=t2.item_category
+) t;
+-----------------------不包括当天购买的uc隔天购买发生个数/uc前一天交互个数------------------------------- 
+drop table if exists uic_next1day_buy_17day_uc_rate2;
+create table uic_next1day_buy_17day_uc_rate2 as 
+select user_id,item_category,
+       case when uc_next1day_pro4_num_mwj=0 then -1 else   uc_next1day_pro4_buynum_mwj/uc_next1day_pro4_num_mwj end as uc_next1day_pro4_inter_to_buy_dist_uic,
+       case when uc_next1day_pro9_num_mwj=0 then -1 else   uc_next1day_pro9_buynum_mwj/uc_next1day_pro9_num_mwj end as uc_next1day_pro9_inter_to_buy_dist_uic,
+       case when uc_next1day_pro26_num_mwj=0 then -1 else  uc_next1day_pro26_buynum_mwj/uc_next1day_pro26_num_mwj end as uc_next1day_pro26_inter_to_buy_dist_uic
+from
+(
+select all_uc.user_id,all_uc.item_category,
+      coalesce(t1.uc_next1day_pro4_num_mwj, 0)  uc_next1day_pro4_num_mwj,
+      coalesce(t1.uc_next1day_pro9_num_mwj, 0)  uc_next1day_pro9_num_mwj,
+      coalesce(t1.uc_next1day_pro26_num_mwj, 0)  uc_next1day_pro26_num_mwj,
+      coalesce(t2.uc_next1day_pro4_buynum_dist_uic_mwj, 0)  uc_next1day_pro4_buynum_mwj,
+      coalesce(t2.uc_next1day_pro9_buynum_dist_uic_mwj, 0)  uc_next1day_pro9_buynum_mwj,
+      coalesce(t2.uc_next1day_pro26_buynum_dist_uic_mwj, 0)  uc_next1day_pro26_buynum_mwj
+from
+(   select user_id,item_category
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) = substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    group by user_id,item_category---17日前一天活跃商品
+) all_uc
+left outer join
+    (
+    select user_id,item_category,
+    sum(case when datetime1 >= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-4,'dd') as string), 1, 10) then cnt 
+                else 0 end) as uc_next1day_pro4_num_mwj, 
+    sum(case when datetime1 >= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-9,'dd') as string), 1, 10) then cnt 
+                else 0 end) as uc_next1day_pro9_num_mwj,
+    sum(case when datetime1 >= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-26,'dd') as string), 1, 10) then cnt 
+                else 0 end) as uc_next1day_pro26_num_mwj 
+    from uc_next1day_buy_uc_raw2
+    where datetime1<substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    group by user_id,item_category
+    )  t1
+on all_uc.user_id=t1.user_id
+and all_uc.item_category=t1.item_category
+left outer join
+uic_next1day_buy_17day_uc_num_dist_uic t2
+on t1.user_id=t2.user_id
+and t1.item_category=t2.item_category
+) t;
+
+     ------------------------------------------------------------------------------------
+    ------------------------------------buy/crt------------前一天只crt没购买---------------------------
+    -----------------------------------------------------------------------------------
+ drop table if exists uic_next1day_buy_17day_crt_rate;
+create table uic_next1day_buy_17day_crt_rate as 
+select user_id,item_category,
+       case when uc_next1day_pro4_num_mwj=0 then -1 else   uc_next1day_pro4_buynum_mwj/uc_next1day_pro4_num_mwj end as uc_next1day_pro4_crt_to_buy_dist_uic,
+       case when uc_next1day_pro9_num_mwj=0 then -1 else   uc_next1day_pro9_buynum_mwj/uc_next1day_pro9_num_mwj end as uc_next1day_pro9_crt_to_buy_dist_uic,
+       case when uc_next1day_pro26_num_mwj=0 then -1 else  uc_next1day_pro26_buynum_mwj/uc_next1day_pro26_num_mwj end as uc_next1day_pro26_crt_to_buy_dist_uic
+from
+(
+select all_uc.user_id,all_uc.item_category,
+      coalesce(t1.uc_next1day_pro4_num_mwj, 0)  uc_next1day_pro4_num_mwj,
+      coalesce(t1.uc_next1day_pro9_num_mwj, 0)  uc_next1day_pro9_num_mwj,
+      coalesce(t1.uc_next1day_pro26_num_mwj, 0)  uc_next1day_pro26_num_mwj,
+      coalesce(t2.uc_next1day_pro4_buynum_dist_uic_mwj, 0)  uc_next1day_pro4_buynum_mwj,
+      coalesce(t2.uc_next1day_pro9_buynum_dist_uic_mwj, 0)  uc_next1day_pro9_buynum_mwj,
+      coalesce(t2.uc_next1day_pro26_buynum_dist_uic_mwj, 0)  uc_next1day_pro26_buynum_mwj
+from
+(   select user_id,item_category
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) = substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    group by user_id,item_category---17日前一天活跃商品
+) all_uc
+left outer join
+    (
+    select user_id,item_category,
+    sum(case when t1date_time >= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-4,'dd') as string), 1, 10) then 1 
+                else 0 end) as uc_next1day_pro4_num_mwj, 
+    sum(case when t1date_time >= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-9,'dd') as string), 1, 10) then 1 
+                else 0 end) as uc_next1day_pro9_num_mwj,
+    sum(case when t1date_time  >= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-26,'dd') as string), 1, 10) then 1 
+                else 0 end) as uc_next1day_pro26_num_mwj 
+    from uic_next1day_buy_remove4_crt_dist_uic
+    where t1date_time<substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    group by user_id,item_category
+    )  t1
+on all_uc.user_id=t1.user_id
+and all_uc.item_category=t1.item_category
+left outer join
+uic_next1day_buy_17day_uc_num_dist_uic t2
+on t1.user_id=t2.user_id
+and t1.item_category=t2.item_category
+) t;
+ ----------------------------------------------------------------------------------
+ -----------------------------------周期内购买量/隔天购买量------------------------------------
+ ----------------------------------------------------------------------------------
+ drop table if exists uic_next1day_buy_17day_crt_rate;
+create table uic_next1day_buy_17day_crt_rate as 
+select user_id,item_category,
+       case when uc_pro4_buy_num_mwj=0 then -1 else  uc_next1day_pro4_buynum_mwj/uc_pro4_buy_num_mwj end as uc_next1day_pro4_crt_to_buy,
+       case when uc_pro9_buy_num_mwj=0 then -1 else  uc_next1day_pro9_buynum_mwj/uc_pro9_buy_num_mwj end as uc_next1day_pro9_crt_to_buy,
+       case when uc_pro26_buy_num_mwj=0 then -1 else  uc_next1day_pro26_buynum_mwj/uc_pro26_buy_num_mwj end as uc_next1day_pro26_crt_to_buy
+from
+(
+select all_uc.user_id,all_uc.item_category,
+      coalesce(t1.uc_pro4_buy_num_mwj, 0)  uc_pro4_buy_num_mwj,
+      coalesce(t1.uc_pro9_buy_num_mwj, 0)  uc_pro9_buy_num_mwj,
+      coalesce(t1.uc_pro26_buy_num_mwj, 0)  uc_pro26_buy_num_mwj,
+      coalesce(t2.uc_next1day_pro4_buynum_dist_uic_mwj, 0)  uc_next1day_pro4_buynum_mwj,
+      coalesce(t2.uc_next1day_pro9_buynum_dist_uic_mwj, 0)  uc_next1day_pro9_buynum_mwj,
+      coalesce(t2.uc_next1day_pro26_buynum_dist_uic_mwj, 0)  uc_next1day_pro26_buynum_mwj
+from
+(   select user_id,item_category
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) = substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    group by user_id,item_category---17日前一天活跃商品
+) all_uc
+left outer join
+(    
+    select user_id,item_category,
+    sum(case when datetime1 >= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-4,'dd') as string), 1, 10) then 1 
+                else 0 end) as uc_pro4_buy_num_mwj, 
+    sum(case when datetime1 >= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-9,'dd') as string), 1, 10) then 1 
+                else 0 end) as uc_pro9_buy_num_mwj,
+    sum(case when datetime1  >= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-26,'dd') as string), 1, 10) then 1 
+                else 0 end) as uc_pro26_buy_num_mwj
+from (
+select distinct user_id,item_category,item_id,substr(time,1,10) as datetime1
+from mobile_recommend_train_user_filter_item
+where bahavior_type=4
+and substr(time,1,10)<substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    ) a
+ ) t1
+on all_uc.user_id=t1.user_id
+and all_uc.item_category=t1.item_category
+ left outer join
+uic_next1day_buy_17day_uc_num_dist_uic t2
+on t1.user_id=t2.user_id
+and t1.item_category=t2.item_category 
+ ) t
+ 
+ 
+ 

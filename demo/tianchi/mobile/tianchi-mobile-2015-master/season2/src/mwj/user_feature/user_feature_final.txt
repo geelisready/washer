@@ -1,0 +1,808 @@
+drop table if exists uf_05day_final;
+create table uf_05day_final as
+select user_id,
+       case 
+       when pro1_item_beh4 is null then 0
+       else pro1_item_beh4
+       end as pro1_item_beh4,
+       case 
+       when pro1_item_beh3 is null then 0
+       else pro1_item_beh3
+       end as pro1_item_beh3,
+       case 
+       when pro1_item_beh2 is null then 0
+       else pro1_item_beh2
+       end as pro1_item_beh2,
+       case 
+       when pro1_item_beh1 is null then 0
+       else pro1_item_beh1
+       end as pro1_item_beh1,
+       case 
+       when pro2_item_beh4 is null then 0
+       else pro2_item_beh4
+       end as pro2_item_beh4,
+       case 
+       when pro2_item_beh3 is null then 0
+       else pro2_item_beh3
+       end as pro2_item_beh3,
+       case 
+       when pro2_item_beh2 is null then 0
+       else pro2_item_beh2
+       end as pro2_item_beh2,
+       case 
+       when pro2_item_beh1 is null then 0
+       else pro2_item_beh1
+       end as pro2_item_beh1,
+       case 
+       when pro3_item_beh4 is null then 0
+       else pro3_item_beh4
+       end as pro3_item_beh4,
+       case 
+       when pro3_item_beh3 is null then 0
+       else pro3_item_beh3
+       end as pro3_item_beh3,
+       case 
+       when pro3_item_beh2 is null then 0
+       else pro3_item_beh2
+       end as pro3_item_beh2,
+       case 
+       when pro3_item_beh1 is null then 0
+       else pro3_item_beh1
+       end as pro3_item_beh1,
+       case 
+       when diff1 is null then -1
+       else diff1
+       end as diff1,
+       case 
+       when diff2 is null then -1
+       else diff2
+       end as diff2,
+       case 
+       when diff3 is null then -1
+       else diff3
+       end as diff3,
+       case 
+       when avghour1 is null then -1
+       else avghour1
+       end as avghour1,
+       case 
+       when avghour2 is null then -1
+       else avghour2
+       end as avghour2,
+       case 
+       when avghour3 is null then -1
+       else avghour3
+       end as avghour3,
+       case 
+       when pro1_bws_to_buy is null then -1
+       else pro1_bws_to_buy
+       end as pro1_bws_to_buy,
+       case 
+       when pro1_col_to_buy is null then -1
+       else pro1_col_to_buy
+       end as pro1_col_to_buy,
+       case 
+       when pro1_crt_to_buy is null then -1
+       else pro1_crt_to_buy
+       end as pro1_crt_to_buy,
+              case 
+       when pro2_bws_to_buy is null then -1
+       else pro2_bws_to_buy
+       end as pro2_bws_to_buy,
+       case 
+       when pro2_col_to_buy is null then -1
+       else pro2_col_to_buy
+       end as pro2_col_to_buy,
+       case 
+       when pro2_crt_to_buy is null then -1
+       else pro2_crt_to_buy
+       end as pro2_crt_to_buy,
+              case 
+       when pro3_bws_to_buy is null then -1
+       else pro3_bws_to_buy
+       end as pro3_bws_to_buy,
+       case 
+       when pro3_col_to_buy is null then -1
+       else pro3_col_to_buy
+       end as pro3_col_to_buy,
+       case 
+       when pro3_crt_to_buy is null then -1
+       else pro3_crt_to_buy
+       end as pro3_crt_to_buy,
+     case 
+       when pro1_chr4_cnt is null then -1
+       else pro1_chr4_cnt
+       end as pro1_chr4_cnt,
+       case 
+       when pro2_chr4_cnt is null then -1
+       else pro2_chr4_cnt
+       end as pro2_chr4_cnt,
+       case 
+       when pro3_chr4_cnt is null then -1
+       else pro3_chr4_cnt
+       end as pro3_chr4_cnt,
+       case 
+       when pro1_chr3_cnt is null then -1
+       else pro1_chr3_cnt
+       end as pro1_chr3_cnt,
+       case 
+       when pro2_chr3_cnt is null then -1
+       else pro2_chr3_cnt
+       end as pro2_chr3_cnt,
+       case 
+       when pro3_chr3_cnt is null then -1
+       else pro3_chr3_cnt
+       end as pro3_chr3_cnt,
+       case 
+       when pro1_chr2_cnt is null then -1
+       else pro1_chr2_cnt
+       end as pro1_chr2_cnt,
+       case 
+       when pro2_chr2_cnt is null then -1
+       else pro2_chr2_cnt
+       end as pro2_chr2_cnt,
+       case 
+       when pro3_chr2_cnt is null then -1
+       else pro3_chr2_cnt
+       end as pro3_chr2_cnt,
+       case 
+       when pro1_geo_range is null then -1
+       else pro1_geo_range
+       end as pro1_geo_range,
+       case 
+       when pro2_geo_range is null then -1
+       else pro2_geo_range
+       end as pro2_geo_range,
+       case 
+       when pro3_geo_range is null then -1
+       else pro3_geo_range
+       end as pro3_geo_range
+from   uf_05day_combine;
+--------------------------------------
+drop table if exists uf_16day_final;
+create table uf_16day_final as
+select user_id,
+       case 
+       when pro1_item_beh4 is null then 0
+       else pro1_item_beh4
+       end as pro1_item_beh4,
+       case 
+       when pro1_item_beh3 is null then 0
+       else pro1_item_beh3
+       end as pro1_item_beh3,
+       case 
+       when pro1_item_beh2 is null then 0
+       else pro1_item_beh2
+       end as pro1_item_beh2,
+       case 
+       when pro1_item_beh1 is null then 0
+       else pro1_item_beh1
+       end as pro1_item_beh1,
+       case 
+       when pro2_item_beh4 is null then 0
+       else pro2_item_beh4
+       end as pro2_item_beh4,
+       case 
+       when pro2_item_beh3 is null then 0
+       else pro2_item_beh3
+       end as pro2_item_beh3,
+       case 
+       when pro2_item_beh2 is null then 0
+       else pro2_item_beh2
+       end as pro2_item_beh2,
+       case 
+       when pro2_item_beh1 is null then 0
+       else pro2_item_beh1
+       end as pro2_item_beh1,
+       case 
+       when pro3_item_beh4 is null then 0
+       else pro3_item_beh4
+       end as pro3_item_beh4,
+       case 
+       when pro3_item_beh3 is null then 0
+       else pro3_item_beh3
+       end as pro3_item_beh3,
+       case 
+       when pro3_item_beh2 is null then 0
+       else pro3_item_beh2
+       end as pro3_item_beh2,
+       case 
+       when pro3_item_beh1 is null then 0
+       else pro3_item_beh1
+       end as pro3_item_beh1,
+       case 
+       when diff1 is null then -1
+       else diff1
+       end as diff1,
+       case 
+       when diff2 is null then -1
+       else diff2
+       end as diff2,
+       case 
+       when diff3 is null then -1
+       else diff3
+       end as diff3,
+       case 
+       when avghour1 is null then -1
+       else avghour1
+       end as avghour1,
+       case 
+       when avghour2 is null then -1
+       else avghour2
+       end as avghour2,
+       case 
+       when avghour3 is null then -1
+       else avghour3
+       end as avghour3,
+       case 
+       when pro1_bws_to_buy is null then -1
+       else pro1_bws_to_buy
+       end as pro1_bws_to_buy,
+       case 
+       when pro1_col_to_buy is null then -1
+       else pro1_col_to_buy
+       end as pro1_col_to_buy,
+       case 
+       when pro1_crt_to_buy is null then -1
+       else pro1_crt_to_buy
+       end as pro1_crt_to_buy,
+              case 
+       when pro2_bws_to_buy is null then -1
+       else pro2_bws_to_buy
+       end as pro2_bws_to_buy,
+       case 
+       when pro2_col_to_buy is null then -1
+       else pro2_col_to_buy
+       end as pro2_col_to_buy,
+       case 
+       when pro2_crt_to_buy is null then -1
+       else pro2_crt_to_buy
+       end as pro2_crt_to_buy,
+              case 
+       when pro3_bws_to_buy is null then -1
+       else pro3_bws_to_buy
+       end as pro3_bws_to_buy,
+       case 
+       when pro3_col_to_buy is null then -1
+       else pro3_col_to_buy
+       end as pro3_col_to_buy,
+       case 
+       when pro3_crt_to_buy is null then -1
+       else pro3_crt_to_buy
+       end as pro3_crt_to_buy,
+     case 
+       when pro1_chr4_cnt is null then -1
+       else pro1_chr4_cnt
+       end as pro1_chr4_cnt,
+       case 
+       when pro2_chr4_cnt is null then -1
+       else pro2_chr4_cnt
+       end as pro2_chr4_cnt,
+       case 
+       when pro3_chr4_cnt is null then -1
+       else pro3_chr4_cnt
+       end as pro3_chr4_cnt,
+       case 
+       when pro1_chr3_cnt is null then -1
+       else pro1_chr3_cnt
+       end as pro1_chr3_cnt,
+       case 
+       when pro2_chr3_cnt is null then -1
+       else pro2_chr3_cnt
+       end as pro2_chr3_cnt,
+       case 
+       when pro3_chr3_cnt is null then -1
+       else pro3_chr3_cnt
+       end as pro3_chr3_cnt,
+       case 
+       when pro1_chr2_cnt is null then -1
+       else pro1_chr2_cnt
+       end as pro1_chr2_cnt,
+       case 
+       when pro2_chr2_cnt is null then -1
+       else pro2_chr2_cnt
+       end as pro2_chr2_cnt,
+       case 
+       when pro3_chr2_cnt is null then -1
+       else pro3_chr2_cnt
+       end as pro3_chr2_cnt,
+       case 
+       when pro1_geo_range is null then -1
+       else pro1_geo_range
+       end as pro1_geo_range,
+       case 
+       when pro2_geo_range is null then -1
+       else pro2_geo_range
+       end as pro2_geo_range,
+       case 
+       when pro3_geo_range is null then -1
+       else pro3_geo_range
+       end as pro3_geo_range
+from   uf_16day_combine;
+----------------------------------------------------------------
+----------------------------------------------------------------
+drop table if exists uf_17day_final;
+create table uf_17day_final as
+select user_id,
+       case 
+       when pro1_item_beh4 is null then 0
+       else pro1_item_beh4
+       end as pro1_item_beh4,
+       case 
+       when pro1_item_beh3 is null then 0
+       else pro1_item_beh3
+       end as pro1_item_beh3,
+       case 
+       when pro1_item_beh2 is null then 0
+       else pro1_item_beh2
+       end as pro1_item_beh2,
+       case 
+       when pro1_item_beh1 is null then 0
+       else pro1_item_beh1
+       end as pro1_item_beh1,
+       case 
+       when pro2_item_beh4 is null then 0
+       else pro2_item_beh4
+       end as pro2_item_beh4,
+       case 
+       when pro2_item_beh3 is null then 0
+       else pro2_item_beh3
+       end as pro2_item_beh3,
+       case 
+       when pro2_item_beh2 is null then 0
+       else pro2_item_beh2
+       end as pro2_item_beh2,
+       case 
+       when pro2_item_beh1 is null then 0
+       else pro2_item_beh1
+       end as pro2_item_beh1,
+       case 
+       when pro3_item_beh4 is null then 0
+       else pro3_item_beh4
+       end as pro3_item_beh4,
+       case 
+       when pro3_item_beh3 is null then 0
+       else pro3_item_beh3
+       end as pro3_item_beh3,
+       case 
+       when pro3_item_beh2 is null then 0
+       else pro3_item_beh2
+       end as pro3_item_beh2,
+       case 
+       when pro3_item_beh1 is null then 0
+       else pro3_item_beh1
+       end as pro3_item_beh1,
+       case 
+       when diff1 is null then -1
+       else diff1
+       end as diff1,
+       case 
+       when diff2 is null then -1
+       else diff2
+       end as diff2,
+       case 
+       when diff3 is null then -1
+       else diff3
+       end as diff3,
+       case 
+       when avghour1 is null then -1
+       else avghour1
+       end as avghour1,
+       case 
+       when avghour2 is null then -1
+       else avghour2
+       end as avghour2,
+       case 
+       when avghour3 is null then -1
+       else avghour3
+       end as avghour3,
+       case 
+       when pro1_bws_to_buy is null then -1
+       else pro1_bws_to_buy
+       end as pro1_bws_to_buy,
+       case 
+       when pro1_col_to_buy is null then -1
+       else pro1_col_to_buy
+       end as pro1_col_to_buy,
+       case 
+       when pro1_crt_to_buy is null then -1
+       else pro1_crt_to_buy
+       end as pro1_crt_to_buy,
+              case 
+       when pro2_bws_to_buy is null then -1
+       else pro2_bws_to_buy
+       end as pro2_bws_to_buy,
+       case 
+       when pro2_col_to_buy is null then -1
+       else pro2_col_to_buy
+       end as pro2_col_to_buy,
+       case 
+       when pro2_crt_to_buy is null then -1
+       else pro2_crt_to_buy
+       end as pro2_crt_to_buy,
+              case 
+       when pro3_bws_to_buy is null then -1
+       else pro3_bws_to_buy
+       end as pro3_bws_to_buy,
+       case 
+       when pro3_col_to_buy is null then -1
+       else pro3_col_to_buy
+       end as pro3_col_to_buy,
+       case 
+       when pro3_crt_to_buy is null then -1
+       else pro3_crt_to_buy
+       end as pro3_crt_to_buy,
+       case 
+       when pro1_chr4_cnt is null then -1
+       else pro1_chr4_cnt
+       end as pro1_chr4_cnt,
+       case 
+       when pro2_chr4_cnt is null then -1
+       else pro2_chr4_cnt
+       end as pro2_chr4_cnt,
+       case 
+       when pro3_chr4_cnt is null then -1
+       else pro3_chr4_cnt
+       end as pro3_chr4_cnt,
+       case 
+       when pro1_chr3_cnt is null then -1
+       else pro1_chr3_cnt
+       end as pro1_chr3_cnt,
+       case 
+       when pro2_chr3_cnt is null then -1
+       else pro2_chr3_cnt
+       end as pro2_chr3_cnt,
+       case 
+       when pro3_chr3_cnt is null then -1
+       else pro3_chr3_cnt
+       end as pro3_chr3_cnt,
+       case 
+       when pro1_chr2_cnt is null then -1
+       else pro1_chr2_cnt
+       end as pro1_chr2_cnt,
+       case 
+       when pro2_chr2_cnt is null then -1
+       else pro2_chr2_cnt
+       end as pro2_chr2_cnt,
+       case 
+       when pro3_chr2_cnt is null then -1
+       else pro3_chr2_cnt
+       end as pro3_chr2_cnt,
+       case 
+       when pro1_geo_range is null then -1
+       else pro1_geo_range
+       end as pro1_geo_range,
+       case 
+       when pro2_geo_range is null then -1
+       else pro2_geo_range
+       end as pro2_geo_range,
+       case 
+       when pro3_geo_range is null then -1
+       else pro3_geo_range
+       end as pro3_geo_range
+from   uf_17day_combine;
+---------------------------------------------
+-------------------------------------------
+drop table if exists uf_18day_final;
+create table uf_18day_final as
+select user_id,
+       case 
+       when pro1_item_beh4 is null then 0
+       else pro1_item_beh4
+       end as pro1_item_beh4,
+       case 
+       when pro1_item_beh3 is null then 0
+       else pro1_item_beh3
+       end as pro1_item_beh3,
+       case 
+       when pro1_item_beh2 is null then 0
+       else pro1_item_beh2
+       end as pro1_item_beh2,
+       case 
+       when pro1_item_beh1 is null then 0
+       else pro1_item_beh1
+       end as pro1_item_beh1,
+       case 
+       when pro2_item_beh4 is null then 0
+       else pro2_item_beh4
+       end as pro2_item_beh4,
+       case 
+       when pro2_item_beh3 is null then 0
+       else pro2_item_beh3
+       end as pro2_item_beh3,
+       case 
+       when pro2_item_beh2 is null then 0
+       else pro2_item_beh2
+       end as pro2_item_beh2,
+       case 
+       when pro2_item_beh1 is null then 0
+       else pro2_item_beh1
+       end as pro2_item_beh1,
+       case 
+       when pro3_item_beh4 is null then 0
+       else pro3_item_beh4
+       end as pro3_item_beh4,
+       case 
+       when pro3_item_beh3 is null then 0
+       else pro3_item_beh3
+       end as pro3_item_beh3,
+       case 
+       when pro3_item_beh2 is null then 0
+       else pro3_item_beh2
+       end as pro3_item_beh2,
+       case 
+       when pro3_item_beh1 is null then 0
+       else pro3_item_beh1
+       end as pro3_item_beh1,
+       case 
+       when diff1 is null then -1
+       else diff1
+       end as diff1,
+       case 
+       when diff2 is null then -1
+       else diff2
+       end as diff2,
+       case 
+       when diff3 is null then -1
+       else diff3
+       end as diff3,
+       case 
+       when avghour1 is null then -1
+       else avghour1
+       end as avghour1,
+       case 
+       when avghour2 is null then -1
+       else avghour2
+       end as avghour2,
+       case 
+       when avghour3 is null then -1
+       else avghour3
+       end as avghour3,
+       case 
+       when pro1_bws_to_buy is null then -1
+       else pro1_bws_to_buy
+       end as pro1_bws_to_buy,
+       case 
+       when pro1_col_to_buy is null then -1
+       else pro1_col_to_buy
+       end as pro1_col_to_buy,
+       case 
+       when pro1_crt_to_buy is null then -1
+       else pro1_crt_to_buy
+       end as pro1_crt_to_buy,
+              case 
+       when pro2_bws_to_buy is null then -1
+       else pro2_bws_to_buy
+       end as pro2_bws_to_buy,
+       case 
+       when pro2_col_to_buy is null then -1
+       else pro2_col_to_buy
+       end as pro2_col_to_buy,
+       case 
+       when pro2_crt_to_buy is null then -1
+       else pro2_crt_to_buy
+       end as pro2_crt_to_buy,
+              case 
+       when pro3_bws_to_buy is null then -1
+       else pro3_bws_to_buy
+       end as pro3_bws_to_buy,
+       case 
+       when pro3_col_to_buy is null then -1
+       else pro3_col_to_buy
+       end as pro3_col_to_buy,
+       case 
+       when pro3_crt_to_buy is null then -1
+       else pro3_crt_to_buy
+       end as pro3_crt_to_buy,
+       case 
+       when pro1_chr4_cnt is null then -1
+       else pro1_chr4_cnt
+       end as pro1_chr4_cnt,
+       case 
+       when pro2_chr4_cnt is null then -1
+       else pro2_chr4_cnt
+       end as pro2_chr4_cnt,
+       case 
+       when pro3_chr4_cnt is null then -1
+       else pro3_chr4_cnt
+       end as pro3_chr4_cnt,
+       case 
+       when pro1_chr3_cnt is null then -1
+       else pro1_chr3_cnt
+       end as pro1_chr3_cnt,
+       case 
+       when pro2_chr3_cnt is null then -1
+       else pro2_chr3_cnt
+       end as pro2_chr3_cnt,
+       case 
+       when pro3_chr3_cnt is null then -1
+       else pro3_chr3_cnt
+       end as pro3_chr3_cnt,
+       case 
+       when pro1_chr2_cnt is null then -1
+       else pro1_chr2_cnt
+       end as pro1_chr2_cnt,
+       case 
+       when pro2_chr2_cnt is null then -1
+       else pro2_chr2_cnt
+       end as pro2_chr2_cnt,
+       case 
+       when pro3_chr2_cnt is null then -1
+       else pro3_chr2_cnt
+       end as pro3_chr2_cnt,
+       case 
+       when pro1_geo_range is null then -1
+       else pro1_geo_range
+       end as pro1_geo_range,
+       case 
+       when pro2_geo_range is null then -1
+       else pro2_geo_range
+       end as pro2_geo_range,
+       case 
+       when pro3_geo_range is null then -1
+       else pro3_geo_range
+       end as pro3_geo_range
+from   uf_18day_combine;
+
+---------------------------------------------
+-------------------------------------------
+drop table if exists uf_19day_final;
+create table uf_19day_final as
+select user_id,
+       case 
+       when pro1_item_beh4 is null then 0
+       else pro1_item_beh4
+       end as pro1_item_beh4,
+       case 
+       when pro1_item_beh3 is null then 0
+       else pro1_item_beh3
+       end as pro1_item_beh3,
+       case 
+       when pro1_item_beh2 is null then 0
+       else pro1_item_beh2
+       end as pro1_item_beh2,
+       case 
+       when pro1_item_beh1 is null then 0
+       else pro1_item_beh1
+       end as pro1_item_beh1,
+       case 
+       when pro2_item_beh4 is null then 0
+       else pro2_item_beh4
+       end as pro2_item_beh4,
+       case 
+       when pro2_item_beh3 is null then 0
+       else pro2_item_beh3
+       end as pro2_item_beh3,
+       case 
+       when pro2_item_beh2 is null then 0
+       else pro2_item_beh2
+       end as pro2_item_beh2,
+       case 
+       when pro2_item_beh1 is null then 0
+       else pro2_item_beh1
+       end as pro2_item_beh1,
+       case 
+       when pro3_item_beh4 is null then 0
+       else pro3_item_beh4
+       end as pro3_item_beh4,
+       case 
+       when pro3_item_beh3 is null then 0
+       else pro3_item_beh3
+       end as pro3_item_beh3,
+       case 
+       when pro3_item_beh2 is null then 0
+       else pro3_item_beh2
+       end as pro3_item_beh2,
+       case 
+       when pro3_item_beh1 is null then 0
+       else pro3_item_beh1
+       end as pro3_item_beh1,
+       case 
+       when diff1 is null then -1
+       else diff1
+       end as diff1,
+       case 
+       when diff2 is null then -1
+       else diff2
+       end as diff2,
+       case 
+       when diff3 is null then -1
+       else diff3
+       end as diff3,
+       case 
+       when avghour1 is null then -1
+       else avghour1
+       end as avghour1,
+       case 
+       when avghour2 is null then -1
+       else avghour2
+       end as avghour2,
+       case 
+       when avghour3 is null then -1
+       else avghour3
+       end as avghour3,
+       case 
+       when pro1_bws_to_buy is null then -1
+       else pro1_bws_to_buy
+       end as pro1_bws_to_buy,
+       case 
+       when pro1_col_to_buy is null then -1
+       else pro1_col_to_buy
+       end as pro1_col_to_buy,
+       case 
+       when pro1_crt_to_buy is null then -1
+       else pro1_crt_to_buy
+       end as pro1_crt_to_buy,
+              case 
+       when pro2_bws_to_buy is null then -1
+       else pro2_bws_to_buy
+       end as pro2_bws_to_buy,
+       case 
+       when pro2_col_to_buy is null then -1
+       else pro2_col_to_buy
+       end as pro2_col_to_buy,
+       case 
+       when pro2_crt_to_buy is null then -1
+       else pro2_crt_to_buy
+       end as pro2_crt_to_buy,
+              case 
+       when pro3_bws_to_buy is null then -1
+       else pro3_bws_to_buy
+       end as pro3_bws_to_buy,
+       case 
+       when pro3_col_to_buy is null then -1
+       else pro3_col_to_buy
+       end as pro3_col_to_buy,
+       case 
+       when pro3_crt_to_buy is null then -1
+       else pro3_crt_to_buy
+       end as pro3_crt_to_buy,
+       case 
+       when pro1_chr4_cnt is null then -1
+       else pro1_chr4_cnt
+       end as pro1_chr4_cnt,
+       case 
+       when pro2_chr4_cnt is null then -1
+       else pro2_chr4_cnt
+       end as pro2_chr4_cnt,
+       case 
+       when pro3_chr4_cnt is null then -1
+       else pro3_chr4_cnt
+       end as pro3_chr4_cnt,
+       case 
+       when pro1_chr3_cnt is null then -1
+       else pro1_chr3_cnt
+       end as pro1_chr3_cnt,
+       case 
+       when pro2_chr3_cnt is null then -1
+       else pro2_chr3_cnt
+       end as pro2_chr3_cnt,
+       case 
+       when pro3_chr3_cnt is null then -1
+       else pro3_chr3_cnt
+       end as pro3_chr3_cnt,
+       case 
+       when pro1_chr2_cnt is null then -1
+       else pro1_chr2_cnt
+       end as pro1_chr2_cnt,
+       case 
+       when pro2_chr2_cnt is null then -1
+       else pro2_chr2_cnt
+       end as pro2_chr2_cnt,
+       case 
+       when pro3_chr2_cnt is null then -1
+       else pro3_chr2_cnt
+       end as pro3_chr2_cnt,
+       case 
+       when pro1_geo_range is null then -1
+       else pro1_geo_range
+       end as pro1_geo_range,
+       case 
+       when pro2_geo_range is null then -1
+       else pro2_geo_range
+       end as pro2_geo_range,
+       case 
+       when pro3_geo_range is null then -1
+       else pro3_geo_range
+       end as pro3_geo_range
+from   uf_19day_combine;

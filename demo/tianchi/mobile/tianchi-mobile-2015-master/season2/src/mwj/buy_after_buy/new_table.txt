@@ -1,0 +1,315 @@
+-- 18day_combine_backup_0521_buy_0601
+
+------------------------------------------
+-----------------0601-----------------
+-------------------------------------
+---------------------------------------
+create table mwj_temp_17_0601_buy as select * from 17day_combine_backup_0521_buy_0601;
+create table mwj_temp_18_0601_buy as select * from 18day_combine_backup_0521_buy_0601;
+create table mwj_temp_19_0601_buy as select * from 19day_combine_backup_0521_buy_0601;
+
+drop table if exists 17day_combine_backup_0521_buy_0601;
+create table 17day_combine_backup_0521_buy_0601 as
+select major.*,
+       table3.pro2w_log_prob,table3.pro3w_log_prob,table3.pro4w_log_prob,
+       table3.pro2w_buy_prob,table3.pro3w_buy_prob,table3.pro4w_buy_prob,
+       table3.pro2w_buy_times,table3.pro3w_buy_times,table3.pro4w_buy_times,
+       table4.pro2w_log_prob_ui,table4.pro3w_log_prob_ui,table4.pro4w_log_prob_ui,
+       table4.pro2w_buy_prob_ui,table4.pro3w_buy_prob_ui,table4.pro4w_buy_prob_ui,
+       table5.pro2w_buy_times_i,table5.pro3w_buy_times_i,table5.pro4w_buy_times_i,
+       table6.crt_buy_cnt_incate_drank,table6.crt_buy_cnt_incate_prank,
+       table6.col_buy_cnt_incate_drank,table6.col_buy_cnt_incate_prank,
+       table6.bws_buy_cnt_incate_drank,table6.bws_buy_cnt_incate_prank,
+       table6.buy_cnt_incate_drank,table6.buy_cnt_incate_prank,
+       table6.pro1_beh_incate_drank,table6.pro1_beh_incate_prank,
+       table6.pro2_beh_incate_drank,table6.pro2_beh_incate_prank,
+       table6.beh_nobuy_drank,table6.beh_nobuy_prank,
+       table7.pro1_buy_times,table7.pro1_crt_times,table7.pro1_col_times,
+       table7.pro3_buy_times,table7.pro3_crt_times,table7.pro3_col_times,table7.pro3_bws_times,     
+       table7.pro7_buy_times,table7.pro7_crt_times,table7.pro7_col_times,table7.pro7_bws_times,     
+       table7.pro11_buy_times,table7.pro11_crt_times,table7.pro11_col_times,table7.pro11_bws_times,     
+       table8.pro1_buy_times as pro1_buy_times_h,table8.pro1_crt_times as pro1_crt_times_h,
+       table8.pro1_col_times as pro1_col_times_h,table8.pro1_bws_times as pro1_bws_times_h,     
+       table8.pro3_buy_times as pro3_buy_times_h,table8.pro3_crt_times as pro3_crt_times_h,
+       table8.pro3_col_times as pro3_col_times_h,table8.pro3_bws_times as pro3_bws_times_h,     
+       table8.pro17_buy_times,table8.pro17_crt_times,table8.pro17_col_times,table8.pro17_bws_times,  
+        table9.u_pro2_return_rate,table9.u_pro5_return_rate,table9.u_pro20_return_rate,
+      table10.i_pro2_return_rate,table10.i_pro5_return_rate,table10.i_pro20_return_rate,
+      table11.u_pro1_pureact_cnt,table11.u_pro1_pureact_beh1_cnt,table11.u_pro1_pureact_beh2_cnt,
+      table11.u_pro1_pureact_beh3_cnt,table11.u_pro1_pureact_beh4_cnt,
+      table12.u_pro2w_log_prob_inall,table12.u_pro3w_log_prob_inall,table12.u_pro4w_log_prob_inall,
+      table13.user_buy_cnt_inall as u_buy_cnt_inall,table13.user_buy_cnt3_inall as u_buy_cnt3_inall,
+      table13.user_buy_cnt2_inall as u_buy_cnt2_inall
+from
+(
+select * from mwj_temp_17_0601_buy
+) major
+left outer join
+(
+select * from spu_17day
+) table3
+on major.user_id=table3.user_id
+and major.item_id=table3.item_id
+left outer join
+(
+select * from spui_17day
+) table4
+on major.user_id=table4.user_id
+and major.item_id=table4.item_id
+left outer join
+(
+select * from spi_17day
+) table5
+on major.user_id=table5.user_id
+and major.item_id=table5.item_id
+left outer join
+(
+select * from 17day_rank_incate
+) table6
+on major.user_id=table6.user_id
+and major.item_id=table6.item_id
+left outer join
+(
+select * from pro_17day_beh_times
+) table7
+on major.user_id=table7.user_id
+and major.item_id=table7.item_id
+left outer join
+(
+select * from pro_17day_beh_times_h
+) table8
+on major.user_id=table8.user_id
+and major.item_id=table8.item_id
+left outer join
+(
+select * from uf_17day_return
+) table9
+on major.user_id=table9.user_id
+left outer join
+(
+select * from if_17day_return 
+) table10
+on major.item_id=table10.item_id
+left outer join
+(
+select * from pro1_pureact_inall_17day
+) table11
+on major.user_id=table11.user_id
+and major.item_id=table11.item_id
+left outer join
+(
+select * from spuall_17day
+) table12
+on major.user_id=table12.user_id
+and major.item_id=table12.item_id
+left outer join
+(
+select * from uf_17day_span_inall
+) table13
+on major.user_id=table13.user_id;
+
+
+---------------------------------------------
+
+
+drop table if exists 18day_combine_backup_0521_buy_0601;
+create table 18day_combine_backup_0521_buy_0601 as
+select major.*,
+       table3.pro2w_log_prob,table3.pro3w_log_prob,table3.pro4w_log_prob,
+       table3.pro2w_buy_prob,table3.pro3w_buy_prob,table3.pro4w_buy_prob,
+       table3.pro2w_buy_times,table3.pro3w_buy_times,table3.pro4w_buy_times,
+       table4.pro2w_log_prob_ui,table4.pro3w_log_prob_ui,table4.pro4w_log_prob_ui,
+       table4.pro2w_buy_prob_ui,table4.pro3w_buy_prob_ui,table4.pro4w_buy_prob_ui,
+       table5.pro2w_buy_times_i,table5.pro3w_buy_times_i,table5.pro4w_buy_times_i,
+       table6.crt_buy_cnt_incate_drank,table6.crt_buy_cnt_incate_prank,
+       table6.col_buy_cnt_incate_drank,table6.col_buy_cnt_incate_prank,
+       table6.bws_buy_cnt_incate_drank,table6.bws_buy_cnt_incate_prank,
+       table6.buy_cnt_incate_drank,table6.buy_cnt_incate_prank,
+       table6.pro1_beh_incate_drank,table6.pro1_beh_incate_prank,
+       table6.pro2_beh_incate_drank,table6.pro2_beh_incate_prank,
+       table6.beh_nobuy_drank,table6.beh_nobuy_prank,
+       table7.pro1_buy_times,table7.pro1_crt_times,table7.pro1_col_times,
+       table7.pro3_buy_times,table7.pro3_crt_times,table7.pro3_col_times,table7.pro3_bws_times,     
+       table7.pro7_buy_times,table7.pro7_crt_times,table7.pro7_col_times,table7.pro7_bws_times,     
+       table7.pro11_buy_times,table7.pro11_crt_times,table7.pro11_col_times,table7.pro11_bws_times,     
+       table8.pro1_buy_times as pro1_buy_times_h,table8.pro1_crt_times as pro1_crt_times_h,
+       table8.pro1_col_times as pro1_col_times_h,table8.pro1_bws_times as pro1_bws_times_h,     
+       table8.pro3_buy_times as pro3_buy_times_h,table8.pro3_crt_times as pro3_crt_times_h,
+       table8.pro3_col_times as pro3_col_times_h,table8.pro3_bws_times as pro3_bws_times_h,     
+       table8.pro17_buy_times,table8.pro17_crt_times,table8.pro18_col_times,table8.pro17_bws_times,  
+        table9.u_pro2_return_rate,table9.u_pro5_return_rate,table9.u_pro20_return_rate,
+      table10.i_pro2_return_rate,table10.i_pro5_return_rate,table10.i_pro20_return_rate,
+      table11.u_pro1_pureact_cnt,table11.u_pro1_pureact_beh1_cnt,table11.u_pro1_pureact_beh2_cnt,
+      table11.u_pro1_pureact_beh3_cnt,table11.u_pro1_pureact_beh4_cnt,
+      table12.u_pro2w_log_prob_inall,table12.u_pro3w_log_prob_inall,table12.u_pro4w_log_prob_inall,
+      table13.user_buy_cnt_inall as u_buy_cnt_inall,table13.user_buy_cnt3_inall as u_buy_cnt3_inall,
+      table13.user_buy_cnt2_inall as u_buy_cnt2_inall
+from
+(
+select * from mwj_temp_18_0601_buy
+) major
+left outer join
+(
+select * from spu_18day
+) table3
+on major.user_id=table3.user_id
+and major.item_id=table3.item_id
+left outer join
+(
+select * from spui_18day
+) table4
+on major.user_id=table4.user_id
+and major.item_id=table4.item_id
+left outer join
+(
+select * from spi_18day
+) table5
+on major.user_id=table5.user_id
+and major.item_id=table5.item_id
+left outer join
+(
+select * from 18day_rank_incate
+) table6
+on major.user_id=table6.user_id
+and major.item_id=table6.item_id
+left outer join
+(
+select * from pro_18day_beh_times
+) table7
+on major.user_id=table7.user_id
+and major.item_id=table7.item_id
+left outer join
+(
+select * from pro_18day_beh_times_h
+) table8
+on major.user_id=table8.user_id
+and major.item_id=table8.item_id
+left outer join
+(
+select * from uf_18day_return
+) table9
+on major.user_id=table9.user_id
+left outer join
+(
+select * from if_18day_return 
+) table10
+on major.item_id=table10.item_id
+left outer join
+(
+select * from pro1_pureact_inall_18day
+) table11
+on major.user_id=table11.user_id
+and major.item_id=table11.item_id
+left outer join
+(
+select * from spuall_18day
+) table12
+on major.user_id=table12.user_id
+and major.item_id=table12.item_id
+left outer join
+(
+select * from uf_18day_span_inall
+) table13
+on major.user_id=table13.user_id;
+------------------------------------------
+
+
+drop table if exists 19day_combine_backup_0521_buy_0601;
+create table 19day_combine_backup_0521_buy_0601 as
+select major.*,
+       table3.pro2w_log_prob,table3.pro3w_log_prob,table3.pro4w_log_prob,
+       table3.pro2w_buy_prob,table3.pro3w_buy_prob,table3.pro4w_buy_prob,
+       table3.pro2w_buy_times,table3.pro3w_buy_times,table3.pro4w_buy_times,
+       table4.pro2w_log_prob_ui,table4.pro3w_log_prob_ui,table4.pro4w_log_prob_ui,
+       table4.pro2w_buy_prob_ui,table4.pro3w_buy_prob_ui,table4.pro4w_buy_prob_ui,
+       table5.pro2w_buy_times_i,table5.pro3w_buy_times_i,table5.pro4w_buy_times_i,
+       table6.crt_buy_cnt_incate_drank,table6.crt_buy_cnt_incate_prank,
+       table6.col_buy_cnt_incate_drank,table6.col_buy_cnt_incate_prank,
+       table6.bws_buy_cnt_incate_drank,table6.bws_buy_cnt_incate_prank,
+       table6.buy_cnt_incate_drank,table6.buy_cnt_incate_prank,
+       table6.pro1_beh_incate_drank,table6.pro1_beh_incate_prank,
+       table6.pro2_beh_incate_drank,table6.pro2_beh_incate_prank,
+       table6.beh_nobuy_drank,table6.beh_nobuy_prank,
+       table7.pro1_buy_times,table7.pro1_crt_times,table7.pro1_col_times,
+       table7.pro3_buy_times,table7.pro3_crt_times,table7.pro3_col_times,table7.pro3_bws_times,     
+       table7.pro7_buy_times,table7.pro7_crt_times,table7.pro7_col_times,table7.pro7_bws_times,     
+       table7.pro11_buy_times,table7.pro11_crt_times,table7.pro11_col_times,table7.pro11_bws_times,     
+       table8.pro1_buy_times as pro1_buy_times_h,table8.pro1_crt_times as pro1_crt_times_h,
+       table8.pro1_col_times as pro1_col_times_h,table8.pro1_bws_times as pro1_bws_times_h,     
+       table8.pro3_buy_times as pro3_buy_times_h,table8.pro3_crt_times as pro3_crt_times_h,
+       table8.pro3_col_times as pro3_col_times_h,table8.pro3_bws_times as pro3_bws_times_h,     
+       table8.pro17_buy_times,table8.pro17_crt_times,table8.pro19_col_times,table8.pro17_bws_times,  
+        table9.u_pro2_return_rate,table9.u_pro5_return_rate,table9.u_pro20_return_rate,
+      table10.i_pro2_return_rate,table10.i_pro5_return_rate,table10.i_pro20_return_rate,
+      table11.u_pro1_pureact_cnt,table11.u_pro1_pureact_beh1_cnt,table11.u_pro1_pureact_beh2_cnt,
+      table11.u_pro1_pureact_beh3_cnt,table11.u_pro1_pureact_beh4_cnt,
+      table12.u_pro2w_log_prob_inall,table12.u_pro3w_log_prob_inall,table12.u_pro4w_log_prob_inall,
+      table13.user_buy_cnt_inall as u_buy_cnt_inall,table13.user_buy_cnt3_inall as u_buy_cnt3_inall,
+      table13.user_buy_cnt2_inall as u_buy_cnt2_inall
+from
+(
+select * from mwj_temp_19_0601_buy
+) major
+left outer join
+(
+select * from spu_19day
+) table3
+on major.user_id=table3.user_id
+and major.item_id=table3.item_id
+left outer join
+(
+select * from spui_19day
+) table4
+on major.user_id=table4.user_id
+and major.item_id=table4.item_id
+left outer join
+(
+select * from spi_19day
+) table5
+on major.user_id=table5.user_id
+and major.item_id=table5.item_id
+left outer join
+(
+select * from 19day_rank_incate
+) table6
+on major.user_id=table6.user_id
+and major.item_id=table6.item_id
+left outer join
+(
+select * from pro_19day_beh_times
+) table7
+on major.user_id=table7.user_id
+and major.item_id=table7.item_id
+left outer join
+(
+select * from pro_19day_beh_times_h
+) table8
+on major.user_id=table8.user_id
+and major.item_id=table8.item_id
+left outer join
+(
+select * from uf_19day_return
+) table9
+on major.user_id=table9.user_id
+left outer join
+(
+select * from if_19day_return 
+) table10
+on major.item_id=table10.item_id
+left outer join
+(
+select * from pro1_pureact_inall_19day
+) table11
+on major.user_id=table11.user_id
+and major.item_id=table11.item_id
+left outer join
+(
+select * from spuall_19day
+) table12
+on major.user_id=table12.user_id
+and major.item_id=table12.item_id
+left outer join
+(
+select * from uf_19day_span_inall
+) table13
+on major.user_id=table13.user_id;

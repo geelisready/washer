@@ -1,0 +1,104 @@
+----------------过去n天内商品老客户占总销售客户的比例---------------------------
+drop table if exists if_19day_return;
+create table if_19day_return as
+select  all_item.item_id,
+        case when pro2_total.cnt is null  then -1
+             when pro2_return.cnt is null and pro2_total.cnt is not null then -2
+             else pro2_return.cnt/ pro2_total.cnt end as i_pro2_return_rate,
+        case when pro5_total.cnt is null  then -1
+             when pro5_return.cnt is null and pro5_total.cnt is not null then -2
+             else pro5_return.cnt/ pro5_total.cnt end as i_pro5_return_rate,
+        case when pro20_total.cnt is null  then -1
+             when pro20_return.cnt is null and pro20_total.cnt is not null then -2
+             else pro20_return.cnt/ pro20_total.cnt end as i_pro20_return_rate
+from
+(   select  item_id
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) = substr(cast(dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    group by item_id---19日前一天有交互全部用户
+) all_item
+left outer join
+--------------------------------两天内返客率-------------------------------------
+(select item_id,count(distinct user_id) as cnt    
+     from
+    (select  distinct item_id,user_id,substr(`time`, 1, 10)
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    and substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-2,'dd') as string), 1, 10)
+    and behavior_type=4) a
+ group by item_id 
+) pro2_total
+on all_item.item_id=pro2_total.item_id
+left outer join
+(select item_id,count(user_id) as cnt
+from
+(select item_id,user_id
+     from
+    (select  distinct item_id,user_id,substr(`time`, 1, 10) as day
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    and substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-2,'dd') as string), 1, 10)
+    and behavior_type=4) a
+ group by item_id,user_id
+ having count(day)>1) b
+group by item_id 
+) pro2_return
+on all_item.item_id=pro2_return.item_id
+left outer join
+--------------------------------五天内返客率-------------------------------------
+(select item_id,count(distinct user_id) as cnt    
+     from
+    (select  distinct item_id,user_id,substr(`time`, 1, 10)
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    and substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-5,'dd') as string), 1, 10)
+    and behavior_type=4) a
+ group by item_id 
+) pro5_total
+on all_item.item_id=pro5_total.item_id
+left outer join
+(select item_id,count(user_id) as cnt
+from
+(select item_id,user_id
+     from
+    (select  distinct item_id,user_id,substr(`time`, 1, 10) as day
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    and substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-5,'dd') as string), 1, 10)
+    and behavior_type=4) a
+ group by item_id,user_id
+ having count(day)>1) b
+group by item_id
+) pro5_return
+on all_item.item_id=pro5_return.item_id
+left outer join
+--------------------------------十二天内返客率-------------------------------------
+(select item_id,count(distinct user_id) as cnt    
+     from
+    (select  distinct item_id,user_id,substr(`time`, 1, 10)
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    and substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-20,'dd') as string), 1, 10)
+    and behavior_type=4) a
+ group by item_id 
+) pro20_total
+on all_item.item_id=pro20_total.item_id
+left outer join
+(select item_id,count(user_id) as cnt
+from
+(select item_id,user_id
+     from
+    (select  distinct item_id,user_id,substr(`time`, 1, 10) as day
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    and substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-20,'dd') as string), 1, 10)
+    and behavior_type=4) a
+ group by item_id,user_id
+ having count(day)>1) b
+group by item_id 
+) pro20_return
+on all_item.item_id=pro20_return.item_id;
+
+
+
+

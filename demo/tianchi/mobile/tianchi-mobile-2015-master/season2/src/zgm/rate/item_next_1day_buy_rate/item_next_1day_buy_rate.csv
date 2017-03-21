@@ -1,0 +1,363 @@
+---
+--same_day_buy_next_day_interact：用户前一天购买，第二天有交互（第二天交互不一定购买，添加混乱）
+--next_1day_buy_stat-------------全部用户的ui当天行为统计以及接下来一天购买次数统计
+--next_1day_buyed_stat------过滤掉第二天没有买的ui行为，只保留有隔天购买的ui
+--next_1day_buyed_stat_filter_samedaybuy-------在第二天买的ui基础上---过滤掉当天购买，
+--same_day_buyed_stat-----有当天购买行为ui统计
+--same_day_buyed_stat_filter_next_day_buy------有当天购买行为ui统计,fiter next day buy，next day buy=0
+
+---item_next1day_buy_num/item_same_day_buy_num---最近三天/全局（T 1211 1212 1213）
+create table uc_next_buy_times_stat_zgm_bf_17 as
+select t.* ,
+coalesce(uc_sameday_buy_times, 0) as uc_sameday_buy_times,
+coalesce(uc_nextday_buy_times, 0) as uc_nextday_buy_times,
+coalesce(uc_nextday_buy_times, 0) /(coalesce(uc_sameday_buy_times, 0)+1) as uc_nextday_same_day_rate 
+from 
+(select distinct user_id,item_category from mobile_recommend_train_user_filter_item where substr(time,1,10)
+       =substr(cast( dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)) t
+left outer join
+(
+    select user_id,item_category,count(1) as uc_sameday_buy_times from
+    (select distinct user_id,item_category,item_id,behavior_date from same_day_buyed_stat_filter_next_day_buy where 
+    behavior_date<substr(cast( dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    and behavior_date>=substr(cast( dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-29,'dd') as string), 1, 10)---2014-11-18
+    and behavior_date!='2014-12-11' and behavior_date!='2014-12-12' and behavior_date!='2014-12-13'
+    ) t
+    group by user_id,item_category
+) t1 on t.user_id=t1.user_id and t.item_category=t1.item_category
+left outer join
+(
+    select user_id,item_category,count(1) as uc_nextday_buy_times from
+    (select distinct user_id,item_category,item_id,behavior_date from next_1day_buyed_stat_filter_samedaybuy where 
+    behavior_date<substr(cast( dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    and behavior_date>=substr(cast( dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-29,'dd') as string), 1, 10)---2014-11-18
+    and behavior_date!='2014-12-11' and behavior_date!='2014-12-12' and behavior_date!='2014-12-13'
+    ) t
+    group by user_id,item_category
+) t2
+on t.user_id=t2.user_id and t.item_category=t2.item_category
+;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-----------------------------------------------------------------------------
+create table i_next_buy_times_stat_zgm_bf_17 as
+select t.* ,
+coalesce(i_sameday_buy_times, 0) as i_sameday_buy_times,
+coalesce(i_nextday_buy_times, 0) as i_nextday_buy_times,
+coalesce(i_nextday_buy_times, 0) /(coalesce(i_sameday_buy_times, 0)+1) as i_nextday_same_day_rate 
+from 
+(select distinct item_id from mobile_recommend_train_user_filter_item where substr(time,1,10)
+       =substr(cast( dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)) t
+left outer join
+(
+    select item_id,count(1) as i_sameday_buy_times from
+            (select distinct user_id,item_category,item_id,behavior_date from same_day_buyed_stat_filter_next_day_buy where 
+                behavior_date<substr(cast( dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+                and behavior_date>=substr(cast( dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-29,'dd') as string), 1, 10)---2014-11-18
+                and behavior_date!='2014-12-11' and behavior_date!='2014-12-12' and behavior_date!='2014-12-13'
+        ) t
+    group by item_id
+) t1 on t.item_id=t1.item_id
+left outer join
+(
+
+select item_id,count(1) as i_nextday_buy_times from
+(select distinct user_id,item_category,item_id,behavior_date from next_1day_buyed_stat_filter_samedaybuy where 
+behavior_date<substr(cast( dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+and behavior_date>=substr(cast( dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-29,'dd') as string), 1, 10)---2014-11-18
+and behavior_date!='2014-12-11' and behavior_date!='2014-12-12' and behavior_date!='2014-12-13'
+) t
+group by item_id
+
+) t2
+on t.item_id=t2.item_id
+;
+-----------------------------------------------------
+
+------------------------u_next_buy_times_stat_zgm_bf_17-----------------------------------------------------
+create table u_next_buy_times_stat_zgm_bf_17 as
+select t.* ,
+coalesce(u_sameday_buy_times, 0) as u_sameday_buy_times,
+coalesce(u_nextday_buy_times, 0) as u_nextday_buy_times,
+coalesce(u_nextday_buy_times, 0) /(coalesce(u_sameday_buy_times, 0)+1) as u_nextday_same_day_rate 
+from 
+(select distinct user_id from mobile_recommend_train_user_filter_item where substr(time,1,10)
+       =substr(cast( dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)) t
+left outer join
+(
+    select user_id,count(1) as u_sameday_buy_times from
+            (select distinct user_id,item_category,item_id,behavior_date from same_day_buyed_stat_filter_next_day_buy where 
+                behavior_date<substr(cast( dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+                and behavior_date>=substr(cast( dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-29,'dd') as string), 1, 10)---2014-11-18
+                and behavior_date!='2014-12-11' and behavior_date!='2014-12-12' and behavior_date!='2014-12-13'
+        ) t
+    group by user_id
+) t1 on t.user_id=t1.user_id
+left outer join
+(
+
+select user_id,count(1) as u_nextday_buy_times from
+(select distinct user_id,item_category,item_id,behavior_date from next_1day_buyed_stat_filter_samedaybuy where 
+behavior_date<substr(cast( dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+and behavior_date>=substr(cast( dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-29,'dd') as string), 1, 10)---2014-11-18
+and behavior_date!='2014-12-11' and behavior_date!='2014-12-12' and behavior_date!='2014-12-13'
+) t
+group by user_id
+
+) t2
+on t.user_id=t2.user_id
+;
+--------------------------------------------
+------------------------c_next_buy_times_stat_zgm_bf_17-----------------------------------------------------
+create table c_next_buy_times_stat_zgm_bf_17 as
+select t.* ,
+coalesce(c_sameday_buy_times, 0) as c_sameday_buy_times,
+coalesce(c_nextday_buy_times, 0) as c_nextday_buy_times,
+coalesce(c_nextday_buy_times, 0) /(coalesce(c_sameday_buy_times, 0) +1) as c_nextday_same_day_rate 
+from 
+(select distinct item_category from mobile_recommend_train_user_filter_item where substr(time,1,10)
+       =substr(cast( dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)) t
+left outer join
+(
+    select item_category,count(1) as c_sameday_buy_times from
+            (select distinct user_id,item_category,item_id,behavior_date from same_day_buyed_stat_filter_next_day_buy where 
+                behavior_date<substr(cast( dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+                and behavior_date>=substr(cast( dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-29,'dd') as string), 1, 10)---2014-11-18
+                and behavior_date!='2014-12-11' and behavior_date!='2014-12-12' and behavior_date!='2014-12-13'
+        ) t
+    group by item_category
+) t1 on t.item_category=t1.item_category
+left outer join
+(
+
+select item_category,count(1) as c_nextday_buy_times from
+(select distinct user_id,item_category,item_id,behavior_date from next_1day_buyed_stat_filter_samedaybuy where 
+behavior_date<substr(cast( dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+and behavior_date>=substr(cast( dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-29,'dd') as string), 1, 10)---2014-11-18
+and behavior_date!='2014-12-11' and behavior_date!='2014-12-12' and behavior_date!='2014-12-13'
+) t
+group by item_category
+
+) t2
+on t.item_category=t2.item_category
+;
+---------------------------------------
+
+-----------------------------------------------------------------------------
+create table i_next_buy_times_stat_zgm_bf_18 as
+select t.* ,
+coalesce(i_sameday_buy_times, 0) as i_sameday_buy_times,
+coalesce(i_nextday_buy_times, 0) as i_nextday_buy_times,
+coalesce(i_nextday_buy_times, 0) /(coalesce(i_sameday_buy_times, 0)+1) as i_nextday_same_day_rate 
+from 
+(select distinct item_id from mobile_recommend_train_user_filter_item where substr(time,1,10)
+       =substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)) t
+left outer join
+(
+    select item_id,count(1) as i_sameday_buy_times from
+            (select distinct user_id,item_category,item_id,behavior_date from same_day_buyed_stat_filter_next_day_buy where 
+                behavior_date<substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+                and behavior_date>=substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-29,'dd') as string), 1, 10)---2014-11-18
+                and behavior_date!='2014-12-11' and behavior_date!='2014-12-12' and behavior_date!='2014-12-13'
+        ) t
+    group by item_id
+) t1 on t.item_id=t1.item_id
+left outer join
+(
+
+select item_id,count(1) as i_nextday_buy_times from
+(select distinct user_id,item_category,item_id,behavior_date from next_1day_buyed_stat_filter_samedaybuy where 
+behavior_date<substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+and behavior_date>=substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-29,'dd') as string), 1, 10)---2014-11-18
+and behavior_date!='2014-12-11' and behavior_date!='2014-12-12' and behavior_date!='2014-12-13'
+) t
+group by item_id
+
+) t2
+on t.item_id=t2.item_id
+;
+-----------------------------------------------------
+
+------------------------u_next_buy_times_stat_zgm_bf_18-----------------------------------------------------
+create table u_next_buy_times_stat_zgm_bf_18 as
+select t.* ,
+coalesce(u_sameday_buy_times, 0) as u_sameday_buy_times,
+coalesce(u_nextday_buy_times, 0) as u_nextday_buy_times,
+coalesce(u_nextday_buy_times, 0) /(coalesce(u_sameday_buy_times, 0)+1) as u_nextday_same_day_rate 
+from 
+(select distinct user_id from mobile_recommend_train_user_filter_item where substr(time,1,10)
+       =substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)) t
+left outer join
+(
+    select user_id,count(1) as u_sameday_buy_times from
+            (select distinct user_id,item_category,item_id,behavior_date from same_day_buyed_stat_filter_next_day_buy where 
+                behavior_date<substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+                and behavior_date>=substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-29,'dd') as string), 1, 10)---2014-11-18
+                and behavior_date!='2014-12-11' and behavior_date!='2014-12-12' and behavior_date!='2014-12-13'
+        ) t
+    group by user_id
+) t1 on t.user_id=t1.user_id
+left outer join
+(
+
+select user_id,count(1) as u_nextday_buy_times from
+(select distinct user_id,item_category,item_id,behavior_date from next_1day_buyed_stat_filter_samedaybuy where 
+behavior_date<substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+and behavior_date>=substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-29,'dd') as string), 1, 10)---2014-11-18
+and behavior_date!='2014-12-11' and behavior_date!='2014-12-12' and behavior_date!='2014-12-13'
+) t
+group by user_id
+
+) t2
+on t.user_id=t2.user_id
+;
+--------------------------------------------
+------------------------c_next_buy_times_stat_zgm_bf_18-----------------------------------------------------
+create table c_next_buy_times_stat_zgm_bf_18 as
+select t.* ,
+coalesce(c_sameday_buy_times, 0) as c_sameday_buy_times,
+coalesce(c_nextday_buy_times, 0) as c_nextday_buy_times,
+coalesce(c_nextday_buy_times, 0) /(coalesce(c_sameday_buy_times, 0) +1) as c_nextday_same_day_rate 
+from 
+(select distinct item_category from mobile_recommend_train_user_filter_item where substr(time,1,10)
+       =substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)) t
+left outer join
+(
+    select item_category,count(1) as c_sameday_buy_times from
+            (select distinct user_id,item_category,item_id,behavior_date from same_day_buyed_stat_filter_next_day_buy where 
+                behavior_date<substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+                and behavior_date>=substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-29,'dd') as string), 1, 10)---2014-11-18
+                and behavior_date!='2014-12-11' and behavior_date!='2014-12-12' and behavior_date!='2014-12-13'
+        ) t
+    group by item_category
+) t1 on t.item_category=t1.item_category
+left outer join
+(
+
+select item_category,count(1) as c_nextday_buy_times from
+(select distinct user_id,item_category,item_id,behavior_date from next_1day_buyed_stat_filter_samedaybuy where 
+behavior_date<substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+and behavior_date>=substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-29,'dd') as string), 1, 10)---2014-11-18
+and behavior_date!='2014-12-11' and behavior_date!='2014-12-12' and behavior_date!='2014-12-13'
+) t
+group by item_category
+
+) t2
+on t.item_category=t2.item_category
+;
+--------------------------------------------------
+
+-----------------------------------------------------------------------------
+create table i_next_buy_times_stat_zgm_bf_19 as
+select t.* ,
+coalesce(i_sameday_buy_times, 0) as i_sameday_buy_times,
+coalesce(i_nextday_buy_times, 0) as i_nextday_buy_times,
+coalesce(i_nextday_buy_times, 0) /(coalesce(i_sameday_buy_times, 0)+1) as i_nextday_same_day_rate 
+from 
+(select distinct item_id from mobile_recommend_train_user_filter_item where substr(time,1,10)
+       =substr(cast( dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)) t
+left outer join
+(
+    select item_id,count(1) as i_sameday_buy_times from
+            (select distinct user_id,item_category,item_id,behavior_date from same_day_buyed_stat_filter_next_day_buy where 
+                behavior_date<substr(cast( dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+                and behavior_date>=substr(cast( dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-29,'dd') as string), 1, 10)---2014-11-18
+                and behavior_date!='2014-12-11' and behavior_date!='2014-12-12' and behavior_date!='2014-12-13'
+        ) t
+    group by item_id
+) t1 on t.item_id=t1.item_id
+left outer join
+(
+
+select item_id,count(1) as i_nextday_buy_times from
+(select distinct user_id,item_category,item_id,behavior_date from next_1day_buyed_stat_filter_samedaybuy where 
+behavior_date<substr(cast( dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+and behavior_date>=substr(cast( dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-29,'dd') as string), 1, 10)---2014-11-18
+and behavior_date!='2014-12-11' and behavior_date!='2014-12-12' and behavior_date!='2014-12-13'
+) t
+group by item_id
+
+) t2
+on t.item_id=t2.item_id
+;
+-----------------------------------------------------
+
+------------------------u_next_buy_times_stat_zgm_bf_19-----------------------------------------------------
+create table u_next_buy_times_stat_zgm_bf_19 as
+select t.* ,
+coalesce(u_sameday_buy_times, 0) as u_sameday_buy_times,
+coalesce(u_nextday_buy_times, 0) as u_nextday_buy_times,
+coalesce(u_nextday_buy_times, 0) /(coalesce(u_sameday_buy_times, 0)+1) as u_nextday_same_day_rate 
+from 
+(select distinct user_id from mobile_recommend_train_user_filter_item where substr(time,1,10)
+       =substr(cast( dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)) t
+left outer join
+(
+    select user_id,count(1) as u_sameday_buy_times from
+            (select distinct user_id,item_category,item_id,behavior_date from same_day_buyed_stat_filter_next_day_buy where 
+                behavior_date<substr(cast( dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+                and behavior_date>=substr(cast( dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-29,'dd') as string), 1, 10)---2014-11-18
+                and behavior_date!='2014-12-11' and behavior_date!='2014-12-12' and behavior_date!='2014-12-13'
+        ) t
+    group by user_id
+) t1 on t.user_id=t1.user_id
+left outer join
+(
+
+select user_id,count(1) as u_nextday_buy_times from
+(select distinct user_id,item_category,item_id,behavior_date from next_1day_buyed_stat_filter_samedaybuy where 
+behavior_date<substr(cast( dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+and behavior_date>=substr(cast( dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-29,'dd') as string), 1, 10)---2014-11-18
+and behavior_date!='2014-12-11' and behavior_date!='2014-12-12' and behavior_date!='2014-12-13'
+) t
+group by user_id
+
+) t2
+on t.user_id=t2.user_id
+;
+--------------------------------------------
+------------------------c_next_buy_times_stat_zgm_bf_19-----------------------------------------------------
+create table c_next_buy_times_stat_zgm_bf_19 as
+select t.* ,
+coalesce(c_sameday_buy_times, 0) as c_sameday_buy_times,
+coalesce(c_nextday_buy_times, 0) as c_nextday_buy_times,
+coalesce(c_nextday_buy_times, 0) /(coalesce(c_sameday_buy_times, 0) +1) as c_nextday_same_day_rate 
+from 
+(select distinct item_category from mobile_recommend_train_user_filter_item where substr(time,1,10)
+       =substr(cast( dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)) t
+left outer join
+(
+    select item_category,count(1) as c_sameday_buy_times from
+            (select distinct user_id,item_category,item_id,behavior_date from same_day_buyed_stat_filter_next_day_buy where 
+                behavior_date<substr(cast( dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+                and behavior_date>=substr(cast( dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-29,'dd') as string), 1, 10)---2014-11-18
+                and behavior_date!='2014-12-11' and behavior_date!='2014-12-12' and behavior_date!='2014-12-13'
+        ) t
+    group by item_category
+) t1 on t.item_category=t1.item_category
+left outer join
+(
+
+select item_category,count(1) as c_nextday_buy_times from
+(select distinct user_id,item_category,item_id,behavior_date from next_1day_buyed_stat_filter_samedaybuy where 
+behavior_date<substr(cast( dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+and behavior_date>=substr(cast( dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-29,'dd') as string), 1, 10)---2014-11-18
+and behavior_date!='2014-12-11' and behavior_date!='2014-12-12' and behavior_date!='2014-12-13'
+) t
+group by item_category
+
+) t2
+on t.item_category=t2.item_category
+;

@@ -10,6 +10,7 @@ from datetime import datetime
 import pandas as pd
 from pandas import DataFrame, Series
 
+
 def seriesToDtSeries(series):
 	return pd.to_datetime(series)
 	
@@ -53,7 +54,19 @@ def listToDtRange(list, freq = '1h'):
 def shapeDtSeriesWithFormat(dtSeries, timeFormat):
 	return dtSeries.dt.strftime(timeFormat)
 	
-
+def calTimeInterval(time, settleTime, unit = 'h'):		
+		ti = pd.to_datetime(time) - pd.to_datetime(settleTime)
+		ti_seconds = ti.seconds
+		ti_days = ti.days
+		if unit == 's':
+			ti_new = ti_seconds + ti_days * 3600 * 24
+		elif unit == 'm':
+			ti_new = ti_seconds / 60 + ti_days * 60 * 24
+		elif unit == 'h':
+			ti_new = ti_seconds / 3600 + ti_days * 24
+		elif unit == 'D':
+			ti_new = ti_days		
+		return ti_new
 	
 	
 if __name__ == '__main__':

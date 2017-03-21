@@ -1,0 +1,11 @@
+drop table if exists tianchi_mobile_recommendation_predict;--17.1598w
+create table tianchi_mobile_recommendation_predict as  
+select distinct tt.user_id,tt.item_id from (
+ select t0.user_id,t0.item_id from (select t1.*  from 19combine_0621_majorsolution t1 where prediction_result=1
+                                    order by t1.prediction_score desc limit 170000) t0 ---¹²98888
+  union all
+ select t2.user_id,t2.item_id from (select * from 17day_combine_backup_0521_buy_0601_solution
+  where prediction_result=1 order by prediction_score desc limit 1500) t2
+ union all select * from tianchi_mobile_recommendation_predict_Friday
+ union all select * from tianchi_mobile_recommendation_predict_Friday_temp_0523_4day_mwj 
+) tt ;

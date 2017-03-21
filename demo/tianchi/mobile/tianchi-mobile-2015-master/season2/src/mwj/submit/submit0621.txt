@@ -1,0 +1,136 @@
+drop table if exists tianchi_mobile_recommendation_predict;
+create table tianchi_mobile_recommendation_predict as  
+select distinct tt.user_id,tt.item_id from (
+ select t0.user_id,t0.item_id from (select t1.*  from 19combine_0621_majorsolution t1 where prediction_result=1
+                                    order by t1.prediction_score desc limit 98000) t0 ---共98888
+  union all
+ select t2.user_id,t2.item_id from (select * from 17day_combine_backup_0521_buy_0601_solution
+  where prediction_result=1 order by prediction_score desc limit 1500) t2
+ union all select * from tianchi_mobile_recommendation_predict_Friday
+ union all select * from tianchi_mobile_recommendation_predict_Friday_temp_0523_4day_mwj 
+) tt ;
+
+select count(1) from 19combine_0621_majorsolution where prediction_result=1;--222564
+----------------------待训练1：1------------------------------------
+drop table if exists 1718day_combine_rebuy_0620_pu;---4.2w
+create table 1718day_combine_rebuy_0620_pu as
+select * from
+(select * from 1718day_combine_rebuy_0619_pu
+union all
+select * from 1718day_combine_rebuy_0619_pu
+union all
+select * from 1718day_combine_rebuy_0619_pu
+)t;
+
+drop table if exists 1718day_combine_rebuy_0620_np01;--8w
+create table 1718day_combine_rebuy_0620_np01 as
+select * from
+(select * from 1718day_combine_rebuy_0620_pu
+union all
+select * from 1718day_combine_rebuy_0619_nu_sample1
+) t;
+select count(1) from 1718day_combine_rebuy_0620_np01;--8w
+-----------------------major-----------------------------------
+drop table if exists 17day_combine_0620_n;
+create table 17day_combine_0620_n as
+select * from 17combine_0620_beh_ctr_wz  where label=0;
+
+drop table if exists 18day_combine_0620_n;
+create table 18day_combine_0620_n as
+select * from 18combine_0620_beh_ctr_wz  where label=0;
+------------
+drop table if exists 1718day_combine_0620_nu;
+create table 1718day_combine_0620_nu as
+select * from
+(select * from 17day_combine_0620_n
+union all
+select * from 18day_combine_0620_n
+union all
+select * from 18day_combine_0620_n
+) t;
+-------------------------------------------------------
+drop table if exists 17day_combine_0620_p;
+create table 17day_combine_0620_p as
+select * from 17combine_0620_beh_ctr_wz  where label=1;
+
+
+drop table if exists 18day_combine_0620_p;
+create table 18day_combine_0620_p as
+select * from 18combine_0620_beh_ctr_wz  where label=1;
+
+drop table if exists 1718day_combine_0620_pu;
+create table 1718day_combine_0620_pu as
+select * from
+(select * from 17day_combine_0620_p
+union all
+select * from 18day_combine_0620_p
+union all
+select * from 18day_combine_0620_p
+union all
+select * from 17day_combine_0620_p
+union all
+select * from 18day_combine_0620_p
+union all
+select * from 18day_combine_0620_p
+) t;
+
+drop table if exists 1718day_combine_0620_np01;
+create table 1718day_combine_0620_np01 as
+select * from
+(select * from 1718day_combine_0620_pu
+union all
+select * from 1718day_combine_0620_nu_sample1
+) t;
+
+drop table if exists 1718day_combine_0620_np02;
+create table 1718day_combine_0620_np01 as
+select * from
+(select * from 1718day_combine_0620_pu
+union all
+select * from 1718day_combine_0620_nu_sample2
+) t;
+
+drop table if exists 1718day_combine_0620_np03;
+create table 1718day_combine_0620_np01 as
+select * from
+(select * from 1718day_combine_0620_pu
+union all
+select * from 1718day_combine_0620_nu_sample3
+) t;
+
+drop table if exists 1718day_combine_0620_np04;
+create table 1718day_combine_0620_np01 as
+select * from
+(select * from 1718day_combine_0620_pu
+union all
+select * from 1718day_combine_0620_nu_sample4
+) t;
+
+drop table if exists 1718day_combine_0620_np05;
+create table 1718day_combine_0620_np01 as
+select * from
+(select * from 1718day_combine_0620_pu
+union all
+select * from 1718day_combine_0620_nu_sample5
+) t;
+
+drop table if exists 1718day_combine_0620_np06;
+create table 1718day_combine_0620_np01 as
+select * from
+(select * from 1718day_combine_0620_pu
+union all
+select * from 1718day_combine_0620_nu_sample6
+) t;
+
+drop table if exists 1718day_combine_0620_np07;
+create table 1718day_combine_0620_np01 as
+select * from
+(select * from 1718day_combine_0620_pu
+union all
+select * from 1718day_combine_0620_nu_sample7
+) t;
+
+select count(1) from 1718day_combine_0615_pu;--16.7w--
+
+
+---todo 加地区购买力特征 对昨天加完表测试 rebuy1:1生成一下 朴素贝叶斯训练下

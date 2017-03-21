@@ -1,0 +1,243 @@
+--------gbdt------------17combine_0620_beh_ctr_wz-------------------------
+drop table if exists 17day_combine_np_0621t1;
+create table 17day_combine_np_0621t1 as
+select t2.* from
+(select user_id,item_id from 17day_combine_0612_np01) t1
+left outer join
+(select * from  17combine_0620_beh_ctr_wz) t2
+on t1.user_id=t2.user_id
+and t1.item_id=t2.item_id;
+
+select count(1) 
+from (select t1.*  from  18combine_0620_beh_ctr_wz_solutiontest0621 t1 where prediction_result=1
+                                    order by t1.prediction_score desc limit 168476) t0
+where t0.label=1;--12563
+
+--------------------------------uc,u----------------------------------------
+drop table if exists test_deluc;
+create table test_deluc as
+select * from
+(
+select user_id,item_id,item_category,label,prediction_score,
+         dense_rank() over(partition by user_id,item_category order by prediction_score) as uc_dr
+from 18combine_0620_beh_ctr_wz_solutiontest0621
+where prediction_result=1
+) t
+where uc_dr<4;
+
+select count(1) 
+from (select t1.*  from  test_deluc t1  order by t1.prediction_score desc limit 98000) t0
+where t0.label=1;
+
+
+select count(1) 
+from (select t1.*  from  test_deluc t1  order by t1.prediction_score desc limit 100000) t0
+where t0.label=1;
+
+drop table if exists test_delu_uc;
+create table test_delu_uc as
+select * from
+(
+select user_id,item_id,item_category,label,prediction_score,
+         dense_rank() over(partition by user_id order by prediction_score) as u_dr
+from test_deluc
+) t
+where u_dr<10;
+
+select count(1) 
+from (select t1.*  from test_delu_uc t1  order by t1.prediction_score desc limit 98000) t0
+where t0.label=1;
+
+select count(1) 
+from (select t1.*  from test_delu_uc t1  order by t1.prediction_score desc limit 100000) t0
+where t0.label=1;
+
+
+drop table if exists test_delu;
+create table test_delu as
+select * from
+(
+select user_id,item_id,item_category,label,prediction_score,
+         dense_rank() over(partition by user_id order by prediction_score) as u_dr
+from 18combine_0620_beh_ctr_wz_solutiontest0621
+) t
+where u_dr<10;
+
+select count(1) 
+from (select t1.*  from test_delu t1  order by t1.prediction_score desc limit 98000) t0
+where t0.label=1;
+
+select count(1) 
+from (select t1.*  from test_delu t1  order by t1.prediction_score desc limit 100000) t0
+where t0.label=1;
+----------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+create table 18combine_0620_beh_ctr_wz_solutiontest0621_temp as
+select * from 18combine_0620_beh_ctr_wz_solutiontest0621 t1 where prediction_result=1
+                                    order by t1.prediction_score desc limit 168476;
+show p;
+kill 20150621141359505gcrb6cl;      
+
+select count(1) 
+from (select t1.*  from  18combine_0620_beh_ctr_wz_solutiontest0621_temp t1  order by t1.prediction_score desc limit 98000) t0 where t0.label=1;
+-------9455,98000,
+select count(1) 
+from (select t1.*  from  18combine_0620_beh_ctr_wz_solutiontest0621_temp t1  order by t1.prediction_score desc limit 108000) t0 where t0.label=1;
+-------9974,108000.0
+
+select count(1) 
+from (select t1.*  from  18combine_0620_beh_ctr_wz_solutiontest0621_temp t1  order by t1.prediction_score desc limit 100000) t0 where t0.label=1;
+-------9539,100000.0,
+select count(1) 
+from (select t1.*  from  18combine_0620_beh_ctr_wz_solutiontest0621_temp t1  order by t1.prediction_score desc limit 104000) t0 where t0.label=1;
+-------9778,104000.0
+
+
+select count(1) 
+from (select t1.*  from  18combine_0620_beh_ctr_wz_solutiontest0621_temp t1  order by t1.prediction_score desc limit 101000) t0 where t0.label=1;
+-------9596,101000.0
+
+select count(1) 
+from (select t1.*  from  18combine_0620_beh_ctr_wz_solutiontest0621_temp t1  order by t1.prediction_score desc limit 102000) t0 where t0.label=1;
+-------9659,102000.0
+
+select count(1) 
+from (select t1.*  from  18combine_0620_beh_ctr_wz_solutiontest0621_temp t1  order by t1.prediction_score desc limit 103000) t0 where t0.label=1;
+-------9713,103000.0
+
+select count(1) 
+from (select t1.*  from  18combine_0620_beh_ctr_wz_solutiontest0621_temp t1  order by t1.prediction_score desc limit 105000) t0 where t0.label=1;
+-------9811,105000.0
+
+select count(1) 
+from (select t1.*  from  18combine_0620_beh_ctr_wz_solutiontest0621_temp t1  order by t1.prediction_score desc limit 88000) t0 where t0.label=1;
+-------8925,88000.0
+
+select count(1) 
+from (select t1.*  from  18combine_0620_beh_ctr_wz_solutiontest0621_temp t1  order by t1.prediction_score desc limit 118000) t0 where t0.label=1;
+-------10464,118000.0
+
+
+select count(1) 
+from (select t1.*  from  18combine_0620_beh_ctr_wz_solutiontest0621_temp t1  order by t1.prediction_score desc limit 113000) t0 where t0.label=1;
+-------10227,113000.0
+
+
+
+
+
+
+
+
+
+
+------testrebuy--------------17day_combine_backup_0521_buy_0601--------1£º1-----------------
+drop table if exists 17day_combine_rebuy_0619_p;
+create table 17day_combine_rebuy_0619_p as
+select * from 17day_combine_backup_0521_buy_0601 where label=1;
+
+
+drop table if exists 17day_combine_rebuy_0619_pu;---20±¶
+create table 17day_combine_rebuy_0619_pu as
+select * from
+(select * from 17day_combine_rebuy_0619_p
+union all
+select * from 17day_combine_rebuy_0619_p
+union all
+select * from 17day_combine_rebuy_0619_p
+union all
+select * from 17day_combine_rebuy_0619_p
+union all
+select * from 17day_combine_rebuy_0619_p
+union all
+select * from 17day_combine_rebuy_0619_p
+union all
+select * from 17day_combine_rebuy_0619_p
+union all
+select * from 17day_combine_rebuy_0619_p
+union all
+select * from 17day_combine_rebuy_0619_p
+union all
+select * from 17day_combine_rebuy_0619_p
+union all
+select * from 17day_combine_rebuy_0619_p
+union all
+select * from 17day_combine_rebuy_0619_p
+union all
+select * from 17day_combine_rebuy_0619_p
+union all
+select * from 17day_combine_rebuy_0619_p
+union all
+select * from 17day_combine_rebuy_0619_p
+union all
+select * from 17day_combine_rebuy_0619_p
+union all
+select * from 17day_combine_rebuy_0619_p
+union all
+select * from 17day_combine_rebuy_0619_p
+union all
+select * from 17day_combine_rebuy_0619_p
+union all
+select * from 17day_combine_rebuy_0619_p
+) t;
+
+select count(1) from 17day_combine_rebuy_0619_pu;--1.5w
+
+--17day_combine_rebuy_0619_n
+
+drop table if exists 17day_combine_rebuy_0619_np01;--3w
+create table 17day_combine_rebuy_0619_np01 as
+select * from
+(select * from 17day_combine_rebuy_0619_pu
+union all
+select * from 17day_combine_rebuy_0619_nu_sample1
+) t;
+
+select count(1) from 17day_combine_rebuy_0619_np01;--3w
+
+
+select count(1) from 
+select 19day_combine_backup_0521_buy_0601_testsolution where prediction_result=1 and label=1
+and prediction_result
+
+select count(1) from (select t1.*  from 19day_combine_backup_0521_buy_0601_testsolution t1 where prediction_result=1
+                                    order by t1.prediction_score desc limit 4000) t0
+where label=1;--242
+
+select count(1) from (select t1.*  from 19day_combine_backup_0521_buy_0601_testsolution t1 where prediction_result=1
+                                    order by t1.prediction_score desc limit 3500) t0
+where label=1;--235
+
+select count(1) from (select t1.*  from 19day_combine_backup_0521_buy_0601_testsolution t1 where prediction_result=1
+                                    order by t1.prediction_score desc limit 3000) t0
+where label=1;--225
+
+select count(1) from (select t1.*  from 19day_combine_backup_0521_buy_0601_testsolution t1 where prediction_result=1
+                                    order by t1.prediction_score desc limit 2500) t0
+where label=1;--216
+
+select count(1) from (select t1.*  from 19day_combine_backup_0521_buy_0601_testsolution t1 where prediction_result=1
+                                    order by t1.prediction_score desc limit 2000) t0
+where label=1;--210
+
+select count(1) from (select t1.*  from 19day_combine_backup_0521_buy_0601_testsolution t1 where prediction_result=1
+                                    order by t1.prediction_score desc limit 1500) t0
+where label=1;--199
+
+select count(1) from (select t1.*  from 19day_combine_backup_0521_buy_0601_testsolution t1 where prediction_result=1
+                                    order by t1.prediction_score desc limit 1000) t0
+where label=1;--180
+
+select count(1) from (select t1.*  from 19day_combine_backup_0521_buy_0601_testsolution t1 where prediction_result=1
+                                    order by t1.prediction_score desc limit 500) t0
+where label=1;--180
+
+----1:5---------
+--167----1000
+--193----1500

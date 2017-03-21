@@ -1,0 +1,147 @@
+
+drop table if exists if_05day_combine;
+create table if_05day_combine as 
+select table1.*,
+       table2.diff1,table2.diff2,table2.diff3,
+       table3.avghour1,table3.avghour2,table3.avghour3,
+       table4.pro1_bws_to_buy,table4.pro1_col_to_buy,table4.pro1_crt_to_buy,
+       table4.pro2_bws_to_buy,table4.pro2_col_to_buy,table4.pro2_crt_to_buy,
+       table4.pro3_bws_to_buy,table4.pro3_col_to_buy,table4.pro3_crt_to_buy
+from
+(
+select * from  if_05day
+) table1
+full outer join
+(
+select * from  if_05day_activehour
+) table2
+on table1.item_id=table2.item_id
+full outer join
+(
+select * from  if_05day_avghour-----------最近的3天用户每天的活跃时长----------
+) table3
+on table1.item_id=table3.item_id
+full outer join
+(
+select * from  if_05day_pro_rate-----------最近的3天用户每天的活跃时长----------
+) table4
+on table1.item_id=table4.item_id;
+
+-----------------------------------------------------------------------------------
+
+drop table if exists if_16day_combine;
+create table if_16day_combine as 
+select table1.*,
+       table2.diff1,table2.diff2,table2.diff3,
+       table3.avghour1,table3.avghour2,table3.avghour3,
+       table4.pro1_bws_to_buy,table4.pro1_col_to_buy,table4.pro1_crt_to_buy,
+       table4.pro2_bws_to_buy,table4.pro2_col_to_buy,table4.pro2_crt_to_buy,
+       table4.pro3_bws_to_buy,table4.pro3_col_to_buy,table4.pro3_crt_to_buy
+from
+(
+select * from  if_16day
+) table1
+full outer join
+(
+select * from  if_16day_activehour
+) table2
+on table1.item_id=table2.item_id
+full outer join
+(
+select * from  if_16day_avghour-----------最近的3天用户每天的活跃时长----------
+) table3
+on table1.item_id=table3.item_id
+full outer join
+(
+select * from  if_16day_pro_rate-----------最近的3天用户每天的活跃时长----------
+) table4
+on table1.item_id=table4.item_id;;
+----------------------------------------------------------------------------------------
+drop table if exists if_17day_combine;
+create table if_17day_combine as 
+select table1.*,
+       table2.diff1,table2.diff2,table2.diff3,
+       table3.avghour1,table3.avghour2,table3.avghour3,
+       table4.pro1_bws_to_buy,table4.pro1_col_to_buy,table4.pro1_crt_to_buy,
+       table4.pro2_bws_to_buy,table4.pro2_col_to_buy,table4.pro2_crt_to_buy,
+       table4.pro3_bws_to_buy,table4.pro3_col_to_buy,table4.pro3_crt_to_buy
+from
+(
+select * from  if_17day
+) table1
+full outer join
+(
+select * from  if_17day_activehour
+) table2
+on table1.item_id=table2.item_id
+full outer join
+(
+select * from  if_17day_avghour-----------最近的3天用户每天的活跃时长----------
+) table3
+on table1.item_id=table3.item_id
+full outer join
+(
+select * from  if_17day_pro_rate-----------最近的3天用户每天的活跃时长----------
+) table4
+on table1.item_id=table4.item_id;
+
+-----------------------------------------------------------------------------------
+
+drop table if exists if_18day_combine;
+create table if_18day_combine as 
+select table1.*,
+       table2.diff1,table2.diff2,table2.diff3,
+       table3.avghour1,table3.avghour2,table3.avghour3,
+       table4.pro1_bws_to_buy,table4.pro1_col_to_buy,table4.pro1_crt_to_buy,
+       table4.pro2_bws_to_buy,table4.pro2_col_to_buy,table4.pro2_crt_to_buy,
+       table4.pro3_bws_to_buy,table4.pro3_col_to_buy,table4.pro3_crt_to_buy
+from
+(
+select * from  if_18day
+) table1
+full outer join
+(
+select * from  if_18day_activehour
+) table2
+on table1.item_id=table2.item_id
+full outer join
+(
+select * from  if_18day_avghour-----------最近的3天用户每天的活跃时长----------
+) table3
+on table1.item_id=table3.item_id
+full outer join
+(
+select * from  if_18day_pro_rate-----------最近的3天用户每天的活跃时长----------
+) table4
+on table1.item_id=table4.item_id;
+-----------------------------------------------------------------------------------
+
+drop table if exists if_19day_combine;
+create table if_19day_combine as 
+select table1.*,
+       table2.diff1,table2.diff2,table2.diff3,
+       table3.avghour1,table3.avghour2,table3.avghour3,
+       table4.pro1_bws_to_buy,table4.pro1_col_to_buy,table4.pro1_crt_to_buy,
+       table4.pro2_bws_to_buy,table4.pro2_col_to_buy,table4.pro2_crt_to_buy,
+       table4.pro3_bws_to_buy,table4.pro3_col_to_buy,table4.pro3_crt_to_buy
+from
+(
+select * from  if_19day
+) table1
+full outer join
+(
+select * from  if_19day_activehour
+) table2
+on table1.item_id=table2.item_id
+full outer join
+(
+select * from  if_19day_avghour-----------最近的3天用户每天的活跃时长----------
+) table3
+on table1.item_id=table3.item_id
+full outer join
+(
+select * from  if_19day_pro_rate-----------最近的3天用户每天的活跃时长----------
+) table4
+on table1.item_id=table4.item_id;
+
+select * from if_18day_combine limit 100

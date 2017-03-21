@@ -1,0 +1,15 @@
+-----#########category_convert_rate_bf_1217##################20150615����---------
+--item_category,
+--c_carttobuyrate,c_collecttobuyrate,c_browsetobuyrate,
+--c_carttobuyrate_recent3d,c_collecttobuyrate_recent3d,c_browsetobuyrate_recent3d
+
+------------=============0616����--------
+--item_category,
+--c_carttobuyrate,c_collecttobuyrate,c_browsetobuyrate,
+--c_carttobuyrate_recent3d,c_collecttobuyrate_recent3d,c_browsetobuyrate_recent3d,
+--c_browsetobuyrate1,c_browsetobuyrate2,c_browsetobuyrate3,
+--c_collecttobuyrate1,c_collecttobuyrate2,c_collecttobuyrate3,
+--c_carttobuyrate1,c_carttobuyrate2,c_carttobuyrate3,
+--c_browsetobuyrate1_recent3d,c_browsetobuyrate2_recent3d,c_browsetobuyrate3_recent3d,
+--c_collecttobuyrate1_recent3d,c_collecttobuyrate2_recent3d,c_collecttobuyrate3_recent3d,
+--c_carttobuyrate1_recent3d,c_carttobuyrate2_recent3d,c_carttobuyrate3_recent3d

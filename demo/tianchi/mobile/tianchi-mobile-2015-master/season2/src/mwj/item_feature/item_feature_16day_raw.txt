@@ -1,0 +1,6 @@
+select  item_id,count(distinct user_id) as user_beh4_cnt
+from mobile_recommend_train_user_filter_item
+where substr(`time`, 1, 10) = '2014-12-16'
+      and  behavior_type = 4
+group by item_id---16日用户购买商品数
+

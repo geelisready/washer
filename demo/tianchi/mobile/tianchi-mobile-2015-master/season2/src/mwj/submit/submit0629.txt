@@ -1,0 +1,34 @@
+drop table if exists tianchi_mobile_recommendation_predict;
+create table tianchi_mobile_recommendation_predict as  
+select distinct tt.user_id,tt.item_id from (
+ select t0.user_id,t0.item_id from (select t1.*  from mwj_gbdt_sum_0628 t1  order by t1.p desc limit 170000) t0
+  union all
+ select t2.user_id,t2.item_id from (select * from mwj_gbdt_sumbuy_0624 t order by t.p desc limit 1700) t2
+  union all
+ select t3.user_id,t3.item_id from (select * from  predict_19_interval2day_355f_0602_gdbt_sum t  order by t.s desc limit 400) t3 
+ union all select * from tianchi_mobile_recommendation_predict_Friday
+ union all select * from tianchi_mobile_recommendation_predict_Friday_temp_0523_4day_mwj 
+) tt ;
+
+
+--------ÈÚºÏmajor------------------
+drop table if exists mwj_gbdt_sum_0628;
+create table mwj_gbdt_sum_0628 as 
+select user_id,item_id,sum(ps) as p 
+from
+(
+select user_id,item_id,prediction_score as ps from 19combine_0625_zgm_solution1 where prediction_result=1
+union all
+select user_id,item_id,prediction_score as ps from 19combine_0625_zgm_solution3  where prediction_result=1
+union all
+select user_id,item_id,prediction_score as ps from 19combine_0625_zgm_soltion4  where prediction_result=1
+) t
+group by user_id,item_id;
+
+
+--input records:
+--		input#2: 212889  (min: 1580, max: 1741, avg: 1650)
+--		input: 212457  (min: 1565, max: 1735, avg: 1646)
+--		input#1: 211543  (min: 1556, max: 1742, avg: 1639)
+--	output records:
+--		R4_1_2_3_Stg1FS_1790880: 239967  (min: 1781, max: 1961, avg: 1860)

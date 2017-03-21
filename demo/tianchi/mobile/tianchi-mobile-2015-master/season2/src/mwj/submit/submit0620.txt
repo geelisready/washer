@@ -1,0 +1,117 @@
+drop table if exists tianchi_mobile_recommendation_predict;
+create table tianchi_mobile_recommendation_predict as  
+select distinct tt.user_id,tt.item_id from (
+ select t0.user_id,t0.item_id from (select t1.*  from  mwj_gbdt_sum_0620 t1
+                                    order by t1.p desc limit 83600) t0 ---¹²85274
+  union all
+ select t2.user_id,t2.item_id from (select * from 17day_combine_backup_0521_buy_0601_solution
+  where prediction_result=1 order by prediction_score desc limit 1500) t2
+ union all select * from tianchi_mobile_recommendation_predict_Friday
+ union all select * from tianchi_mobile_recommendation_predict_Friday_temp_0523_4day_mwj 
+) tt ;
+-----------------------1000+1000+3000ÈÚºÏ-----------------------------------------------------------
+drop table if exists mwj_gbdt_sum_0620;
+create table mwj_gbdt_sum_0620 as 
+select user_id,item_id,sum(ps) as p 
+from
+(select user_id,item_id,prediction_score*1 as ps from 19combine_0618_solution1 where prediction_result=1
+union all
+select user_id,item_id,prediction_score*1 as ps from 19combine_0618_solution2  where prediction_result=1
+union all
+select user_id,item_id,prediction_score*2 as ps from 19combine_0618_solution4  where prediction_result=1
+) t
+group by user_id,item_id;
+
+select count(1) from 19combine_0618_solution2 where prediction_result=1;
+select count(1) from 19combine_0618_solution4 where prediction_result=1;
+---------------------------------------------------------------------------------
+select count(1) from 18day_combine_backup_0521_buy_0601 where label=1;--714
+select count(1) from 18day_combine_backup_0521_buy_0601 where label=0;--174338
+
+drop table if exists 17day_combine_rebuy_0619_p;
+create table 17day_combine_rebuy_0619_p as
+select * from 17day_combine_backup_0521_buy_0601 where label=1;
+
+drop table if exists 18day_combine_rebuy_0619_p;
+create table 18day_combine_rebuy_0619_p as
+select * from 18day_combine_backup_0521_buy_0601 where label=1;
+
+drop table if exists 1718day_combine_rebuy_0619_pu;---1.4w
+create table 1718day_combine_rebuy_0619_pu as
+select * from
+(select * from 17day_combine_rebuy_0619_p
+union all
+select * from 17day_combine_rebuy_0619_p
+union all
+select * from 17day_combine_rebuy_0619_p
+union all
+select * from 17day_combine_rebuy_0619_p
+union all
+select * from 18day_combine_rebuy_0619_p
+union all
+select * from 18day_combine_rebuy_0619_p
+union all
+select * from 18day_combine_rebuy_0619_p
+union all
+select * from 18day_combine_rebuy_0619_p
+union all
+select * from 18day_combine_rebuy_0619_p
+union all
+select * from 18day_combine_rebuy_0619_p
+union all
+select * from 17day_combine_rebuy_0619_p
+union all
+select * from 17day_combine_rebuy_0619_p
+union all
+select * from 17day_combine_rebuy_0619_p
+union all
+select * from 17day_combine_rebuy_0619_p
+union all
+select * from 18day_combine_rebuy_0619_p
+union all
+select * from 18day_combine_rebuy_0619_p
+union all
+select * from 18day_combine_rebuy_0619_p
+union all
+select * from 18day_combine_rebuy_0619_p
+union all
+select * from 18day_combine_rebuy_0619_p
+union all
+select * from 18day_combine_rebuy_0619_p
+) t;
+
+select count(1) from 1718day_combine_rebuy_0619_pu;
+
+---------------------------------------------------------
+drop table if exists 17day_combine_rebuy_0619_n;
+create table 17day_combine_rebuy_0619_n as
+select * from 17day_combine_backup_0521_buy_0601 where label=0;
+
+drop table if exists 18day_combine_rebuy_0619_n;
+create table 18day_combine_rebuy_0619_n as
+select * from 18day_combine_backup_0521_buy_0601 where label=0;
+
+
+drop table if exists 1718day_combine_rebuy_0619_nu;--sample36000,1:5
+create table 1718day_combine_rebuy_0619_nu as
+select * from
+(select * from 17day_combine_rebuy_0619_n
+union all
+select * from 18day_combine_rebuy_0619_n
+union all
+select * from 18day_combine_rebuy_0619_n
+) t;
+
+
+
+drop table if exists 1718day_combine_rebuy_0619_np01;--5w
+create table 1718day_combine_rebuy_0619_np01 as
+select * from
+(select * from 1718day_combine_rebuy_0619_pu
+union all
+select * from 1718day_combine_rebuy_0619_nu_sample1
+) t;
+
+select count(1) from 1718day_combine_rebuy_0619_np01;
+
+select count(1) from 19combine_0618_solution1 where prediction_result=1;--24.4w

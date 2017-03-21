@@ -1,0 +1,21 @@
+-----------提交------------
+create table 0529_solution as 
+select * from tianchi_mobile_recommendation_predict;
+drop table if exists tianchi_mobile_recommendation_predict;
+create table tianchi_mobile_recommendation_predict as  
+select distinct tt.user_id,tt.item_id from (
+ select t2.user_id,t2.item_id from (select t1.* from  mwj_0530_01 t1 order by t1.s desc limit 85200) t2 ---共85274
+ union all select * from tianchi_mobile_recommendation_predict_Friday
+ union all select * from tianchi_mobile_recommendation_predict_Friday_temp_0523_4day) tt ;
+--------分数总计----------
+create table mwj_0530_01 as 
+select user_id,item_id,sum(prediction_score) as s
+from 
+(
+select  user_id,item_id,prediction_score  from mwj_gbdt_03_0529_8000_004_50_6_500_08_06 where prediction_result=1
+union all
+select  user_id,item_id,prediction_score  from mwj_gbdt_04_0529_8000_004_50_6_500_08_06 where prediction_result=1
+union all
+select  user_id,item_id,prediction_score  from mwj_gbdt_05_0529_8000_004_50_6_500_08_06 where prediction_result=1
+) t
+group by user_id,item_id;

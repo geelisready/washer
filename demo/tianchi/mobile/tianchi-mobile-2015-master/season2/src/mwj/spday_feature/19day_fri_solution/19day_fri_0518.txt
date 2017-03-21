@@ -1,0 +1,60 @@
+drop table if exists 19day_fri_0518;
+create table 19day_fri_0518 as 
+select distinct user_id,item_id
+from
+(
+select user_id,item_id
+ from 
+ (select  distinct user_id,item_id,substr(time, 1,10)
+ from mobile_recommend_train_user_filter_item 
+ where(substr(`time`, 1,10)='2014-11-28'
+         or substr(`time`, 1,10)='2014-12-05'
+         or substr(`time`, 1,10)='2014-12-12'
+         )
+   and behavior_type=4) t
+   group by user_id,item_id
+   having count(1)>2
+union all
+select user_id,item_id
+ from 
+ (select  distinct user_id,item_id,substr(time, 1,10)
+ from mobile_recommend_train_user_filter_item 
+ where(substr(`time`, 1,10)='2014-11-28'
+         or substr(`time`, 1,10)='2014-12-05'
+         or substr(`time`, 1,10)='2014-11-21'
+        )
+   and behavior_type=4) t
+   group by user_id,item_id
+   having count(1)>2
+) a;--43--
+
+
+
+
+
+select count(1)
+from
+(
+select user_id,item_id
+ from 
+ (select  distinct user_id,item_id,substr(time, 1,10)
+ from mobile_recommend_train_user_filter_item 
+ where substr(`time`, 1,10)='2014-12-16'
+ or substr(`time`, 1,10)='2014-12-17'
+   and behavior_type=4) t
+   group by user_id,item_id
+   having count(1)>1
+  ) s;
+  
+  
+  
+  
+   select user_id,item_id from mobile_recommend_train_user_filter_item
+   where user_id='' and item_id='' and behavior_type=
+
+
+select  count(distinct user_id,item_id)
+ from mobile_recommend_train_user_filter_item 
+ where substr(`time`, 1,10)='2014-12-16'
+and behavior_type=4
+

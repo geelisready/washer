@@ -46,15 +46,15 @@ class TimeStatis(BaseItemStatis):
 		if type == 'year':
 			df[type] = df[originTimeCol].dt.year
 		elif type == 'season':
-			df[type] = df[originTimeCol].dt.season
+			df[type] = df[originTimeCol].dt.quarter
 		elif type == 'month':
 			df[type] = df[originTimeCol].dt.month
 		elif type == 'day':
 			df[type] = df[originTimeCol].dt.day
 		elif type == 'weekday':
-			df[type] = df[originTimeCol].dt.weekday
+			df[type] = df[originTimeCol].dt.dayofweek
 		elif type == 'isWeekend':
-			df[type] = df[originTimeCol].dt.weekday
+			df[type] = df[originTimeCol].dt.dayofweek
 			df[type][df[type] >= 6] = 1
 			df[type][df[type] < 6] = 0
 		elif type == 'hour':
@@ -72,9 +72,7 @@ class TimeStatis(BaseItemStatis):
 		
 	
 	def getLastTime(self, df, timeCol):
-		return df.sort_index(by = timeCol, ascending = False)[timeCol].iloc[0]
-
-		
+		return df.sort_index(by = timeCol, ascending = False)[timeCol].iloc[0]	
 		
 	def getTimeInterval(self, df, timeCol, settleTime, unit = 'h'):
 		# pdb.set_trace()	
@@ -92,8 +90,31 @@ class TimeStatis(BaseItemStatis):
 
 		return df_new
 		
-	
+	def getTimeScala(self, df, timeCol, unit = 'h'):
+		earlyTime = self.getEarlyTime(df, timeCol)
+		lastTime = self.getLastTime(df, timeCol)
+		timeInterval = self._calTimeInterval(lastTime, earlyTime, unit)
+		return timeInterval
 		
+	def getMeanTimeIntervalAndScala(self, df, timeCol, unit = 'h'):
+		timeInterval = self.getTimeScala(df, timeCol, unit)
+		return timeInterval / float((len(df) - 1)), timeInterval
 		
+
+		
+	def _calTimeInterval(self, time, settleTime, unit = 'h'):		
+		ti = pd.to_datetime(time) - pd.to_datetime(settleTime)
+		ti_seconds = ti.seconds
+		ti_days = ti.days
+		if unit == 's':
+			ti_new = ti_seconds + ti_days * 3600 * 24
+		elif unit == 'm':
+			ti_new = ti_seconds / 60 + ti_days * 60 * 24
+		elif unit == 'h':
+			ti_new = ti_seconds / 3600 + ti_days * 24
+		elif unit == 'D':
+			ti_new = ti_days
+		# pdb.set_trace()
+		return ti_new
 	
 	

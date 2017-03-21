@@ -1,0 +1,397 @@
+drop table if exists cf_18day_rate1;
+create table cf_18day_rate1 as
+select item_category,
+       case when pro1_uict_beh1 =0 then -1 else   pro1_uict_beh4/pro1_uict_beh1 end as c_pro1_bwstobuy_rate_uict,
+       case when pro1_uict_beh2 =0 then -1 else   pro1_uict_beh4/pro1_uict_beh2 end as c_pro1_coltobuy_rate_uict,
+       case when pro1_uict_beh3 =0 then -1 else   pro1_uict_beh4/pro1_uict_beh3 end as c_pro1_crttobuy_rate_uict,
+-----------------------------------------------------------------------------------------------------------       
+       case when pro1_uic_beh1 =0 then -1 else   pro1_uic_beh4/pro1_uic_beh1 end as c_pro1_bwstobuy_rate_uic,
+       case when pro1_uic_beh2 =0 then -1 else   pro1_uic_beh4/pro1_uic_beh2 end as c_pro1_coltobuy_rate_uic,
+       case when pro1_uic_beh3 =0 then -1 else   pro1_uic_beh4/pro1_uic_beh3 end as c_pro1_crttobuy_rate_uic,
+-----------------------------------------------------------------------------------------------------------       
+       case when pro1_uc_beh1 =0 then -1 else   pro1_uc_beh4/pro1_uc_beh1 end as c_pro1_bwstobuy_rate_uc,
+       case when pro1_uc_beh2 =0 then -1 else   pro1_uc_beh4/pro1_uc_beh2 end as c_pro1_coltobuy_rate_uc,
+       case when pro1_uc_beh3 =0 then -1 else   pro1_uc_beh4/pro1_uc_beh3 end as c_pro1_crttobuy_rate_uc,
+-----------------------------------------------------------------------------------------------------------       
+       case when pro1_inter_cnt =0 then -1 else  pro1_uict_beh4/pro1_inter_cnt end as c_pro1_iter_avg_buy_rate,
+       case when pro1_inter_cnt =0 then -1 else  pro1_uict_beh4/pro1_buy_cnt end as c_pro1_buy_avg_buy_rate,
+--------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
+       case when pro3_span_uict_beh1 =0 then -1 else   pro3_span_uict_beh4/pro3_span_uict_beh1 end as c_pro3_span_bwstobuy_rate_uict,
+       case when pro3_span_uict_beh2 =0 then -1 else   pro3_span_uict_beh4/pro3_span_uict_beh2 end as c_pro3_span_coltobuy_rate_uict,
+       case when pro3_span_uict_beh3 =0 then -1 else   pro3_span_uict_beh4/pro3_span_uict_beh3 end as c_pro3_span_crttobuy_rate_uict,
+-----------------------------------------------------------------------------------------------------------       
+       case when pro3_span_uic_beh1 =0 then -1 else   pro3_span_uic_beh4/pro3_span_uic_beh1 end as c_pro3_span_bwstobuy_rate_uic,
+       case when pro3_span_uic_beh2 =0 then -1 else   pro3_span_uic_beh4/pro3_span_uic_beh2 end as c_pro3_span_coltobuy_rate_uic,
+       case when pro3_span_uic_beh3 =0 then -1 else   pro3_span_uic_beh4/pro3_span_uic_beh3 end as c_pro3_span_crttobuy_rate_uic,
+-----------------------------------------------------------------------------------------------------------       
+       case when pro3_span_uc_beh1 =0 then -1 else   pro3_span_uc_beh4/pro3_span_uc_beh1 end as c_pro3_span_bwstobuy_rate_uc,
+       case when pro3_span_uc_beh2 =0 then -1 else   pro3_span_uc_beh4/pro3_span_uc_beh2 end as c_pro3_span_coltobuy_rate_uc,
+       case when pro3_span_uc_beh3 =0 then -1 else   pro3_span_uc_beh4/pro3_span_uc_beh3 end as c_pro3_span_crttobuy_rate_uc,
+-----------------------------------------------------------------------------------------------------------       
+       case when pro3_span_inter_cnt =0 then -1 else  pro3_span_uict_beh4/pro3_span_inter_cnt end as c_pro3_span_iter_avg_buy_rate,
+       case when pro3_span_inter_cnt =0 then -1 else  pro3_span_uict_beh4/pro3_span_buy_cnt end as c_pro3_span_buy_avg_buy_rate
+from
+(
+select all_cate.item_category,
+       case when pro1_uict.beh1 is null then 0 else pro1_uict.beh1 end as pro1_uict_beh1,
+       case when pro1_uict.beh2 is null then 0 else pro1_uict.beh2 end as pro1_uict_beh2,
+       case when pro1_uict.beh3 is null then 0 else pro1_uict.beh3 end as pro1_uict_beh3,
+       case when pro1_uict.beh4 is null then 0 else pro1_uict.beh4 end as pro1_uict_beh4,
+       case when pro1_uic.beh1 is null then 0 else  pro1_uic.beh1  end as pro1_uic_beh1,
+       case when pro1_uic.beh2 is null then 0 else  pro1_uic.beh2  end as pro1_uic_beh2,
+       case when pro1_uic.beh3 is null then 0 else  pro1_uic.beh3  end as pro1_uic_beh3,
+       case when pro1_uic.beh4 is null then 0 else  pro1_uic.beh4  end as pro1_uic_beh4,
+       case when pro1_uc.beh1 is null then 0 else  pro1_uc.beh1  end as pro1_uc_beh1,
+       case when pro1_uc.beh2 is null then 0 else  pro1_uc.beh2  end as pro1_uc_beh2,
+       case when pro1_uc.beh3 is null then 0 else  pro1_uc.beh3  end as pro1_uc_beh3,
+       case when pro1_uc.beh4 is null then 0 else  pro1_uc.beh4  end as pro1_uc_beh4,
+       case when pro1_inter.cnt is null then 0 else pro1_inter.cnt end as pro1_inter_cnt,
+       case when pro1_buy.cnt is null then 0 else pro1_buy.cnt end as pro1_buy_cnt,
+---------------------------------------------------------------------------------------------------
+       case when pro3_span_uict.beh1 is null then 0 else pro3_span_uict.beh1 end as pro3_span_uict_beh1,
+       case when pro3_span_uict.beh2 is null then 0 else pro3_span_uict.beh2 end as pro3_span_uict_beh2,
+       case when pro3_span_uict.beh3 is null then 0 else pro3_span_uict.beh3 end as pro3_span_uict_beh3,
+       case when pro3_span_uict.beh4 is null then 0 else pro3_span_uict.beh4 end as pro3_span_uict_beh4,
+       case when pro3_span_uic.beh1 is null then 0 else  pro3_span_uic.beh1  end as pro3_span_uic_beh1,
+       case when pro3_span_uic.beh2 is null then 0 else  pro3_span_uic.beh2  end as pro3_span_uic_beh2,
+       case when pro3_span_uic.beh3 is null then 0 else  pro3_span_uic.beh3  end as pro3_span_uic_beh3,
+       case when pro3_span_uic.beh4 is null then 0 else  pro3_span_uic.beh4  end as pro3_span_uic_beh4,
+       case when pro3_span_uc.beh1 is null then 0 else  pro3_span_uc.beh1  end as pro3_span_uc_beh1,
+       case when pro3_span_uc.beh2 is null then 0 else  pro3_span_uc.beh2  end as pro3_span_uc_beh2,
+       case when pro3_span_uc.beh3 is null then 0 else  pro3_span_uc.beh3  end as pro3_span_uc_beh3,
+       case when pro3_span_uc.beh4 is null then 0 else  pro3_span_uc.beh4  end as pro3_span_uc_beh4,
+       case when pro3_span_inter.cnt is null then 0 else pro3_span_inter.cnt end as pro3_span_inter_cnt,
+       case when pro3_span_buy.cnt is null then 0 else pro3_span_buy.cnt end as pro3_span_buy_cnt
+----------------------------------------------------------------------------------------------------------
+from
+(    
+    select  item_category
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) = substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    group by item_category---18日前一天活跃商品
+
+) all_cate
+left outer join 
+(    
+    select  item_category,
+    sum(case when behavior_type=1 then 1 else 0 end)  beh1,
+    sum(case when behavior_type=2 then 1 else 0 end)  beh2,
+    sum(case when behavior_type=3 then 1 else 0 end)  beh3,
+    sum(case when behavior_type=4 then 1 else 0 end)  beh4
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) = substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    group by item_category
+
+) pro1_uict
+on all_cate.item_category=pro1_uict.item_category
+left outer join 
+(    
+    select  item_category,
+    sum(case when behavior_type=1 then 1 else 0 end)  beh1,
+    sum(case when behavior_type=2 then 1 else 0 end)  beh2,
+    sum(case when behavior_type=3 then 1 else 0 end)  beh3,
+    sum(case when behavior_type=4 then 1 else 0 end)  beh4
+    from
+    (select distinct user_id,item_id,item_category,behavior_type
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) = substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    ) a
+    group by item_category
+) pro1_uic
+on all_cate.item_category=pro1_uic.item_category
+left outer join 
+(   select  item_category,
+    sum(case when behavior_type=1 then 1 else 0 end)  beh1,
+    sum(case when behavior_type=2 then 1 else 0 end)  beh2,
+    sum(case when behavior_type=3 then 1 else 0 end)  beh3,
+    sum(case when behavior_type=4 then 1 else 0 end)  beh4
+    from
+    (select distinct user_id,item_category,behavior_type
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) = substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    ) a
+    group by item_category
+) pro1_uc
+on all_cate.item_category=pro1_uc.item_category
+left outer join 
+( 
+   select item_category,count(distinct item_id) as cnt
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) = substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    group by item_category
+) pro1_inter
+on all_cate.item_category=pro1_inter.item_category
+left outer join 
+( 
+   select item_category,count(distinct item_id) as cnt
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) = substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    and behavior_type=4
+    group by item_category
+) pro1_buy
+on all_cate.item_category=pro1_buy.item_category
+--------------------------------pro3_span--------------------------------------
+left outer join 
+(    
+    select  item_category,
+    sum(case when behavior_type=1 then 1 else 0 end)  beh1,
+    sum(case when behavior_type=2 then 1 else 0 end)  beh2,
+    sum(case when behavior_type=3 then 1 else 0 end)  beh3,
+    sum(case when behavior_type=4 then 1 else 0 end)  beh4
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    and substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+    group by item_category
+
+) pro3_span_uict
+on all_cate.item_category=pro3_span_uict.item_category
+left outer join 
+(    
+    select  item_category,
+    sum(case when behavior_type=1 then 1 else 0 end)  beh1,
+    sum(case when behavior_type=2 then 1 else 0 end)  beh2,
+    sum(case when behavior_type=3 then 1 else 0 end)  beh3,
+    sum(case when behavior_type=4 then 1 else 0 end)  beh4
+    from
+    (select distinct user_id,item_id,item_category,behavior_type
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    and substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+    ) a
+    group by item_category
+) pro3_span_uic
+on all_cate.item_category=pro3_span_uic.item_category
+left outer join 
+(   select  item_category,
+    sum(case when behavior_type=1 then 1 else 0 end)  beh1,
+    sum(case when behavior_type=2 then 1 else 0 end)  beh2,
+    sum(case when behavior_type=3 then 1 else 0 end)  beh3,
+    sum(case when behavior_type=4 then 1 else 0 end)  beh4
+    from
+    (select distinct user_id,item_category,behavior_type
+    from mobile_recommend_train_user_filter_item
+ where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+and substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)    ) a
+    group by item_category
+) pro3_span_uc
+on all_cate.item_category=pro3_span_uc.item_category
+left outer join 
+( 
+   select item_category,count(distinct item_id) as cnt
+    from mobile_recommend_train_user_filter_item
+ where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+and substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)    group by item_category
+) pro3_span_inter
+on all_cate.item_category=pro3_span_inter.item_category
+left outer join 
+( 
+   select item_category,count(distinct item_id) as cnt
+    from mobile_recommend_train_user_filter_item
+   where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    and substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)    and behavior_type=4
+    group by item_category
+) pro3_span_buy
+on all_cate.item_category=pro3_span_buy.item_category)major;
+
+
+drop table if exists cf_18day_rate2;
+create table cf_18day_rate2 as
+select item_category,
+       case when pro10_span_uict_beh1 =0 then -1 else   pro10_span_uict_beh4/pro10_span_uict_beh1 end as c_pro10_span_bwstobuy_rate_uict,
+       case when pro10_span_uict_beh2 =0 then -1 else   pro10_span_uict_beh4/pro10_span_uict_beh2 end as c_pro10_span_coltobuy_rate_uict,
+       case when pro10_span_uict_beh3 =0 then -1 else   pro10_span_uict_beh4/pro10_span_uict_beh3 end as c_pro10_span_crttobuy_rate_uict,
+-----------------------------------------------------------------------------------------------------------       
+       case when pro10_span_uic_beh1 =0 then -1 else   pro10_span_uic_beh4/pro10_span_uic_beh1 end as c_pro10_span_bwstobuy_rate_uic,
+       case when pro10_span_uic_beh2 =0 then -1 else   pro10_span_uic_beh4/pro10_span_uic_beh2 end as c_pro10_span_coltobuy_rate_uic,
+       case when pro10_span_uic_beh3 =0 then -1 else   pro10_span_uic_beh4/pro10_span_uic_beh3 end as c_pro10_span_crttobuy_rate_uic,
+-----------------------------------------------------------------------------------------------------------       
+       case when pro10_span_uc_beh1 =0 then -1 else   pro10_span_uc_beh4/pro10_span_uc_beh1 end as c_pro10_span_bwstobuy_rate_uc,
+       case when pro10_span_uc_beh2 =0 then -1 else   pro10_span_uc_beh4/pro10_span_uc_beh2 end as c_pro10_span_coltobuy_rate_uc,
+       case when pro10_span_uc_beh3 =0 then -1 else   pro10_span_uc_beh4/pro10_span_uc_beh3 end as c_pro10_span_crttobuy_rate_uc,
+-----------------------------------------------------------------------------------------------------------       
+       case when pro10_span_inter_cnt =0 then -1 else  pro10_span_uict_beh4/pro10_span_inter_cnt end as c_pro10_span_iter_avg_buy_rate,
+       case when pro10_span_inter_cnt =0 then -1 else  pro10_span_uict_beh4/pro10_span_buy_cnt end as c_pro10_span_buy_avg_buy_rate,
+--------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
+       case when pro26_span_uict_beh1 =0 then -1 else   pro26_span_uict_beh4/pro26_span_uict_beh1 end as c_pro26_span_bwstobuy_rate_uict,
+       case when pro26_span_uict_beh2 =0 then -1 else   pro26_span_uict_beh4/pro26_span_uict_beh2 end as c_pro26_span_coltobuy_rate_uict,
+       case when pro26_span_uict_beh3 =0 then -1 else   pro26_span_uict_beh4/pro26_span_uict_beh3 end as c_pro26_span_crttobuy_rate_uict,
+-----------------------------------------------------------------------------------------------------------       
+       case when pro26_span_uic_beh1 =0 then -1 else   pro26_span_uic_beh4/pro26_span_uic_beh1 end as c_pro26_span_bwstobuy_rate_uic,
+       case when pro26_span_uic_beh2 =0 then -1 else   pro26_span_uic_beh4/pro26_span_uic_beh2 end as c_pro26_span_coltobuy_rate_uic,
+       case when pro26_span_uic_beh3 =0 then -1 else   pro26_span_uic_beh4/pro26_span_uic_beh3 end as c_pro26_span_crttobuy_rate_uic,
+-----------------------------------------------------------------------------------------------------------       
+       case when pro26_span_uc_beh1 =0 then -1 else   pro26_span_uc_beh4/pro26_span_uc_beh1 end as c_pro26_span_bwstobuy_rate_uc,
+       case when pro26_span_uc_beh2 =0 then -1 else   pro26_span_uc_beh4/pro26_span_uc_beh2 end as c_pro26_span_coltobuy_rate_uc,
+       case when pro26_span_uc_beh3 =0 then -1 else   pro26_span_uc_beh4/pro26_span_uc_beh3 end as c_pro26_span_crttobuy_rate_uc,
+-----------------------------------------------------------------------------------------------------------       
+       case when pro26_span_inter_cnt =0 then -1 else  pro26_span_uict_beh4/pro26_span_inter_cnt end as c_pro26_span_iter_avg_buy_rate,
+       case when pro26_span_inter_cnt =0 then -1 else  pro26_span_uict_beh4/pro26_span_buy_cnt end as c_pro26_span_buy_avg_buy_rate 
+from
+(
+select all_cate.item_category,
+       case when pro10_span_uict.beh1 is null then 0 else pro10_span_uict.beh1 end as pro10_span_uict_beh1,
+       case when pro10_span_uict.beh2 is null then 0 else pro10_span_uict.beh2 end as pro10_span_uict_beh2,
+       case when pro10_span_uict.beh3 is null then 0 else pro10_span_uict.beh3 end as pro10_span_uict_beh3,
+       case when pro10_span_uict.beh4 is null then 0 else pro10_span_uict.beh4 end as pro10_span_uict_beh4,
+       case when pro10_span_uic.beh1 is null then 0 else  pro10_span_uic.beh1  end as pro10_span_uic_beh1,
+       case when pro10_span_uic.beh2 is null then 0 else  pro10_span_uic.beh2  end as pro10_span_uic_beh2,
+       case when pro10_span_uic.beh3 is null then 0 else  pro10_span_uic.beh3  end as pro10_span_uic_beh3,
+       case when pro10_span_uic.beh4 is null then 0 else  pro10_span_uic.beh4  end as pro10_span_uic_beh4,
+       case when pro10_span_uc.beh1 is null then 0 else  pro10_span_uc.beh1  end as pro10_span_uc_beh1,
+       case when pro10_span_uc.beh2 is null then 0 else  pro10_span_uc.beh2  end as pro10_span_uc_beh2,
+       case when pro10_span_uc.beh3 is null then 0 else  pro10_span_uc.beh3  end as pro10_span_uc_beh3,
+       case when pro10_span_uc.beh4 is null then 0 else  pro10_span_uc.beh4  end as pro10_span_uc_beh4,
+       case when pro10_span_inter.cnt is null then 0 else pro10_span_inter.cnt end as pro10_span_inter_cnt,
+       case when pro10_span_buy.cnt is null then 0 else pro10_span_buy.cnt end as pro10_span_buy_cnt,     
+----------------------------------------------------------------------------------------------------------
+       case when pro26_span_uict.beh1 is null then 0 else pro26_span_uict.beh1 end as pro26_span_uict_beh1,
+       case when pro26_span_uict.beh2 is null then 0 else pro26_span_uict.beh2 end as pro26_span_uict_beh2,
+       case when pro26_span_uict.beh3 is null then 0 else pro26_span_uict.beh3 end as pro26_span_uict_beh3,
+       case when pro26_span_uict.beh4 is null then 0 else pro26_span_uict.beh4 end as pro26_span_uict_beh4,
+       case when pro26_span_uic.beh1 is null then 0 else  pro26_span_uic.beh1  end as pro26_span_uic_beh1,
+       case when pro26_span_uic.beh2 is null then 0 else  pro26_span_uic.beh2  end as pro26_span_uic_beh2,
+       case when pro26_span_uic.beh3 is null then 0 else  pro26_span_uic.beh3  end as pro26_span_uic_beh3,
+       case when pro26_span_uic.beh4 is null then 0 else  pro26_span_uic.beh4  end as pro26_span_uic_beh4,
+       case when pro26_span_uc.beh1 is null then 0 else  pro26_span_uc.beh1  end as pro26_span_uc_beh1,
+       case when pro26_span_uc.beh2 is null then 0 else  pro26_span_uc.beh2  end as pro26_span_uc_beh2,
+       case when pro26_span_uc.beh3 is null then 0 else  pro26_span_uc.beh3  end as pro26_span_uc_beh3,
+       case when pro26_span_uc.beh4 is null then 0 else  pro26_span_uc.beh4  end as pro26_span_uc_beh4,
+       case when pro26_span_inter.cnt is null then 0 else pro26_span_inter.cnt end as pro26_span_inter_cnt,
+       case when pro26_span_buy.cnt is null then 0 else pro26_span_buy.cnt end as pro26_span_buy_cnt
+----------------------------------------------------------------------------------------------------------
+from
+(    
+    select  item_category
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) = substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    group by item_category---18日前一天活跃商品
+
+) all_cate
+left outer join 
+(    
+    select  item_category,
+    sum(case when behavior_type=1 then 1 else 0 end)  beh1,
+    sum(case when behavior_type=2 then 1 else 0 end)  beh2,
+    sum(case when behavior_type=3 then 1 else 0 end)  beh3,
+    sum(case when behavior_type=4 then 1 else 0 end)  beh4
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    and substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-10,'dd') as string), 1, 10)
+    group by item_category
+
+) pro10_span_uict
+on all_cate.item_category=pro10_span_uict.item_category
+left outer join 
+(    
+    select  item_category,
+    sum(case when behavior_type=1 then 1 else 0 end)  beh1,
+    sum(case when behavior_type=2 then 1 else 0 end)  beh2,
+    sum(case when behavior_type=3 then 1 else 0 end)  beh3,
+    sum(case when behavior_type=4 then 1 else 0 end)  beh4
+    from
+    (select distinct user_id,item_id,item_category,behavior_type
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    and substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-10,'dd') as string), 1, 10)
+    ) a
+    group by item_category
+) pro10_span_uic
+on all_cate.item_category=pro10_span_uic.item_category
+left outer join 
+(   select  item_category,
+    sum(case when behavior_type=1 then 1 else 0 end)  beh1,
+    sum(case when behavior_type=2 then 1 else 0 end)  beh2,
+    sum(case when behavior_type=3 then 1 else 0 end)  beh3,
+    sum(case when behavior_type=4 then 1 else 0 end)  beh4
+    from
+    (select distinct user_id,item_category,behavior_type
+    from mobile_recommend_train_user_filter_item
+ where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+and substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-10,'dd') as string), 1, 10)    ) a
+    group by item_category
+) pro10_span_uc
+on all_cate.item_category=pro10_span_uc.item_category
+left outer join 
+( 
+   select item_category,count(distinct item_id) as cnt
+    from mobile_recommend_train_user_filter_item
+ where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+and substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-10,'dd') as string), 1, 10)    group by item_category
+) pro10_span_inter
+on all_cate.item_category=pro10_span_inter.item_category
+left outer join 
+( 
+   select item_category,count(distinct item_id) as cnt
+    from mobile_recommend_train_user_filter_item
+   where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    and substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-10,'dd') as string), 1, 10)    and behavior_type=4
+    group by item_category
+) pro10_span_buy
+on all_cate.item_category=pro10_span_buy.item_category
+------------------------------pro26_span------------------------------
+left outer join 
+(    
+    select  item_category,
+    sum(case when behavior_type=1 then 1 else 0 end)  beh1,
+    sum(case when behavior_type=2 then 1 else 0 end)  beh2,
+    sum(case when behavior_type=3 then 1 else 0 end)  beh3,
+    sum(case when behavior_type=4 then 1 else 0 end)  beh4
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    and substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-26,'dd') as string), 1, 10)
+    group by item_category
+
+) pro26_span_uict
+on all_cate.item_category=pro26_span_uict.item_category
+left outer join 
+(    
+    select  item_category,
+    sum(case when behavior_type=1 then 1 else 0 end)  beh1,
+    sum(case when behavior_type=2 then 1 else 0 end)  beh2,
+    sum(case when behavior_type=3 then 1 else 0 end)  beh3,
+    sum(case when behavior_type=4 then 1 else 0 end)  beh4
+    from
+    (select distinct user_id,item_id,item_category,behavior_type
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    and substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-26,'dd') as string), 1, 10)
+    ) a
+    group by item_category
+) pro26_span_uic
+on all_cate.item_category=pro26_span_uic.item_category
+left outer join 
+(   select  item_category,
+    sum(case when behavior_type=1 then 1 else 0 end)  beh1,
+    sum(case when behavior_type=2 then 1 else 0 end)  beh2,
+    sum(case when behavior_type=3 then 1 else 0 end)  beh3,
+    sum(case when behavior_type=4 then 1 else 0 end)  beh4
+    from
+    (select distinct user_id,item_category,behavior_type
+    from mobile_recommend_train_user_filter_item
+ where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+and substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-26,'dd') as string), 1, 10)    ) a
+    group by item_category
+) pro26_span_uc
+on all_cate.item_category=pro26_span_uc.item_category
+left outer join 
+( 
+   select item_category,count(distinct item_id) as cnt
+    from mobile_recommend_train_user_filter_item
+ where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+and substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-26,'dd') as string), 1, 10)    group by item_category
+) pro26_span_inter
+on all_cate.item_category=pro26_span_inter.item_category
+left outer join 
+( 
+   select item_category,count(distinct item_id) as cnt
+    from mobile_recommend_train_user_filter_item
+   where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    and substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-10,'dd') as string), 1, 10)    and behavior_type=4
+    group by item_category
+) pro26_span_buy
+on all_cate.item_category=pro26_span_buy.item_category)major;
+
+
+

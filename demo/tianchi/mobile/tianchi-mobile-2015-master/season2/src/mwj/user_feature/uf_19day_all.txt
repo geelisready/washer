@@ -1,0 +1,58 @@
+----------------------------------------span=19天，并去除1211，1212，1213，不包含则少取----------------
+
+drop table if exists uf_19day_span_inall;
+create table uf_19day_span_inall as
+select all_user.user_id,a.user_buy_cnt,b.user_buy_cnt3,c.user_buy_cnt2,
+       case when a.user_buy_cnt is null then 0 else a.user_buy_cnt end as user_buy_cnt_inall,
+       case when b.user_buy_cnt3 is null then 0 else b.user_buy_cnt3 end as user_buy_cnt3_inall,
+       case when c.user_buy_cnt2 is null then 0 else c.user_buy_cnt2 end as user_buy_cnt2_inall
+from
+(    
+    select  user_id
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) = substr(cast(dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    group by user_id---19日前一天有交互全部用户
+
+) all_user
+--------------------------------------------------------
+left outer join
+--------------------------------------------------------
+(
+    select user_id,count(distinct item_id,substr(`time`, 1, 10)) as user_buy_cnt
+    from tianchi_lbs.tianchi_mobile_recommend_train_user
+    where 
+    substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    and substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-17,'dd') as string), 1, 10)
+    and substr(`time`, 1, 10)!='2014-12-11'
+    and substr(`time`, 1, 10)!='2014-12-12'
+    and substr(`time`, 1, 10)!='2014-12-13'
+    and behavior_type = 4
+    group by user_id
+)  a
+on all_user.user_id=a.user_id
+left outer join
+--------------------------------------------------------
+(
+    select user_id,count(distinct item_id,substr(`time`, 1, 10)) as user_buy_cnt3
+    from tianchi_lbs.tianchi_mobile_recommend_train_user
+    where 
+    substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    and substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+    and behavior_type = 4
+    group by user_id
+) b
+-----------------------------------------------------
+on all_user.user_id=b.user_id
+left outer join
+--------------------------------------------------------
+(
+    select user_id,count(distinct item_id,substr(`time`, 1, 10)) as user_buy_cnt2
+    from tianchi_lbs.tianchi_mobile_recommend_train_user
+    where 
+    substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    and substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-2,'dd') as string), 1, 10)
+    and behavior_type = 4
+    group by user_id
+) c
+on all_user.user_id=c.user_id;
+

@@ -1,0 +1,371 @@
+----------rf1:10-----------gbdt正18×4，17×2-----------------------------
+-----------------------all--------------------
+------------------------------------------------
+drop table if exists 17day_combine_pos;
+create table 17day_combine_pos as 
+select * from mwj_temp_17_0528
+where label=1;--正样本--
+
+drop table if exists 17day_combine_neg;
+create table 17day_combine_neg as 
+select * from mwj_temp_17_0528
+where label=0;--负样本--
+
+select count(1) from 17day_combine_neg;
+
+-------------算法平台采样----------------------------
+
+drop table if exists 17day_combine_negpos;
+create table 17day_combine_negpos as
+select * from(
+select * from 17day_combine_pos
+union all
+select * from 17day_combine_neg_sample)
+t;------正样本与采样后负样本合并--------
+
+
+select count(1) from 17day_combine_pos;--29481-
+
+--------------------------------------------------
+-----------------------all-----0528---------------
+------------------------------------------------
+drop table if exists 1718day_pos;
+create table 1718day_pos as
+select * from
+(
+select * from 17day_combine_backup_0526 where label=1
+union all
+select * from 18day_combine_backup_0526 where label=1
+union all
+select * from 18day_combine_backup_0526 where label=1
+union all
+select * from 17day_combine_backup_0526 where label=1
+union all
+select * from 18day_combine_backup_0526 where label=1
+union all
+select * from 18day_combine_backup_0526 where label=1
+)t;
+
+drop table if exists 1718day_neg;
+create table 1718day_neg as
+select * from
+(
+select * from 17day_combine_backup_0526 where label=0
+union all
+select * from 18day_combine_backup_0526 where label=0
+union all
+select * from 18day_combine_backup_0526 where label=0
+)t;
+
+
+drop table if exists 1718day_combine_06;
+create table 1718day_combine_06 as
+select * from
+(
+select * from 1718day_pos
+union all
+select * from 1718_neg_sample_0528_6
+) t;
+
+
+
+drop table if exists mwj_temp_17_0530_01pos;
+create table mwj_temp_17_0530_01pos as 
+select * from 17day_combine_backup_0526
+where label=1;--正样本--
+
+drop table if exists mwj_temp_17_0530_01neg;
+create table mwj_temp_17_0530_01neg as 
+select * from 17day_combine_backup_0526
+where label=0;--负样本--
+
+
+------------0601------------------
+create table 18day_0601_pos as 
+select * from 18day_combine_0530_trer_rem where label=1;
+create table 18day_0601_neg as 
+select * from 18day_combine_0530_trer_rem where label=0;
+
+
+
+create table 18day_0601_pos_union as
+select * from
+(
+select * from 18day_0601_pos
+union all
+select * from 18day_0601_pos
+union all
+select * from 18day_0601_pos
+union all
+select * from 18day_0601_pos
+) t;
+
+select count(1) from 18day_0601_pos_union;--11w--
+
+create table 18day_0601_combine as
+select * from
+(
+select * from 18day_0601_pos_union
+union all
+select * from 18day_0601_neg_sample1
+) t;
+
+create table 18day_0601_combine02 as
+select * from
+(
+select * from 18day_0601_pos_union
+union all
+select * from 18day_0601_neg_sample2
+) t;
+--------------0602---------boosting----------
+--19day_combine_backup_0526
+---17，18rf训练
+create table 17day_combine_0606_p as
+select * from 17day_combine_fix_new_u_i_rank__0606  where label=1;
+
+create table 17day_combine_0606_n as
+select * from 17day_combine_fix_new_u_i_rank__0606  where label=0;
+
+
+create table 18day_combine_0606_p as
+select * from 18day_combine_fix_new_u_i_rank__0606  where label=1;
+
+create table 18day_combine_0606_n as
+select * from 18day_combine_fix_new_u_i_rank__0606  where label=0;
+
+----包括17，18
+create table 1718day_combine_0606_pu as
+select * from
+(select * from 17day_combine_0606_p
+union all
+select * from 18day_combine_0606_p
+union all
+select * from 18day_combine_0606_p
+union all
+select * from 17day_combine_0606_p
+union all
+select * from 18day_combine_0606_p
+union all
+select * from 18day_combine_0606_p
+) t;
+
+create table 1718day_combine_0606_nu as
+select * from
+(select * from 17day_combine_0606_n
+union all
+select * from 18day_combine_0606_n
+union all
+select * from 18day_combine_0606_n
+) t;
+
+select count(1) from 1718day_combine_0606_pu;--16.7w--
+
+
+drop table if exists 1718day_combine_0606_np01;
+create table 1718day_combine_0606_np01 as
+select * from
+(select * from 1718day_combine_0606_pu
+union all
+select * from 1718day_combine_0606_nu_sample1
+) t;
+
+drop table if exists 1718day_combine_0606_np02;
+create table 1718day_combine_0606_np02 as
+select * from
+(select * from 1718day_combine_0606_pu
+union all
+select * from 1718day_combine_0606_nu_sample2
+) t;
+
+select count(1) from 1718day_combine_0606_np02;--116w-
+
+--------------boosting------------------------------------
+
+create table 17day_pf as
+select * from 17day_combine_backup_0526_trer02 where prediction_result=0 and label=1;--pf1.7w
+create table 18day_pf as
+select * from 18day_combine_backup_0526_trer02 where prediction_result=0 and label=1;--pf1.5w
+
+create table 17day_nf as
+select * from 17day_combine_backup_0526_trer02 where prediction_result=1 and label=0;--nf14.5w
+create table 18day_nf as
+select * from 18day_combine_backup_0526_trer02 where prediction_result=1 and label=0;--nf14.1w
+
+create table 17day_pf_join as
+select t1.*
+from
+(select * from 17day_combine_backup_0526) t1
+right outer join
+(select * from 17day_pf) t2
+on t1.user_id=t2.user_id
+and t1.item_id=t2.item_id;
+
+create table 18day_pf_join as
+select t1.*
+from
+(select * from 18day_combine_backup_0526) t1
+right outer join
+(select * from 18day_pf) t2
+on t1.user_id=t2.user_id
+and t1.item_id=t2.item_id;
+
+create table 17day_nf_join as
+select t1.*
+from
+(select * from 17day_combine_backup_0526) t1
+right outer join
+(select * from 17day_nf) t2
+on t1.user_id=t2.user_id
+and t1.item_id=t2.item_id;
+
+create table 18day_nf_join as
+select t1.*
+from
+(select * from 18day_combine_backup_0526) t1
+right outer join
+(select * from 18day_nf) t2
+on t1.user_id=t2.user_id
+and t1.item_id=t2.item_id;
+
+
+create table boosting_train_pos as
+select * from
+(select * from 17day_combine_0526_p
+union all
+select * from 17day_combine_0526_p
+union all
+select * from 18day_combine_0526_p
+union all
+select * from 18day_combine_0526_p
+union all
+select * from 18day_combine_0526_p
+union all
+select * from 17day_pf_join
+union all
+select * from 17day_pf_join
+union all
+select * from 18day_pf_join
+union all
+select * from 18day_pf_join
+union all
+select * from 18day_pf_join
+) t;
+
+create table boosting_train_neg1 as
+select * from
+(select * from 18day_combine_0526_nu_boosting_sample01
+union all
+select * from 17day_nf_join
+union all
+select * from 17day_nf_join
+union all
+select * from 18day_nf_join
+union all
+select * from 18day_nf_join
+union all
+select * from 18day_nf_join
+) t;
+
+create table boosting_train_neg2 as
+select * from
+(select * from 18day_combine_0526_nu_boosting_sample02
+union all
+select * from 17day_nf_join
+union all
+select * from 17day_nf_join
+union all
+select * from 18day_nf_join
+union all
+select * from 18day_nf_join
+union all
+select * from 18day_nf_join
+) t;
+
+create table boosting_train_combine1 as
+select * from
+(select * from boosting_train_pos
+union all
+select * from  boosting_train_neg1
+) t;
+
+
+create table boosting_train_combine2 as
+select * from
+(select * from boosting_train_pos
+union all
+select * from  boosting_train_neg2
+) t;
+
+
+---------------------------------------------------------------
+-------------------隔两天cart------------------------------
+----------------------------------------------------------
+drop table if exists interval_2day_combine_18label_0607_onlycart;
+create table interval_2day_combine_18label_0607_onlycart as
+select * from interval_2day_combine_18label_0601 where last_cart_hour>=0;
+
+
+drop table if exists interval_2day_combine_19label_0607_onlycart;
+create table interval_2day_combine_19label_0607_onlycart as
+select * from interval_2day_combine_19label_0601 where last_cart_hour>=0;
+
+
+drop table if exists interval_2day_combine_18label_0607_onlycart_newfeature;
+create table interval_2day_combine_18label_0607_onlycart_newfeature as
+select b.*,a.rightlabel from 
+(select user_id,item_id,label as rightlabel from interval_2day_combine_18label_0607_onlycart)a
+left outer join 
+(select * from 17day_combine_fix_new_u_i_rank__0606) b
+on a.user_id=b.user_id
+and a.item_id=b.item_id;
+
+drop table if exists interval_2day_combine_19label_0607_onlycart_newfeature;
+create table interval_2day_combine_19label_0607_onlycart_newfeature as
+select b.* from 
+(select user_id,item_id from interval_2day_combine_19label_0607_onlycart)a
+left outer join 
+(select * from 18day_combine_fix_new_u_i_rank__0606) b
+on a.user_id=b.user_id
+and a.item_id=b.item_id;
+
+drop table if exists interval_2day_combine_18label_0607_onlycart_newfeature_p;
+create table interval_2day_combine_18label_0607_onlycart_newfeature_p as
+select * from interval_2day_combine_18label_0607_onlycart_newfeature where rightlabel=1;
+
+drop table if exists interval_2day_combine_18label_0607_onlycart_newfeature_n;
+create table interval_2day_combine_18label_0607_onlycart_newfeature_n as
+select * from interval_2day_combine_18label_0607_onlycart_newfeature where rightlabel=0;
+
+select count(1) from interval_2day_combine_18label_0607_onlycart_newfeature_n;---29w
+
+drop table if exists interval_2day_combine_18label_0607_onlycart_newfeature_np1;
+create table interval_2day_combine_18label_0607_onlycart_newfeature_np1 as
+select * from
+(select * from interval_2day_combine_18label_0607_onlycart_newfeature_p
+union all
+select * from interval_2day_combine_18label_0607_onlycart_newfeature_p
+union all
+select * from interval_2day_combine_18label_0607_onlycart_newfeature_p
+union all
+select * from interval_2day_combine_18label_0607_onlycart_newfeature_p
+union all
+select * from interval_2day_combine_18label_0607_onlycart_newfeature_p
+union all
+select * from  interval_2day_combine_18label_0607_onlycart_newfeature_n_sample1) t;
+
+
+drop table if exists interval_2day_combine_18label_0607_onlycart_newfeature_np2;
+create table interval_2day_combine_18label_0607_onlycart_newfeature_np2 as
+select * from
+(select * from interval_2day_combine_18label_0607_onlycart_newfeature_p
+union all
+select * from interval_2day_combine_18label_0607_onlycart_newfeature_p
+union all
+select * from interval_2day_combine_18label_0607_onlycart_newfeature_p
+union all
+select * from interval_2day_combine_18label_0607_onlycart_newfeature_p
+union all
+select * from interval_2day_combine_18label_0607_onlycart_newfeature_p
+union all
+select * from  interval_2day_combine_18label_0607_onlycart_newfeature_n_sample2) t;
+

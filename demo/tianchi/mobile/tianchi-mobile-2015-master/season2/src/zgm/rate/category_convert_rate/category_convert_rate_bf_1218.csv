@@ -1,0 +1,536 @@
+---item category转化率----
+drop table if exists category_convert_rate_bf_1218;
+create table category_convert_rate_bf_1218 as
+select t.*,
+    case 
+      when t1.c_cartTobuyRate is null then -1 
+      else t1.c_cartTobuyRate
+    end as c_cartTobuyRate,
+    case 
+      when t2.c_collectTobuyRate is null then -1 
+      else t2.c_collectTobuyRate
+    end as c_collectTobuyRate,
+    case 
+      when t3.c_browseTobuyRate is null then -1 
+      else t3.c_browseTobuyRate
+    end as c_browseTobuyRate,
+    case 
+      when c_cartTobuyRate_recent3d is null then -1 
+      else c_cartTobuyRate_recent3d
+    end as c_cartTobuyRate_recent3d,
+    case 
+      when c_collectTobuyRate_recent3d is null then -1 
+      else c_collectTobuyRate_recent3d
+    end as c_collectTobuyRate_recent3d,
+    case 
+      when c_browseTobuyRate_recent3d is null then -1 
+      else c_browseTobuyRate_recent3d
+    end as c_browseTobuyRate_recent3d
+
+    from 
+    
+    (select distinct item_category from mobile_recommend_train_user_filter_item where substr(time,1,10)=
+    substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)) t 
+    
+    left outer join 
+    (select buy.item_category,(buy.item_category_count/cart.item_category_count) as c_cartTobuyRate 
+        from 
+        (select item_category,count(1) as item_category_count from mobile_recommend_train_user_filter_item where behavior_type=4 and time<'2014-12-18' group by item_category) buy
+        join
+        (select item_category,count(1) as item_category_count from mobile_recommend_train_user_filter_item where behavior_type=3 and time<'2014-12-18' group by item_category) cart 
+        on buy.item_category=cart.item_category
+    ) t1 on t1.item_category=t.item_category
+    
+    left outer join 
+    (select buy.item_category,(buy.item_category_count/cart.item_category_count) as c_collectTobuyRate 
+        from ---collect to buy 转化率----有些item收藏一次后会发生多次购买
+        (select item_category,count(1) as item_category_count from mobile_recommend_train_user_filter_item where behavior_type=4 and time<'2014-12-18' group by item_category) buy 
+        join
+        (select item_category,count(1) as item_category_count from mobile_recommend_train_user_filter_item where behavior_type=2 and time<'2014-12-18' group by item_category) cart
+        on buy.item_category=cart.item_category
+    )t2 on t2.item_category=t.item_category
+    
+    
+    left outer join 
+    (
+    select buy.item_category,(buy.item_category_count/cart.item_category_count) as c_browseTobuyRate 
+        from ---browse to buy 转化率----
+        (select item_category,count(1) as item_category_count from mobile_recommend_train_user_filter_item where behavior_type=4 and time<'2014-12-18' group by item_category) buy 
+        join
+        (select item_category,count(1) as item_category_count from mobile_recommend_train_user_filter_item where behavior_type=1 and time<'2014-12-18' group by item_category) cart 
+        on buy.item_category=cart.item_category
+    )t3 on t3.item_category=t.item_category
+    
+    left outer join 
+    (select buy.item_category,(buy.item_category_count/cart.item_category_count) as c_cartTobuyRate_recent3d  
+        from 
+        (select item_category,count(1) as item_category_count from mobile_recommend_train_user_filter_item where behavior_type=4 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10) group by item_category) buy
+        join
+        (select item_category,count(1) as item_category_count from mobile_recommend_train_user_filter_item where behavior_type=3 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10) group by item_category) cart 
+        on buy.item_category=cart.item_category
+    ) t4 on t4.item_category=t.item_category
+    
+    left outer join 
+    (select buy.item_category,(buy.item_category_count/cart.item_category_count) as c_collectTobuyRate_recent3d  
+        from ---collect to buy 转化率----有些item收藏一次后会发生多次购买
+        (select item_category,count(1) as item_category_count from mobile_recommend_train_user_filter_item where behavior_type=4 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10) group by item_category) buy 
+        join
+        (select item_category,count(1) as item_category_count from mobile_recommend_train_user_filter_item where behavior_type=2 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10) group by item_category) cart
+        on buy.item_category=cart.item_category
+    )t5 on t5.item_category=t.item_category
+    
+    
+    left outer join 
+    (
+    select buy.item_category,(buy.item_category_count/cart.item_category_count) as c_browseTobuyRate_recent3d 
+        from ---browse to buy 转化率----
+        (select item_category,count(1) as item_category_count from mobile_recommend_train_user_filter_item where behavior_type=4 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10) group by item_category) buy 
+        join
+        (select item_category,count(1) as item_category_count from mobile_recommend_train_user_filter_item where behavior_type=1 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10) group by item_category) cart 
+        on buy.item_category=cart.item_category
+    )t6 on t6.item_category=t.item_category
+    ;
+----------------------------------------------------------------------------------------------------
+
+drop table if exists category_convert_rate_bf_1218_temp;
+create table category_convert_rate_bf_1218_temp as 
+select * from category_convert_rate_bf_1218;
+
+------------------------------------item cart to buy rate 包含三种---------------------------------------------------------------------------------------
+
+drop table if exists category_convert_rate_bf_1218;
+create table category_convert_rate_bf_1218 as 
+select t.*,
+case when t1.c_browsetobuyrate1 is null then -1
+         else t1.c_browsetobuyrate1
+    end as c_browsetobuyrate1,
+    case when t2.c_browsetobuyrate2 is null then -1
+         else t2.c_browsetobuyrate2
+    end as c_browsetobuyrate2,
+    case when t3.c_browsetobuyrate3 is null then -1
+         else t3.c_browsetobuyrate3
+    end as c_browsetobuyrate3,
+    case when t4.c_collecttobuyrate1 is null then -1
+         else t4.c_collecttobuyrate1
+    end as c_collecttobuyrate1,
+    case when t5.c_collecttobuyrate2 is null then -1
+         else t5.c_collecttobuyrate2
+    end as c_collecttobuyrate2,
+    case when t6.c_collecttobuyrate3 is null then -1
+         else t6.c_collecttobuyrate3
+    end as c_collecttobuyrate3,
+    case when t7.c_carttobuyrate1 is null then -1
+         else t7.c_carttobuyrate1
+    end as c_carttobuyrate1,
+    case when t8.c_carttobuyrate2 is null then -1
+         else t8.c_carttobuyrate2
+    end as c_carttobuyrate2,
+    case when t9.c_carttobuyrate3 is null then -1
+         else t9.c_carttobuyrate3
+    end as c_carttobuyrate3
+    from category_convert_rate_bf_1218_temp t
+    left outer join 
+    (select item_category,sum(buynum)/sum(cartnum) as c_browsetobuyrate1
+    from (select t1.item_id,item_category,count(1) as cartnum
+            from(select t1.item_id,t1.user_id,t1.item_category from                     mobile_recommend_train_user_filter_item t1 
+                     left outer join
+                     (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=4 and time<'2014-12-18') t2                     on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=1 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18') t1 
+            group by t1.item_id,item_category) t1
+        join  
+        (select t1.item_id,count(1) as buynum            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=1 and time<'2014-12-18') t2
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=4 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18') t1 
+            group by t1.item_id) t2
+        on t1.item_id = t2.item_id
+        group by item_category
+    )t1 on t.item_category=t1.item_category 
+    left outer join
+    (select item_category,sum(buynum)/sum(cartnum) as c_browsetobuyrate2
+    from (select t1.item_id,item_category,count(1) as cartnum            from(select t1.item_id,item_category,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=4 and time<'2014-12-18') t2                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=1 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18') t1 
+            group by t1.item_id,item_category) t1
+        join  
+        (select t1.item_id,count(1) as buynum            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=1 and time<'2014-12-18') t2
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=4 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18') t1 
+            group by t1.item_id) t2
+        on t1.item_id = t2.item_id
+        group by item_category
+    ) t2 on t.item_category=t2.item_category
+    left outer join 
+    (select item_category,
+        sum(case 
+            when buynum is null then 0 
+            else buynum
+            end)
+            /sum(cartnum)
+         as c_browsetobuyrate3
+    from (select item_id,item_category,count(1) as cartnum            from
+                mobile_recommend_train_user_filter_item 
+                where behavior_type=1 and time<'2014-12-18' 
+            group by item_id,item_category) t1
+        left outer join  
+        (select t1.item_id,count(1) as buynum            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=1 and time<'2014-12-18') t2
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=4 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18') t1 
+            group by t1.item_id) t2
+        on t1.item_id = t2.item_id
+    group by item_category
+    ) t3 on t.item_category=t3.item_category
+    left outer join 
+    (select item_category,sum(buynum)/sum(cartnum) as c_collecttobuyrate1
+    from (select t1.item_id,item_category,count(1) as cartnum            from(select t1.item_id,item_category,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=4 and time<'2014-12-18') t2                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=2 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18') t1 
+            group by t1.item_id,item_category) t1
+        left outer join  
+        (select t1.item_id,count(1) as buynum            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=2 and time<'2014-12-18') t2
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=4 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18') t1 
+            group by t1.item_id) t2
+        on t1.item_id = t2.item_id
+      group by item_category
+    )t4 on t.item_category=t4.item_category
+    left outer join
+    (select item_category,sum(buynum)/sum(cartnum) as c_collecttobuyrate2
+    from (select t1.item_id,item_category,count(1) as cartnum            from(select t1.item_id,item_category,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=4 and time<'2014-12-18') t2                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=2 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18') t1 
+            group by t1.item_id,item_category) t1
+        join  
+        (select t1.item_id,count(1) as buynum            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=2 and time<'2014-12-18') t2
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=4 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18') t1 
+            group by t1.item_id) t2
+        on t1.item_id = t2.item_id
+    group by item_category
+    ) t5 on t.item_category=t5.item_category
+    left outer join 
+    (select item_category,
+        sum(case 
+            when buynum is null then 0 
+            else buynum
+            end)
+            /sum(cartnum)
+         as c_collecttobuyrate3
+    from (select item_id,item_category,count(1) as cartnum            from
+                mobile_recommend_train_user_filter_item 
+                where behavior_type=2 and time<'2014-12-18' 
+            group by item_id,item_category) t1
+        left outer join  
+        (select t1.item_id,count(1) as buynum            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=2 and time<'2014-12-18') t2
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=4 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18') t1 
+            group by t1.item_id) t2
+        on t1.item_id = t2.item_id
+    group by item_category
+    ) t6 on t.item_category=t6.item_category
+    left outer join 
+    (select item_category,sum(buynum)/sum(cartnum) as c_carttobuyrate1
+    from (select t1.item_id,item_category,count(1) as cartnum            from(select t1.item_id,item_category,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=4 and time<'2014-12-18') t2                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=3 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18') t1 
+            group by t1.item_id,item_category) t1
+        left outer join  
+        (select t1.item_id,count(1) as buynum            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=3 and time<'2014-12-18') t2
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=4 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18') t1 
+            group by t1.item_id) t2
+        on t1.item_id = t2.item_id
+    group by item_category
+    )t7 on t.item_category=t7.item_category
+    left outer join
+    (select item_category,sum(buynum)/sum(cartnum) as c_carttobuyrate2
+    from (select t1.item_id,item_category,count(1) as cartnum            from(select t1.item_id,item_category,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=4 and time<'2014-12-18') t2                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=3 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18') t1 
+            group by t1.item_id,item_category) t1
+        join  
+        (select t1.item_id,count(1) as buynum            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=3 and time<'2014-12-18') t2
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=4 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18') t1 
+            group by t1.item_id) t2
+        on t1.item_id = t2.item_id
+    group by item_category
+    ) t8 on t.item_category=t8.item_category
+    left outer join 
+    (select item_category,
+        sum(case 
+            when buynum is null then 0 
+            else buynum
+            end)
+            /sum(cartnum)
+     as c_carttobuyrate3
+    from (select item_id,item_category,count(1) as cartnum            from
+                mobile_recommend_train_user_filter_item 
+                where behavior_type=3 and time<'2014-12-18' 
+            group by item_id,item_category) t1
+        left outer join  
+        (select t1.item_id,count(1) as buynum            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=3 and time<'2014-12-18') t2
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=4 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18') t1 
+            group by t1.item_id) t2
+        on t1.item_id = t2.item_id
+    group by item_category
+    ) t9 on t.item_category=t9.item_category;
+---------------------------------------------------------------------------------------------------------------------------------------------------
+drop table if exists category_convert_rate_bf_1218_temp;
+create table category_convert_rate_bf_1218_temp as 
+select * from category_convert_rate_bf_1218;
+
+------------------------------------item cart to buy rate 包含三种-----------------最近3天转化率----------------------------------------------------------------------
+
+drop table if exists category_convert_rate_bf_1218;
+create table category_convert_rate_bf_1218 as 
+select t.*,
+case when t1.c_browsetobuyrate1 is null then -1
+         else t1.c_browsetobuyrate1
+    end as c_browsetobuyrate1_recent3d,
+    case when t2.c_browsetobuyrate2 is null then -1
+         else t2.c_browsetobuyrate2
+    end as c_browsetobuyrate2_recent3d,
+    case when t3.c_browsetobuyrate3 is null then -1
+         else t3.c_browsetobuyrate3
+    end as c_browsetobuyrate3_recent3d,
+    case when t4.c_collecttobuyrate1 is null then -1
+         else t4.c_collecttobuyrate1
+    end as c_collecttobuyrate1_recent3d,
+    case when t5.c_collecttobuyrate2 is null then -1
+         else t5.c_collecttobuyrate2
+    end as c_collecttobuyrate2_recent3d,
+    case when t6.c_collecttobuyrate3 is null then -1
+         else t6.c_collecttobuyrate3
+    end as c_collecttobuyrate3_recent3d,
+    case when t7.c_carttobuyrate1 is null then -1
+         else t7.c_carttobuyrate1
+    end as c_carttobuyrate1_recent3d,
+    case when t8.c_carttobuyrate2 is null then -1
+         else t8.c_carttobuyrate2
+    end as c_carttobuyrate2_recent3d,
+    case when t9.c_carttobuyrate3 is null then -1
+         else t9.c_carttobuyrate3
+    end as c_carttobuyrate3_recent3d
+    from category_convert_rate_bf_1218_temp t
+    left outer join 
+    (select item_category,sum(buynum)/sum(cartnum) as c_browsetobuyrate1
+    from (select t1.item_id,item_category,count(1) as cartnum
+            from(select t1.item_id,t1.user_id,t1.item_category from                     mobile_recommend_train_user_filter_item t1 
+                     left outer join
+                     (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=4 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t2                     on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=1 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t1 
+            group by t1.item_id,item_category) t1
+        join  
+        (select t1.item_id,count(1) as buynum            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=1 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t2
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=4 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t1 
+            group by t1.item_id) t2
+        on t1.item_id = t2.item_id
+        group by item_category
+    )t1 on t.item_category=t1.item_category 
+    left outer join
+    (select item_category,sum(buynum)/sum(cartnum) as c_browsetobuyrate2
+    from (select t1.item_id,item_category,count(1) as cartnum            from(select t1.item_id,item_category,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=4 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t2                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=1 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t1 
+            group by t1.item_id,item_category) t1
+        join  
+        (select t1.item_id,count(1) as buynum            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=1 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t2
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=4 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t1 
+            group by t1.item_id) t2
+        on t1.item_id = t2.item_id
+        group by item_category
+    ) t2 on t.item_category=t2.item_category
+    left outer join 
+    (select item_category,
+        sum(case 
+            when buynum is null then 0 
+            else buynum
+            end)
+            /sum(cartnum)
+         as c_browsetobuyrate3
+    from (select item_id,item_category,count(1) as cartnum            from
+                mobile_recommend_train_user_filter_item 
+                where behavior_type=1 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10) 
+            group by item_id,item_category) t1
+        left outer join  
+        (select t1.item_id,count(1) as buynum            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=1 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t2
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=4 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t1 
+            group by t1.item_id) t2
+        on t1.item_id = t2.item_id
+    group by item_category
+    ) t3 on t.item_category=t3.item_category
+    left outer join 
+    (select item_category,sum(buynum)/sum(cartnum) as c_collecttobuyrate1
+    from (select t1.item_id,item_category,count(1) as cartnum            from(select t1.item_id,item_category,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=4 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t2                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=2 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t1 
+            group by t1.item_id,item_category) t1
+        left outer join  
+        (select t1.item_id,count(1) as buynum            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=2 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t2
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=4 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t1 
+            group by t1.item_id) t2
+        on t1.item_id = t2.item_id
+      group by item_category
+    )t4 on t.item_category=t4.item_category
+    left outer join
+    (select item_category,sum(buynum)/sum(cartnum) as c_collecttobuyrate2
+    from (select t1.item_id,item_category,count(1) as cartnum            from(select t1.item_id,item_category,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=4 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t2                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=2 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t1 
+            group by t1.item_id,item_category) t1
+        join  
+        (select t1.item_id,count(1) as buynum            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=2 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t2
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=4 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t1 
+            group by t1.item_id) t2
+        on t1.item_id = t2.item_id
+    group by item_category
+    ) t5 on t.item_category=t5.item_category
+    left outer join 
+    (select item_category,
+        sum(case 
+            when buynum is null then 0 
+            else buynum
+            end)
+            /sum(cartnum)
+         as c_collecttobuyrate3
+    from (select item_id,item_category,count(1) as cartnum            from
+                mobile_recommend_train_user_filter_item 
+                where behavior_type=2 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10) 
+            group by item_id,item_category) t1
+        left outer join  
+        (select t1.item_id,count(1) as buynum            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=2 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t2
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=4 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t1 
+            group by t1.item_id) t2
+        on t1.item_id = t2.item_id
+    group by item_category
+    ) t6 on t.item_category=t6.item_category
+    left outer join 
+    (select item_category,sum(buynum)/sum(cartnum) as c_carttobuyrate1
+    from (select t1.item_id,item_category,count(1) as cartnum            from(select t1.item_id,item_category,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=4 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t2                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=3 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t1 
+            group by t1.item_id,item_category) t1
+        left outer join  
+        (select t1.item_id,count(1) as buynum            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=3 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t2
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=4 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t1 
+            group by t1.item_id) t2
+        on t1.item_id = t2.item_id
+    group by item_category
+    )t7 on t.item_category=t7.item_category
+    left outer join
+    (select item_category,sum(buynum)/sum(cartnum) as c_carttobuyrate2
+    from (select t1.item_id,item_category,count(1) as cartnum            from(select t1.item_id,item_category,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=4 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t2                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=3 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t1 
+            group by t1.item_id,item_category) t1
+        join  
+        (select t1.item_id,count(1) as buynum            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=3 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t2
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=4 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t1 
+            group by t1.item_id) t2
+        on t1.item_id = t2.item_id
+    group by item_category
+    ) t8 on t.item_category=t8.item_category
+    left outer join 
+    (select item_category,
+        sum(case 
+            when buynum is null then 0 
+            else buynum
+            end)
+            /sum(cartnum)
+     as c_carttobuyrate3
+    from (select item_id,item_category,count(1) as cartnum            from
+                mobile_recommend_train_user_filter_item 
+                where behavior_type=3 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10) 
+            group by item_id,item_category) t1
+        left outer join  
+        (select t1.item_id,count(1) as buynum            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=3 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t2
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=4 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t1 
+            group by t1.item_id) t2
+        on t1.item_id = t2.item_id
+    group by item_category
+    ) t9 on t.item_category=t9.item_category;
+---------------------------------------------------------------------------------------------------------------------------------------------------

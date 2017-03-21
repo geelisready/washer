@@ -1,0 +1,23 @@
+-----------------------------ÀûÓÃ1121,1128Ô¤²â1205-------------------------------
+drop table if exists ui_1205;
+create table ui_1205 as
+select all_ui.user_id,all_ui.item_id,real.label
+from
+(
+   select  user_id,item_id
+   from mobile_recommend_train_user_filter_item 
+   where substr(time, 1,10)='2014-11-21' or 
+         substr(`time`, 1,10)='2014-11-28' 
+   and behavior_type=4
+   group by user_id,item_id having count(1)>1
+) all_ui
+left outer join
+(
+    select  user_id,item_id,count(1) as label
+    from mobile_recommend_train_user_filter_item
+    where  substr(`time`, 1, 10) = '2014-12-05'
+    and behavior_type=4
+    group by user_id,item_id---1121,1128¹ºÂò¶Ô
+) real
+on all_ui.user_id=real.user_id
+and all_ui.item_id=real.item_id

@@ -1,0 +1,166 @@
+drop table if exists if_17day_i_in_c_rank1;
+create table if_17day_i_in_c_rank1 as
+select a.user_id,a.item_id, 
+       a.ui_buytimes_inuc_drank,a.ui_buytimes_inuc_prank,
+       a.ui_bwstimes_inuc_drank,a.ui_bwstimes_inuc_prank,
+       b.ui_coltimes_inuc_drank,b.ui_coltimes_inuc_prank,
+       b.ui_crttimes_inuc_drank,b.ui_crttimes_inuc_prank,
+       c.ui_bwstimes_h_inuc_drank,c.ui_bwstimes_h_inuc_prank,
+       c.ui_logprob_inuc_drank,c.ui_logprob_inuc_prank,
+       d.ui_buyprob_inuc_drank,d.ui_buyprob_inuc_prank
+from
+(select user_id,item_id,
+dense_rank() over (partition by user_id,item_category order by pro1_buy_times desc,pro3_buy_times_fix desc,
+                   pro7_buy_times_fix desc,pro11_buy_times desc,pro17_buy_times desc) as ui_buytimes_inuc_drank,
+percent_rank() over (partition by user_id,item_category order by pro1_buy_times desc,pro3_buy_times_fix desc,
+                   pro7_buy_times_fix desc,pro11_buy_times desc,pro17_buy_times desc) as ui_buytimes_inuc_prank,
+dense_rank() over (partition by user_id,item_category order by last_browse_times desc,pro3_bws_times_fix desc,
+                   pro7_bws_times_fix desc,pro11_bws_times desc,pro17_bws_times desc) as ui_bwstimes_inuc_drank,
+percent_rank() over (partition by user_id,item_category order by last_browse_times desc,pro3_bws_times_fix desc,
+                   pro7_bws_times_fix desc,pro11_bws_times desc,pro17_bws_times desc) as ui_bwstimes_inuc_prank
+from mwj_temp_17_fix_0606_02) a
+left outer join
+(select user_id,item_id,
+dense_rank() over (partition by user_id,item_category order by pro1_col_times desc,pro3_col_times_fix desc,
+                   pro7_col_times_fix desc,pro11_col_times desc,pro17_col_times desc) as ui_coltimes_inuc_drank,
+percent_rank() over (partition by user_id,item_category order by pro1_col_times desc,pro3_col_times_fix desc,
+                   pro7_col_times_fix desc,pro11_col_times desc,pro17_col_times desc) as ui_coltimes_inuc_prank,
+dense_rank() over (partition by user_id,item_category order by pro1_crt_times desc,pro3_crt_times_fix desc,
+                   pro7_crt_times_fix desc,pro11_crt_times desc,pro17_crt_times desc) as ui_crttimes_inuc_drank,
+percent_rank() over (partition by user_id,item_category order by pro1_crt_times desc,pro3_crt_times_fix desc,
+                   pro7_crt_times_fix desc,pro11_crt_times desc,pro17_crt_times desc) as ui_crttimes_inuc_prank
+from mwj_temp_17_fix_0606_02) b
+on a.user_id=b.user_id
+and a.item_id=b.item_id
+left outer join
+(select user_id,item_id,
+dense_rank() over (partition by user_id,item_category order by pro1_bws_times_h desc,pro3_bws_times_h_fix desc ) as ui_bwstimes_h_inuc_drank,
+percent_rank() over (partition by user_id,item_category order by pro1_bws_times_h desc,pro3_bws_times_h_fix desc) as ui_bwstimes_h_inuc_prank,
+dense_rank() over (partition by user_id,item_category 
+                   order by pro2w_log_prob_ui desc,pro3w_log_prob_ui desc,pro4w_log_prob_ui desc) as ui_logprob_inuc_drank,
+percent_rank() over (partition by user_id,item_category 
+                   order by pro2w_log_prob_ui desc,pro3w_log_prob_ui desc,pro4w_log_prob_ui desc) as ui_logprob_inuc_prank
+from mwj_temp_17_fix_0606_02) c
+on a.user_id=c.user_id
+and a.item_id=c.item_id
+left outer join
+(select user_id,item_id,
+dense_rank() over (partition by user_id,item_category 
+                   order by pro2w_buy_prob_ui desc,pro3w_buy_prob_ui desc,pro4w_buy_prob_ui desc) as ui_buyprob_inuc_drank,
+percent_rank() over (partition by user_id,item_category 
+                   order by pro2w_buy_prob_ui desc,pro3w_buy_prob_ui desc,pro4w_buy_prob_ui desc) as ui_buyprob_inuc_prank
+from mwj_temp_17_fix_0606_02) d
+on a.user_id=d.user_id
+and a.item_id=d.item_id;
+
+
+drop table if exists if_18day_i_in_c_rank1;
+create table if_18day_i_in_c_rank1 as
+select a.user_id,a.item_id, 
+       a.ui_buytimes_inuc_drank,a.ui_buytimes_inuc_prank,
+       a.ui_bwstimes_inuc_drank,a.ui_bwstimes_inuc_prank,
+       b.ui_coltimes_inuc_drank,b.ui_coltimes_inuc_prank,
+       b.ui_crttimes_inuc_drank,b.ui_crttimes_inuc_prank,
+       c.ui_bwstimes_h_inuc_drank,c.ui_bwstimes_h_inuc_prank,
+       c.ui_logprob_inuc_drank,c.ui_logprob_inuc_prank,
+       d.ui_buyprob_inuc_drank,d.ui_buyprob_inuc_prank
+from
+(select user_id,item_id,
+dense_rank() over (partition by user_id,item_category order by pro1_buy_times desc,pro3_buy_times_fix desc,
+                   pro7_buy_times_fix desc,pro11_buy_times desc,pro17_buy_times desc) as ui_buytimes_inuc_drank,
+percent_rank() over (partition by user_id,item_category order by pro1_buy_times desc,pro3_buy_times_fix desc,
+                   pro7_buy_times_fix desc,pro11_buy_times desc,pro17_buy_times desc) as ui_buytimes_inuc_prank,
+dense_rank() over (partition by user_id,item_category order by last_browse_times desc,pro3_bws_times_fix desc,
+                   pro7_bws_times_fix desc,pro11_bws_times desc,pro17_bws_times desc) as ui_bwstimes_inuc_drank,
+percent_rank() over (partition by user_id,item_category order by last_browse_times desc,pro3_bws_times_fix desc,
+                   pro7_bws_times_fix desc,pro11_bws_times desc,pro17_bws_times desc) as ui_bwstimes_inuc_prank
+from mwj_temp_18_fix_0606_02) a
+left outer join
+(select user_id,item_id,
+dense_rank() over (partition by user_id,item_category order by pro1_col_times desc,pro3_col_times_fix desc,
+                   pro7_col_times_fix desc,pro11_col_times desc,pro17_col_times desc) as ui_coltimes_inuc_drank,
+percent_rank() over (partition by user_id,item_category order by pro1_col_times desc,pro3_col_times_fix desc,
+                   pro7_col_times_fix desc,pro11_col_times desc,pro17_col_times desc) as ui_coltimes_inuc_prank,
+dense_rank() over (partition by user_id,item_category order by pro1_crt_times desc,pro3_crt_times_fix desc,
+                   pro7_crt_times_fix desc,pro11_crt_times desc,pro17_crt_times desc) as ui_crttimes_inuc_drank,
+percent_rank() over (partition by user_id,item_category order by pro1_crt_times desc,pro3_crt_times_fix desc,
+                   pro7_crt_times_fix desc,pro11_crt_times desc,pro17_crt_times desc) as ui_crttimes_inuc_prank
+from mwj_temp_18_fix_0606_02) b
+on a.user_id=b.user_id
+and a.item_id=b.item_id
+left outer join
+(select user_id,item_id,
+dense_rank() over (partition by user_id,item_category order by pro1_bws_times_h desc,pro3_bws_times_h_fix desc ) as ui_bwstimes_h_inuc_drank,
+percent_rank() over (partition by user_id,item_category order by pro1_bws_times_h desc,pro3_bws_times_h_fix desc) as ui_bwstimes_h_inuc_prank,
+dense_rank() over (partition by user_id,item_category 
+                   order by pro2w_log_prob_ui desc,pro3w_log_prob_ui desc,pro4w_log_prob_ui desc) as ui_logprob_inuc_drank,
+percent_rank() over (partition by user_id,item_category 
+                   order by pro2w_log_prob_ui desc,pro3w_log_prob_ui desc,pro4w_log_prob_ui desc) as ui_logprob_inuc_prank
+from mwj_temp_18_fix_0606_02) c
+on a.user_id=c.user_id
+and a.item_id=c.item_id
+left outer join
+(select user_id,item_id,
+dense_rank() over (partition by user_id,item_category 
+                   order by pro2w_buy_prob_ui desc,pro3w_buy_prob_ui desc,pro4w_buy_prob_ui desc) as ui_buyprob_inuc_drank,
+percent_rank() over (partition by user_id,item_category 
+                   order by pro2w_buy_prob_ui desc,pro3w_buy_prob_ui desc,pro4w_buy_prob_ui desc) as ui_buyprob_inuc_prank
+from mwj_temp_18_fix_0606_02) d
+on a.user_id=d.user_id
+and a.item_id=d.item_id;
+
+
+drop table if exists if_19day_i_in_c_rank1;
+create table if_19day_i_in_c_rank1 as
+select a.user_id,a.item_id, 
+       a.ui_buytimes_inuc_drank,a.ui_buytimes_inuc_prank,
+       a.ui_bwstimes_inuc_drank,a.ui_bwstimes_inuc_prank,
+       b.ui_coltimes_inuc_drank,b.ui_coltimes_inuc_prank,
+       b.ui_crttimes_inuc_drank,b.ui_crttimes_inuc_prank,
+       c.ui_bwstimes_h_inuc_drank,c.ui_bwstimes_h_inuc_prank,
+       c.ui_logprob_inuc_drank,c.ui_logprob_inuc_prank,
+       d.ui_buyprob_inuc_drank,d.ui_buyprob_inuc_prank
+from
+(select user_id,item_id,
+dense_rank() over (partition by user_id,item_category order by pro1_buy_times desc,pro3_buy_times_fix desc,
+                   pro7_buy_times_fix desc,pro11_buy_times desc,pro17_buy_times desc) as ui_buytimes_inuc_drank,
+percent_rank() over (partition by user_id,item_category order by pro1_buy_times desc,pro3_buy_times_fix desc,
+                   pro7_buy_times_fix desc,pro11_buy_times desc,pro17_buy_times desc) as ui_buytimes_inuc_prank,
+dense_rank() over (partition by user_id,item_category order by last_browse_times desc,pro3_bws_times_fix desc,
+                   pro7_bws_times_fix desc,pro11_bws_times desc,pro17_bws_times desc) as ui_bwstimes_inuc_drank,
+percent_rank() over (partition by user_id,item_category order by last_browse_times desc,pro3_bws_times_fix desc,
+                   pro7_bws_times_fix desc,pro11_bws_times desc,pro17_bws_times desc) as ui_bwstimes_inuc_prank
+from mwj_temp_19_fix_0606_02) a
+left outer join
+(select user_id,item_id,
+dense_rank() over (partition by user_id,item_category order by pro1_col_times desc,pro3_col_times_fix desc,
+                   pro7_col_times_fix desc,pro11_col_times desc,pro17_col_times desc) as ui_coltimes_inuc_drank,
+percent_rank() over (partition by user_id,item_category order by pro1_col_times desc,pro3_col_times_fix desc,
+                   pro7_col_times_fix desc,pro11_col_times desc,pro17_col_times desc) as ui_coltimes_inuc_prank,
+dense_rank() over (partition by user_id,item_category order by pro1_crt_times desc,pro3_crt_times_fix desc,
+                   pro7_crt_times_fix desc,pro11_crt_times desc,pro17_crt_times desc) as ui_crttimes_inuc_drank,
+percent_rank() over (partition by user_id,item_category order by pro1_crt_times desc,pro3_crt_times_fix desc,
+                   pro7_crt_times_fix desc,pro11_crt_times desc,pro17_crt_times desc) as ui_crttimes_inuc_prank
+from mwj_temp_19_fix_0606_02) b
+on a.user_id=b.user_id
+and a.item_id=b.item_id
+left outer join
+(select user_id,item_id,
+dense_rank() over (partition by user_id,item_category order by pro1_bws_times_h desc,pro3_bws_times_h_fix desc ) as ui_bwstimes_h_inuc_drank,
+percent_rank() over (partition by user_id,item_category order by pro1_bws_times_h desc,pro3_bws_times_h_fix desc) as ui_bwstimes_h_inuc_prank,
+dense_rank() over (partition by user_id,item_category 
+                   order by pro2w_log_prob_ui desc,pro3w_log_prob_ui desc,pro4w_log_prob_ui desc) as ui_logprob_inuc_drank,
+percent_rank() over (partition by user_id,item_category 
+                   order by pro2w_log_prob_ui desc,pro3w_log_prob_ui desc,pro4w_log_prob_ui desc) as ui_logprob_inuc_prank
+from mwj_temp_19_fix_0606_02) c
+on a.user_id=c.user_id
+and a.item_id=c.item_id
+left outer join
+(select user_id,item_id,
+dense_rank() over (partition by user_id,item_category 
+                   order by pro2w_buy_prob_ui desc,pro3w_buy_prob_ui desc,pro4w_buy_prob_ui desc) as ui_buyprob_inuc_drank,
+percent_rank() over (partition by user_id,item_category 
+                   order by pro2w_buy_prob_ui desc,pro3w_buy_prob_ui desc,pro4w_buy_prob_ui desc) as ui_buyprob_inuc_prank
+from mwj_temp_19_fix_0606_02) d
+on a.user_id=d.user_id
+and a.item_id=d.item_id;

@@ -1,0 +1,269 @@
+drop table if exists mwj_0612_fix_17day_rebuy;
+create table mwj_0612_fix_17day_rebuy as
+select t1.user_id,t1.item_id,
+       case when t2.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+       then -10 else t3.pro4_span_item_beh1 end as pro4_span_item_beh1_fix,
+       case when t2.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+       then -10 else t3.pro4_span_item_beh2 end as pro4_span_item_beh2_fix,
+       case when t2.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+       then -10 else t3.pro4_span_item_beh3 end as pro4_span_item_beh3_fix,
+       case when t2.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+       then -10 else t3.pro4_span_item_beh4 end as pro4_span_item_beh4_fix,
+       t3.pro12_span_item_beh1, t3.pro12_span_item_beh2, t3.pro12_span_item_beh3, t3.pro12_span_item_beh4,
+       t3.pro26_span_item_beh1, t3.pro26_span_item_beh2, t3.pro26_span_item_beh3, t3.pro26_span_item_beh4,
+-------------------------------------------------------------------------------------------------------------------
+       case when t.i_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+       then -20 else t4.pro4_span_user_beh1 end as pro4_span_user_beh1_fix,
+       case when t.i_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+       then -20 else t4.pro4_span_user_beh2 end as pro4_span_user_beh2_fix,
+       case when t.i_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+       then -20 else t4.pro4_span_user_beh3 end as pro4_span_user_beh3_fix,
+       case when t.i_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+       then -20 else t4.pro4_span_user_beh4 end as pro4_span_user_beh4_fix,
+       t4.pro12_span_user_beh1, t4.pro12_span_user_beh2, t4.pro12_span_user_beh3, t4.pro12_span_user_beh4,
+       t4.pro26_span_user_beh1, t4.pro26_span_user_beh2, t4.pro26_span_user_beh3, t4.pro26_span_user_beh4,
+---------------------------------------------------------------------------------------------------------------------
+       case when t2.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+       then -10 else t5.uc_next1day_pro4_buynum_mwj end as uc_next1day_pro4_buynum_mwj_fix,
+       case when t2.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-8,'dd') as string), 1, 10)
+       then -10 else t5.uc_next1day_pro9_buynum_mwj end as uc_next1day_pro9_buynum_mwj_fix,
+       uc_next1day_pro26_buynum_mwj,
+---------------------------------------------------------------------------------------------------------------------
+       case when t2.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-2,'dd') as string), 1, 10)
+       then -10 else t6.u_next1day_pro3_buynum_mwj end as u_next1day_pro3_buynum_mwj_fix,
+       case when t2.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-2,'dd') as string), 1, 10)
+       then -10 else t6.u_next1day_pro4_buynum_mwj end as u_next1day_pro4_buynum_mwj_fix,
+       case when t2.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-2,'dd') as string), 1, 10)
+       then -10 else t6.u_next1day_pro9_buynum_mwj end as u_next1day_pro9_buynum_mwj_fix,      
+       u_next1day_pro14_buynum_mwj,u_next1day_pro21_buynum_mwj, u_next1day_pro26_buynum_mwj,
+---------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------
+       c_next1day_pro3_buynum_mwj, c_next1day_pro4_buynum_mwj, c_next1day_pro9_buynum_mwj, c_next1day_pro14_buynum_mwj,
+       c_next1day_pro21_buynum_mwj, c_next1day_pro26_buynum_mwj,
+---------------------------------------------------------------------------------------------------------------------
+       ui_buytimes_inuc_drank,ui_buytimes_inuc_prank, ui_bwstimes_inuc_drank,ui_bwstimes_inuc_prank,
+       ui_coltimes_inuc_drank,ui_coltimes_inuc_prank, ui_crttimes_inuc_drank,ui_crttimes_inuc_prank,
+       ui_bwstimes_h_inuc_drank,ui_bwstimes_h_inuc_prank, ui_logprob_inuc_drank,ui_logprob_inuc_prank,
+       ui_buyprob_inuc_drank,ui_buyprob_inuc_prank
+from
+-------------新顾客---------------
+(
+    select * from item_firsttime_interactive
+) t
+
+right outer join 
+(
+    select * from 17day_combine_backup_0521_buy_0601
+) t1
+on t.item_id=t1.item_id
+left outer join 
+(  
+    select * from user_firsttime_interactive 
+) t2
+on t1.user_id=t2.user_id
+left outer join
+(  
+    select * from uf_17day_enlarge
+) t3
+on t1.user_id=t3.user_id
+left outer join
+(  
+    select * from if_17day_enlarge
+) t4
+on t1.item_id=t4.item_id
+left outer join
+(  
+    select * from  uic_next1day_buy_17day_uc_num
+) t5
+on t1.user_id=t5.user_id
+and  t1.item_category=t5.item_category
+left outer join
+(  
+    select * from  iu_next1day_buy_17day_uc_num
+) t6
+on t1.user_id=t6.user_id
+left outer join
+(  
+    select * from  ic_next1day_buy_17day_uc_num
+) t7
+on  t1.item_category=t7.item_category
+left outer join
+(  
+    select * from  if_17day_i_in_c_rank1_rebuy
+) t8
+on t1.user_id=t8.user_id
+and  t1.item_id=t8.item_id;
+
+
+drop table if exists mwj_0612_fix_18day_rebuy;
+create table mwj_0612_fix_18day_rebuy as
+select t1.user_id,t1.item_id,
+       case when t2.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+       then -10 else t3.pro4_span_item_beh1 end as pro4_span_item_beh1_fix,
+       case when t2.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+       then -10 else t3.pro4_span_item_beh2 end as pro4_span_item_beh2_fix,
+       case when t2.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+       then -10 else t3.pro4_span_item_beh3 end as pro4_span_item_beh3_fix,
+       case when t2.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+       then -10 else t3.pro4_span_item_beh4 end as pro4_span_item_beh4_fix,
+       t3.pro12_span_item_beh1, t3.pro12_span_item_beh2, t3.pro12_span_item_beh3, t3.pro12_span_item_beh4,
+       t3.pro26_span_item_beh1, t3.pro26_span_item_beh2, t3.pro26_span_item_beh3, t3.pro26_span_item_beh4,
+-------------------------------------------------------------------------------------------------------------------
+       case when t.i_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+       then -20 else t4.pro4_span_user_beh1 end as pro4_span_user_beh1_fix,
+       case when t.i_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+       then -20 else t4.pro4_span_user_beh2 end as pro4_span_user_beh2_fix,
+       case when t.i_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+       then -20 else t4.pro4_span_user_beh3 end as pro4_span_user_beh3_fix,
+       case when t.i_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+       then -20 else t4.pro4_span_user_beh4 end as pro4_span_user_beh4_fix,
+       t4.pro12_span_user_beh1, t4.pro12_span_user_beh2, t4.pro12_span_user_beh3, t4.pro12_span_user_beh4,
+       t4.pro26_span_user_beh1, t4.pro26_span_user_beh2, t4.pro26_span_user_beh3, t4.pro26_span_user_beh4,
+---------------------------------------------------------------------------------------------------------------------
+       case when t2.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+       then -10 else t5.uc_next1day_pro4_buynum_mwj end as uc_next1day_pro4_buynum_mwj_fix,
+       case when t2.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-8,'dd') as string), 1, 10)
+       then -10 else t5.uc_next1day_pro9_buynum_mwj end as uc_next1day_pro9_buynum_mwj_fix,
+       uc_next1day_pro26_buynum_mwj,
+---------------------------------------------------------------------------------------------------------------------
+       case when t2.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-2,'dd') as string), 1, 10)
+       then -10 else t6.u_next1day_pro3_buynum_mwj end as u_next1day_pro3_buynum_mwj_fix,
+       case when t2.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-2,'dd') as string), 1, 10)
+       then -10 else t6.u_next1day_pro4_buynum_mwj end as u_next1day_pro4_buynum_mwj_fix,
+       case when t2.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-2,'dd') as string), 1, 10)
+       then -10 else t6.u_next1day_pro9_buynum_mwj end as u_next1day_pro9_buynum_mwj_fix,      
+       u_next1day_pro14_buynum_mwj,u_next1day_pro21_buynum_mwj, u_next1day_pro26_buynum_mwj,
+---------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------
+       c_next1day_pro3_buynum_mwj, c_next1day_pro4_buynum_mwj, c_next1day_pro9_buynum_mwj, c_next1day_pro14_buynum_mwj,
+       c_next1day_pro21_buynum_mwj, c_next1day_pro26_buynum_mwj
+from
+-------------新顾客---------------
+(
+    select * from item_firsttime_interactive
+) t
+
+right outer join 
+(
+    select * from 18day_combine_backup_0521_buy_0601
+) t1
+on t.item_id=t1.item_id
+left outer join 
+(  
+    select * from user_firsttime_interactive 
+) t2
+on t1.user_id=t2.user_id
+left outer join
+(  
+    select * from uf_18day_enlarge
+) t3
+on t1.user_id=t3.user_id
+left outer join
+(  
+    select * from if_18day_enlarge
+) t4
+on t1.item_id=t4.item_id
+left outer join
+(  
+    select * from  uic_next1day_buy_18day_uc_num
+) t5
+on t1.user_id=t5.user_id
+and  t1.item_category=t5.item_category
+left outer join
+(  
+    select * from  iu_next1day_buy_18day_uc_num
+) t6
+on t1.user_id=t6.user_id
+left outer join
+(  
+    select * from  ic_next1day_buy_18day_uc_num
+) t7
+on  t1.item_category=t7.item_category;
+
+
+
+drop table if exists mwj_0612_fix_19day_rebuy;
+create table mwj_0612_fix_19day_rebuy as
+select t1.user_id,t1.item_id,
+       case when t2.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+       then -10 else t3.pro4_span_item_beh1 end as pro4_span_item_beh1_fix,
+       case when t2.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+       then -10 else t3.pro4_span_item_beh2 end as pro4_span_item_beh2_fix,
+       case when t2.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+       then -10 else t3.pro4_span_item_beh3 end as pro4_span_item_beh3_fix,
+       case when t2.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+       then -10 else t3.pro4_span_item_beh4 end as pro4_span_item_beh4_fix,
+       t3.pro12_span_item_beh1, t3.pro12_span_item_beh2, t3.pro12_span_item_beh3, t3.pro12_span_item_beh4,
+       t3.pro26_span_item_beh1, t3.pro26_span_item_beh2, t3.pro26_span_item_beh3, t3.pro26_span_item_beh4,
+-------------------------------------------------------------------------------------------------------------------
+       case when t.i_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+       then -20 else t4.pro4_span_user_beh1 end as pro4_span_user_beh1_fix,
+       case when t.i_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+       then -20 else t4.pro4_span_user_beh2 end as pro4_span_user_beh2_fix,
+       case when t.i_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+       then -20 else t4.pro4_span_user_beh3 end as pro4_span_user_beh3_fix,
+       case when t.i_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+       then -20 else t4.pro4_span_user_beh4 end as pro4_span_user_beh4_fix,
+       t4.pro12_span_user_beh1, t4.pro12_span_user_beh2, t4.pro12_span_user_beh3, t4.pro12_span_user_beh4,
+       t4.pro26_span_user_beh1, t4.pro26_span_user_beh2, t4.pro26_span_user_beh3, t4.pro26_span_user_beh4,
+---------------------------------------------------------------------------------------------------------------------
+       case when t2.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+       then -10 else t5.uc_next1day_pro4_buynum_mwj end as uc_next1day_pro4_buynum_mwj_fix,
+       case when t2.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-8,'dd') as string), 1, 10)
+       then -10 else t5.uc_next1day_pro9_buynum_mwj end as uc_next1day_pro9_buynum_mwj_fix,
+       uc_next1day_pro26_buynum_mwj,
+---------------------------------------------------------------------------------------------------------------------
+       case when t2.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-2,'dd') as string), 1, 10)
+       then -10 else t6.u_next1day_pro3_buynum_mwj end as u_next1day_pro3_buynum_mwj_fix,
+       case when t2.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-2,'dd') as string), 1, 10)
+       then -10 else t6.u_next1day_pro4_buynum_mwj end as u_next1day_pro4_buynum_mwj_fix,
+       case when t2.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-2,'dd') as string), 1, 10)
+       then -10 else t6.u_next1day_pro9_buynum_mwj end as u_next1day_pro9_buynum_mwj_fix,      
+       u_next1day_pro14_buynum_mwj,u_next1day_pro21_buynum_mwj, u_next1day_pro26_buynum_mwj,
+---------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------
+       c_next1day_pro3_buynum_mwj, c_next1day_pro4_buynum_mwj, c_next1day_pro9_buynum_mwj, c_next1day_pro14_buynum_mwj,
+       c_next1day_pro21_buynum_mwj, c_next1day_pro26_buynum_mwj
+from
+-------------新顾客---------------
+(
+    select * from item_firsttime_interactive
+) t
+
+right outer join 
+(
+    select * from 19day_combine_backup_0521_buy_0601
+) t1
+on t.item_id=t1.item_id
+left outer join 
+(  
+    select * from user_firsttime_interactive 
+) t2
+on t1.user_id=t2.user_id
+left outer join
+(  
+    select * from uf_19day_enlarge
+) t3
+on t1.user_id=t3.user_id
+left outer join
+(  
+    select * from if_19day_enlarge
+) t4
+on t1.item_id=t4.item_id
+left outer join
+(  
+    select * from  uic_next1day_buy_19day_uc_num
+) t5
+on t1.user_id=t5.user_id
+and  t1.item_category=t5.item_category
+left outer join
+(  
+    select * from  iu_next1day_buy_19day_uc_num
+) t6
+on t1.user_id=t6.user_id
+left outer join
+(  
+    select * from  ic_next1day_buy_19day_uc_num
+) t7
+on  t1.item_category=t7.item_category;
+

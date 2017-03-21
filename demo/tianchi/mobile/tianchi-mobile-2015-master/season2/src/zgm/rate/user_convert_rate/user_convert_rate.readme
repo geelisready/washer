@@ -1,0 +1,6 @@
+--------------#############-------uf_ccb_rate2_bf_1217
+-- user_id,item_category,
+-- user_carttobuyrate,user_catg_carttobuyrate,user_collecttobuyrate,user_catg_collecttobuyrate,user_browsetobuyrate,user_catg_browsetobuyrate
+-------#########20150615新增-----user_convert_rate_recent3d_bf_1217-------最近3天转化率-------------------
+-- user_id,item_category,
+-- u_carttobuyrate_recent3d,uc_carttobuyrate_recent3d,u_collecttobuyrate_recent3d,uc_collecttobuyrate_recent3d,u_browsetobuyrate_recent3d,uc_browsetobuyrate_recent3d

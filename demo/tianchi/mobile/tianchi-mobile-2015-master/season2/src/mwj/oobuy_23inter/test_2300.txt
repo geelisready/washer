@@ -1,0 +1,149 @@
+select count(1) from 18day_combine_fix_new_u_i_rank__0606 where last_cart_hour=23;-----2.9w----
+select count(1) from 18day_combine_fix_new_u_i_rank__0606 where last_cart_hour=23 and label=1;--2k---
+select count(1) from 18day_combine_fix_new_u_i_rank__0606 where last_collect_hour=23;---1.8w---
+select count(1) from 18day_combine_fix_new_u_i_rank__0606 where last_collect_hour=23 and label=1;--0.4k---
+select count(1) from 18day_combine_fix_new_u_i_rank__0606 where last_operate_time=23;---52w---
+select count(1) from 18day_combine_fix_new_u_i_rank__0606 where last_operate_time=23 and label=1;--5.1k---
+select count(1) from 18day_combine_fix_new_u_i_rank__0606 where label=1;--2.7w---
+
+select count(1) from 19day_combine_0609pred1 where last_operate_time=23 and prediction_result=1;--4.4w---
+select count(1) from 19day_combine_0609pred1 where last_operate_time<23 and prediction_result=1;--19.4w---
+select count(1) from 19day_combine_0609pred1 where prediction_result=1;--24w---
+
+
+----------------------------------------------------------------------------
+drop table if exists 17_23cart;
+create table 17_23cart as 
+select * from 17day_combine_fix_new_u_i_rank__0606 where last_cart_hour=23;
+
+drop table if exists 18_23cart;
+create table 18_23cart as 
+select * from 18day_combine_fix_new_u_i_rank__0606 where last_cart_hour=23;
+
+select count(1) from 17_23cart;
+-------------------------------------------------------------------------------
+drop table if exists 17_23inter;
+create table 17_23inter as 
+select * from 17day_combine_fix_new_u_i_rank__0606 where last_operate_time=23;
+
+drop table if exists 18_23inter;
+create table 18_23inter as 
+select * from 18day_combine_fix_new_u_i_rank__0606 where last_operate_time=23;
+------------------------------------------------------------------------------
+drop table if exists 17_23inter_nocart;
+create table 17_23inter_nocart as 
+select * from 17day_combine_fix_new_u_i_rank__0606 where last_operate_time=23 and last_cart_hour!=23;
+
+drop table if exists 18_23inter_nocart;
+create table 18_23inter_nocart as 
+select * from 18day_combine_fix_new_u_i_rank__0606 where last_operate_time=23 and last_cart_hour!=23;
+
+select count(1) from 17_23inter_nocart;
+---------------------------------------------------------------------------------------
+
+drop table if exists 17_23cart_p;
+create table 17_23cart_p as 
+select * from 17_23cart where label=1;
+
+drop table if exists 17_23cart_n;
+create table 17_23cart_n as 
+select * from 17_23cart where label=0;
+
+
+select count(1) from 17_23cart_p;--2.2k---
+select count(1) from 17_23cart_n;---28k-----
+
+-------------------------------------------
+drop table if exists 17_23inter_nocart_p;
+create table 17_23inter_nocart_p as 
+select * from 17_23inter_nocart where label=1;
+
+drop table if exists 17_23inter_nocart_n;
+create table 17_23inter_nocart_n as 
+select * from 17_23inter_nocart where label=0;
+
+
+select count(1) from 17_23inter_nocart_p;--3k---
+select count(1) from 17_23inter_nocart_n;---50w-----
+
+
+------------------------------------------
+drop table if exists 17_23cart_pn;
+create table 17_23cart_pn as
+select * from
+(select * from 17_23cart_p
+union all
+select * from 17_23cart_p
+union all
+select * from 17_23cart_p
+union all
+select * from 17_23cart_p
+union all
+select * from 17_23cart_n
+) t;
+--246/900
+-----------------------------------------------
+drop table if exists 17_23cart_p8n;
+create table 17_23cart_p8n as
+select * from
+(select * from 17_23cart_p
+union all
+select * from 17_23cart_p
+union all
+select * from 17_23cart_p
+union all
+select * from 17_23cart_p
+union all
+select * from 17_23cart_p
+union all
+select * from 17_23cart_p
+union all
+select * from 17_23cart_p
+union all
+select * from 17_23cart_p
+union all
+select * from 17_23cart_n
+) t;
+--646/3033
+----------------------------------------
+drop table if exists 17_23cart_p16n;
+create table 17_23cart_p16n as
+select * from
+(select * from 17_23cart_p
+union all
+select * from 17_23cart_p
+union all
+select * from 17_23cart_p
+union all
+select * from 17_23cart_p
+union all
+select * from 17_23cart_p
+union all
+select * from 17_23cart_p
+union all
+select * from 17_23cart_p
+union all
+select * from 17_23cart_p
+union all
+select * from 17_23cart_p
+union all
+select * from 17_23cart_p
+union all
+select * from 17_23cart_p
+union all
+select * from 17_23cart_p
+union all
+select * from 17_23cart_p
+union all
+select * from 17_23cart_p
+union all
+select * from 17_23cart_p
+union all
+select * from 17_23cart_p
+union all
+select * from 17_23cart_n
+) t;
+--1035/6080
+------------------------------------------
+
+select count(1) from 17_23cart_pn;---37k-----

@@ -1,0 +1,1140 @@
+----------------------------------------------------------
+----------------------用户最近N天，每天交互商品数--------
+------------------------------------------------------------
+drop table if exists uf_17day;
+create table uf_17day as 
+-----------------查询结果表-----------------
+select all_user.user_id  as user_id,
+       d17_pro1.item_beh4_cnt as pro1_item_beh4,
+       d17_pro1.item_beh3_cnt as pro1_item_beh3,
+       d17_pro1.item_beh2_cnt as pro1_item_beh2,
+       d17_pro1.item_beh1_cnt as pro1_item_beh1,
+       d17_pro2.item_beh4_cnt as pro2_item_beh4,
+       d17_pro2.item_beh3_cnt as pro2_item_beh3,
+       d17_pro2.item_beh2_cnt as pro2_item_beh2,
+       d17_pro2.item_beh1_cnt as pro2_item_beh1,
+       d17_pro3.item_beh4_cnt as pro3_item_beh4,
+       d17_pro3.item_beh3_cnt as pro3_item_beh3,
+       d17_pro3.item_beh2_cnt as pro3_item_beh2,
+       d17_pro3.item_beh1_cnt as pro3_item_beh1
+from
+--------------------取日期范围内所有user_id---------------------------
+(    
+    select  user_id
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    and substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+    group by user_id---17日前一天活跃用户
+
+) all_user
+full outer join
+(--------------------日期转换d16_pro1-------------------
+
+select beh_all_cnt.user_id,
+       beh4_cnt.item_beh4_cnt as item_beh4_cnt,
+       beh3_cnt.item_beh3_cnt as item_beh3_cnt,
+       beh2_cnt.item_beh2_cnt as item_beh2_cnt,
+       beh1_cnt.item_beh1_cnt as item_beh1_cnt
+from
+(
+    select  user_id
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) = substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    group by user_id---17日前一天活跃用户
+    )  beh_all_cnt
+full outer join
+(
+    select  user_id,count(distinct item_id) as item_beh4_cnt
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) =  substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+          and  behavior_type = 4
+    group by user_id---17日前一天用户购买商品数
+)  beh4_cnt
+on beh_all_cnt.user_id=beh4_cnt.user_id
+full outer join
+(
+    select  user_id,count(distinct item_id) as item_beh3_cnt
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) =  substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+          and  behavior_type = 3
+    group by user_id---17日前一天用户购物车商品数
+)  beh3_cnt
+on beh_all_cnt.user_id=beh3_cnt.user_id
+full outer join
+(
+    select  user_id,count(distinct item_id) as item_beh2_cnt
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) =  substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+          and  behavior_type = 2
+    group by user_id---17日前一天用户收藏商品数
+) beh2_cnt
+on beh_all_cnt.user_id=beh2_cnt.user_id
+full outer join
+(
+    select  user_id,count(distinct item_id) as item_beh1_cnt 
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) =  substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+          and  behavior_type = 1
+    group by user_id---17日前一天用户浏览商品数
+) beh1_cnt
+on beh_all_cnt.user_id=beh1_cnt.user_id
+
+)  d17_pro1
+-----------------------------------------------
+on all_user.user_id=d17_pro1.user_id
+full outer join
+--------------------日期转换d16_pro2-------------------
+(
+select beh_all_cnt.user_id,
+       beh4_cnt.item_beh4_cnt as item_beh4_cnt,
+       beh3_cnt.item_beh3_cnt as item_beh3_cnt,
+       beh2_cnt.item_beh2_cnt as item_beh2_cnt,
+       beh1_cnt.item_beh1_cnt as item_beh1_cnt
+from
+(
+    select  user_id
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) = substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-2,'dd') as string), 1, 10)
+    group by user_id---17日前2天活跃用户
+    )  beh_all_cnt
+full outer join
+(
+    select  user_id,count(distinct item_id) as item_beh4_cnt
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) =  substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-2,'dd') as string), 1, 10)
+          and  behavior_type = 4
+    group by user_id---17日前2天用户购买商品数
+)  beh4_cnt
+on beh_all_cnt.user_id=beh4_cnt.user_id
+full outer join
+(
+    select  user_id,count(distinct item_id) as item_beh3_cnt
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) =  substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-2,'dd') as string), 1, 10)
+          and  behavior_type = 3
+    group by user_id---17日前2天用户购物车商品数
+)  beh3_cnt
+on beh_all_cnt.user_id=beh3_cnt.user_id
+full outer join
+(
+    select  user_id,count(distinct item_id) as item_beh2_cnt
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) =  substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-2,'dd') as string), 1, 10)
+          and  behavior_type = 2
+    group by user_id---17日前2天用户收藏商品数
+) beh2_cnt
+on beh_all_cnt.user_id=beh2_cnt.user_id
+full outer join
+(
+    select  user_id,count(distinct item_id) as item_beh1_cnt 
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) =  substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-2,'dd') as string), 1, 10)
+          and  behavior_type = 1
+    group by user_id---17日前2天用户浏览商品数
+) beh1_cnt
+on beh_all_cnt.user_id=beh1_cnt.user_id
+
+) d17_pro2
+-----------------------------------------------
+on all_user.user_id=d17_pro2.user_id
+full outer join
+--------------------日期转换d16_pro3-------------------
+(
+select beh_all_cnt.user_id,
+       beh4_cnt.item_beh4_cnt as item_beh4_cnt,
+       beh3_cnt.item_beh3_cnt as item_beh3_cnt,
+       beh2_cnt.item_beh2_cnt as item_beh2_cnt,
+       beh1_cnt.item_beh1_cnt as item_beh1_cnt
+from
+(
+    select  user_id
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) = substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+    group by user_id---17日前3天活跃用户
+    )  beh_all_cnt
+full outer join
+(
+    select  user_id,count(distinct item_id) as item_beh4_cnt
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) =  substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+          and  behavior_type = 4
+    group by user_id---17日前3天用户购买商品数
+)  beh4_cnt
+on beh_all_cnt.user_id=beh4_cnt.user_id
+full outer join
+(
+    select  user_id,count(distinct item_id) as item_beh3_cnt
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) =  substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+          and  behavior_type = 3
+    group by user_id---17日前3天用户购物车商品数
+)  beh3_cnt
+on beh_all_cnt.user_id=beh3_cnt.user_id
+full outer join
+(
+    select  user_id,count(distinct item_id) as item_beh2_cnt
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) =  substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+          and  behavior_type = 2
+    group by user_id---17日前3天用户收藏商品数
+) beh2_cnt
+on beh_all_cnt.user_id=beh2_cnt.user_id
+full outer join
+(
+    select  user_id,count(distinct item_id) as item_beh1_cnt 
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) =  substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+          and  behavior_type = 1
+    group by user_id---17日前3天用户浏览商品数
+) beh1_cnt
+on beh_all_cnt.user_id=beh1_cnt.user_id
+)  d17_pro3
+on all_user.user_id=d17_pro3.user_id;
+-----------------------------------------------
+----------------------------------------------------------
+----------------------最近的N天用户每天的活跃时长activehour------
+------------------------------------------------------------
+drop table if exists uf_17day_activehour;
+create table uf_17day_activehour as 
+select all_user.user_id as user_id,
+       pro1.diff as diff1,
+       pro2.diff as diff2,
+       pro3.diff as diff3
+from
+(    
+    select  user_id
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    and substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+    group by user_id---17日前3天内活跃用户
+
+) all_user
+-------------------------------------------------
+ full outer join 
+-------------------------------------------------
+(
+select  pro1_max.user_id,pro1_max.maxtime,min(pro1_normal.normaltime),
+        (cast(substr(pro1_max.maxtime,-2) as bigint)-cast(substr(min(pro1_normal.normaltime),-2) as bigint)) as diff
+from
+     (select  user_id,max(time) as maxtime
+     from mobile_recommend_train_user_filter_item
+     where substr(`time`, 1, 10) =  substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+     group by user_id) pro1_max
+ 
+  full outer join 
+   
+    (select  user_id,time as normaltime
+     from mobile_recommend_train_user_filter_item
+     where substr(`time`, 1, 10) =  substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+     group by user_id,time ) pro1_normal
+
+  on pro1_max.user_id=pro1_normal.user_id
+where cast(substr(pro1_max.maxtime,-2) as bigint)<=cast(substr(pro1_normal.normaltime,-2) as bigint)+11
+group by pro1_max.user_id,pro1_max.maxtime
+)  pro1
+---------------------------------------------------------------
+ on all_user.user_id=pro1.user_id
+ full outer join
+--------------------------------------------------------------
+(
+select  pro2_max.user_id,pro2_max.maxtime,min(pro2_normal.normaltime),
+        (cast(substr(pro2_max.maxtime,-2) as bigint)-cast(substr(min(pro2_normal.normaltime),-2) as bigint)) as diff
+from
+     (select  user_id,max(time) as maxtime
+     from mobile_recommend_train_user_filter_item
+     where substr(`time`, 1, 10) =  substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-2,'dd') as string), 1, 10)
+     group by user_id) pro2_max
+ 
+  full outer join 
+   
+    (select  user_id,time as normaltime
+     from mobile_recommend_train_user_filter_item
+     where substr(`time`, 1, 10) =  substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-2,'dd') as string), 1, 10)
+     group by user_id,time ) pro2_normal
+
+  on pro2_max.user_id=pro2_normal.user_id
+where cast(substr(pro2_max.maxtime,-2) as bigint)<=cast(substr(pro2_normal.normaltime,-2) as bigint)+11
+group by pro2_max.user_id,pro2_max.maxtime
+)  pro2
+---------------------------------------------------------------
+ on all_user.user_id=pro2.user_id
+ full outer join
+--------------------------------------------------------------
+(
+select  pro3_max.user_id,pro3_max.maxtime,min(pro3_normal.normaltime),
+        (cast(substr(pro3_max.maxtime,-2) as bigint)-cast(substr(min(pro3_normal.normaltime),-2) as bigint)) as diff
+from
+     (select  user_id,max(time) as maxtime
+     from mobile_recommend_train_user_filter_item
+     where substr(`time`, 1, 10) =  substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+     group by user_id) pro3_max
+ 
+  full outer join 
+   
+    (select  user_id,time as normaltime
+     from mobile_recommend_train_user_filter_item
+     where substr(`time`, 1, 10) =  substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+     group by user_id,time ) pro3_normal
+
+  on pro3_max.user_id=pro3_normal.user_id
+where cast(substr(pro3_max.maxtime,-2) as bigint)<=cast(substr(pro3_normal.normaltime,-2) as bigint)+11
+group by pro3_max.user_id,pro3_max.maxtime
+)  pro3
+---------------------------------------------------------------
+ on all_user.user_id=pro3.user_id;
+--------------------------------------------------------------
+
+----------------------------------------------------------
+----------------------最近的N天用户每天的活跃时间点avgtime--------
+------------------------------------------------------------
+drop table if exists uf_17day_avghour;
+create table uf_17day_avghour as 
+select all_user.user_id as user_id,
+       pro1.avghour as avghour1,
+       pro2.avghour as avghour2,
+       pro3.avghour as avghour3
+from
+(    
+    select  user_id
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    and substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+    group by user_id---17日前3天内活跃用户
+
+) all_user
+-------------------------------------------------
+ full outer join 
+-------------------------------------------------
+(
+select  pro1_max.user_id,avg(cast(substr(pro1_normal.normaltime,-2) as bigint)) as avghour
+from
+     (select  user_id,max(time) as maxtime
+     from mobile_recommend_train_user_filter_item
+     where substr(`time`, 1, 10) =  substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+     group by user_id) pro1_max
+ 
+  full outer join 
+   
+    (select  user_id,time as normaltime
+     from mobile_recommend_train_user_filter_item
+     where substr(`time`, 1, 10) =  substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+     group by user_id,time ) pro1_normal
+
+  on pro1_max.user_id=pro1_normal.user_id
+where cast(substr(pro1_max.maxtime,-2) as bigint)<=cast(substr(pro1_normal.normaltime,-2) as bigint)+11
+group by pro1_max.user_id,pro1_max.maxtime
+)  pro1
+---------------------------------------------------------------
+ on all_user.user_id=pro1.user_id
+ full outer join
+--------------------------------------------------------------
+(
+select  pro2_max.user_id,avg(cast(substr(pro2_normal.normaltime,-2) as bigint)) as avghour
+from
+     (select  user_id,max(time) as maxtime
+     from mobile_recommend_train_user_filter_item
+     where substr(`time`, 1, 10) =  substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-2,'dd') as string), 1, 10)
+     group by user_id) pro2_max
+ 
+  full outer join 
+   
+    (select  user_id,time as normaltime
+     from mobile_recommend_train_user_filter_item
+     where substr(`time`, 1, 10) =  substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-2,'dd') as string), 1, 10)
+     group by user_id,time ) pro2_normal
+
+  on pro2_max.user_id=pro2_normal.user_id
+where cast(substr(pro2_max.maxtime,-2) as bigint)<=cast(substr(pro2_normal.normaltime,-2) as bigint)+11
+group by pro2_max.user_id
+)  pro2
+---------------------------------------------------------------
+ on all_user.user_id=pro2.user_id
+ full outer join
+--------------------------------------------------------------
+(
+select  pro3_max.user_id,avg(cast(substr(pro3_normal.normaltime,-2) as bigint)) as avghour
+from
+     (select  user_id,max(time) as maxtime
+     from mobile_recommend_train_user_filter_item
+     where substr(`time`, 1, 10) =  substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+     group by user_id) pro3_max
+ 
+  full outer join 
+   
+    (select  user_id,time as normaltime
+     from mobile_recommend_train_user_filter_item
+     where substr(`time`, 1, 10) =  substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+     group by user_id,time ) pro3_normal
+
+  on pro3_max.user_id=pro3_normal.user_id
+where cast(substr(pro3_max.maxtime,-2) as bigint)<=cast(substr(pro3_normal.normaltime,-2) as bigint)+11
+group by pro3_max.user_id
+)  pro3
+---------------------------------------------------------------
+ on all_user.user_id=pro3.user_id;
+--------------------------------------------------------------
+--------------------------------------------------------------
+---------------------user_browse_to_buy_rate-------------------------------------
+---------------------user_collect_to_buy_rate-------------------------------------
+---------------------user_cart_to_buy_rate-------------------------------------
+--------------------------------------------------------------
+drop table if exists uf_17day_pro_rate;
+create table uf_17day_pro_rate as 
+select user_id,
+       pro1_item_beh4/pro1_item_beh1 as pro1_bws_to_buy,
+       pro1_item_beh4/pro1_item_beh2 as pro1_col_to_buy,
+       pro1_item_beh4/pro1_item_beh3 as pro1_crt_to_buy,
+       pro2_item_beh4/pro2_item_beh1 as pro2_bws_to_buy,
+       pro2_item_beh4/pro2_item_beh2 as pro2_col_to_buy,
+       pro2_item_beh4/pro2_item_beh3 as pro2_crt_to_buy,
+       pro3_item_beh4/pro3_item_beh1 as pro3_bws_to_buy,
+       pro3_item_beh4/pro3_item_beh2 as pro3_col_to_buy,
+       pro3_item_beh4/pro3_item_beh3 as pro3_crt_to_buy
+from  uf_17day;
+----------------------------geo_range用户地理范围-------------------------
+
+drop table if exists uf_17day_geo;
+create table uf_17day_geo as 
+select user_id,substr(`time`, 1, 10) as day,user_geohash 
+from tianchi_lbs.tianchi_mobile_recommend_train_user 
+where user_geohash is not null 
+and substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+and substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+group by user_id,substr(`time`, 1, 10),user_geohash;
+
+
+
+drop table if exists uf_17day_geo_pro_range;
+create table uf_17day_geo_pro_range as 
+select all_user.user_id,pro1.pro1_geo_range,pro2.pro2_geo_range,pro3.pro3_geo_range
+from
+(    
+    select  user_id
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    and substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+    group by user_id---17日前一天活跃用户
+
+) all_user
+--------------------------------------------------------
+full outer join
+--------------------------------------------------------
+(
+    select user_id,max(geo_diff) as pro1_geo_range
+    from
+    (
+        select a.user_id,a.user_geohash1,b.user_geohash2,
+               tianchi_lbs:GeoDistUDF(a.user_geohash1,b.user_geohash2) as geo_diff
+        from 
+        (select user_id,day,user_geohash as user_geohash1 from  uf_17day_geo
+        where day=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)) a
+        join 
+        (select user_id,day,user_geohash as user_geohash2 from  uf_17day_geo
+        where day=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)) b
+        on a.user_id=b.user_id
+    ) c
+    group by user_id
+)  pro1
+--------------------------------------------------------
+on all_user.user_id=pro1.user_id
+full outer join
+--------------------------------------------------------
+(
+    select user_id,max(geo_diff) as pro2_geo_range
+    from
+    (
+        select a.user_id,a.user_geohash1,b.user_geohash2,
+               tianchi_lbs:GeoDistUDF(a.user_geohash1,b.user_geohash2) as geo_diff
+        from 
+        (select user_id,day,user_geohash as user_geohash1 from  uf_17day_geo
+        where day=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-2,'dd') as string), 1, 10)) a
+        join 
+        (select user_id,day,user_geohash as user_geohash2 from  uf_17day_geo
+        where day=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-2,'dd') as string), 1, 10)) b
+        on a.user_id=b.user_id
+    ) c
+    group by user_id
+)  pro2
+--------------------------------------------------------
+on all_user.user_id=pro2.user_id
+full outer join
+--------------------------------------------------------
+(
+    select user_id,max(geo_diff) as pro3_geo_range
+    from
+    (
+        select a.user_id,a.user_geohash1,b.user_geohash2,
+               tianchi_lbs:GeoDistUDF(a.user_geohash1,b.user_geohash2) as geo_diff
+        from 
+        (select user_id,day,user_geohash as user_geohash1 from  uf_17day_geo
+        where day=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) a
+        join 
+        (select user_id,day,user_geohash as user_geohash2 from  uf_17day_geo
+        where day=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) b
+        on a.user_id=b.user_id
+    ) c
+    group by user_id
+)  pro3
+--------------------------------------------------------
+on all_user.user_id=pro3.user_id;
+--------------------------------------------------------
+----------------------------截取4个geo字符count(geo)------------------
+----------------------------截取3个geo字符count(geo)------------------
+----------------------------截取2个geo字符count(geo)------------------
+drop table if exists uf_17day_geo_pro_cnt;
+create table uf_17day_geo_pro_cnt as
+select all_user.user_id as user_id,
+       pro1_chr4.cnt_chr4 as pro1_chr4_cnt,
+       pro2_chr4.cnt_chr4 as pro2_chr4_cnt,
+       pro3_chr4.cnt_chr4 as pro3_chr4_cnt,
+       pro1_chr3.cnt_chr3 as pro1_chr3_cnt,
+       pro2_chr3.cnt_chr3 as pro2_chr3_cnt,
+       pro3_chr3.cnt_chr3 as pro3_chr3_cnt,
+       pro1_chr2.cnt_chr2 as pro1_chr2_cnt,
+       pro2_chr2.cnt_chr2 as pro2_chr2_cnt,
+       pro3_chr2.cnt_chr2 as pro3_chr2_cnt
+from
+(    
+    select  user_id
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    and substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+    group by user_id---17日前一天活跃用户
+
+) all_user
+--------------------------------------------------------
+full outer join
+--------------------------------------------------------
+(    
+    select a14.user_id,count(a14.chr4) as cnt_chr4 from
+    (
+        select user_id,substr(user_geohash,1,4) as chr4
+        from uf_17day_geo
+        where day=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+        group by user_id,substr(user_geohash,1,4)
+    ) a14----前一天4chr不同个数---------
+    group by a14.user_id
+)  pro1_chr4
+--------------------------------------------------------
+on all_user.user_id=pro1_chr4.user_id
+full outer join
+--------------------------------------------------------
+(    
+    select a24.user_id,count(a24.chr4) as cnt_chr4 from
+    (
+        select user_id,substr(user_geohash,1,4) as chr4
+        from uf_17day_geo
+        where day=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-2,'dd') as string), 1, 10)
+        group by user_id,substr(user_geohash,1,4)
+    ) a24----前2天4chr不同个数---------
+    group by a24.user_id
+)  pro2_chr4
+--------------------------------------------------------
+on all_user.user_id=pro2_chr4.user_id
+full outer join
+--------------------------------------------------------
+(    
+    select a34.user_id,count(a34.chr4) as cnt_chr4 from
+    (
+        select user_id,substr(user_geohash,1,4) as chr4
+        from uf_17day_geo
+        where day=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+        group by user_id,substr(user_geohash,1,4)
+    ) a34----前3天4chr不同个数---------
+    group by a34.user_id
+)  pro3_chr4
+--------------------------------------------------------
+on all_user.user_id=pro3_chr4.user_id
+full outer join
+--------------------------------------------------------
+(    
+    select a13.user_id,count(a13.chr3) as cnt_chr3 from
+    (
+        select user_id,substr(user_geohash,1,3) as chr3
+        from uf_17day_geo
+        where day=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+        group by user_id,substr(user_geohash,1,3)
+    ) a13----前一天4chr不同个数---------
+    group by a13.user_id
+)  pro1_chr3
+--------------------------------------------------------
+on all_user.user_id=pro1_chr3.user_id
+full outer join
+--------------------------------------------------------
+(    
+    select a23.user_id,count(a23.chr3) as cnt_chr3 from
+    (
+        select user_id,substr(user_geohash,1,3) as chr3
+        from uf_17day_geo
+        where day=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-2,'dd') as string), 1, 10)
+        group by user_id,substr(user_geohash,1,3)
+    ) a23----前2天4chr不同个数---------
+    group by a23.user_id
+)  pro2_chr3
+--------------------------------------------------------
+on all_user.user_id=pro2_chr3.user_id
+full outer join
+--------------------------------------------------------
+(    
+    select a33.user_id,count(a33.chr3) as cnt_chr3 from
+    (
+        select user_id,substr(user_geohash,1,3) as chr3
+        from uf_17day_geo
+        where day=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+        group by user_id,substr(user_geohash,1,3)
+    ) a33----前3天4chr不同个数---------
+    group by a33.user_id
+)  pro3_chr3
+--------------------------------------------------------
+on all_user.user_id=pro3_chr3.user_id
+full outer join
+--------------------------------------------------------
+(    
+    select a12.user_id,count(a12.chr2) as cnt_chr2 from
+    (
+        select user_id,substr(user_geohash,1,2) as chr2
+        from uf_17day_geo
+        where day=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+        group by user_id,substr(user_geohash,1,2)
+    ) a12----前一天4chr不同个数---------
+    group by a12.user_id
+)  pro1_chr2
+--------------------------------------------------------
+on all_user.user_id=pro1_chr2.user_id
+full outer join
+--------------------------------------------------------
+(    
+    select a22.user_id,count(a22.chr2) as cnt_chr2 from
+    (
+        select user_id,substr(user_geohash,1,2) as chr2
+        from uf_17day_geo
+        where day=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-2,'dd') as string), 1, 10)
+        group by user_id,substr(user_geohash,1,2)
+    ) a22----前2天4chr不同个数---------
+    group by a22.user_id
+)  pro2_chr2
+--------------------------------------------------------
+on all_user.user_id=pro2_chr2.user_id
+full outer join
+--------------------------------------------------------
+(    
+    select a32.user_id,count(a32.chr2) as cnt_chr2 from
+    (
+        select user_id,substr(user_geohash,1,2) as chr2
+        from uf_17day_geo
+        where day=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+        group by user_id,substr(user_geohash,1,2)
+    ) a32----前3天4chr不同个数---------
+    group by a32.user_id
+)  pro3_chr2
+--------------------------------------------------------
+on all_user.user_id=pro3_chr2.user_id;
+
+----------------------------------------------------------
+-----------------最近n天用户交互类别数-----------------------
+----------------------------------------------------------
+drop table if exists uf_17day_cate_cnt;
+create table uf_17day_cate_cnt as
+select major.user_id,
+       major.pro1_cate_beh1_cnt as u_pro1_cate_beh1_cnt,major.pro1_cate_beh2_cnt as u_pro1_cate_beh2_cnt,
+       major.pro1_cate_beh3_cnt as u_pro1_cate_beh3_cnt,major.pro1_cate_beh4_cnt as u_pro1_cate_beh4_cnt,
+       case when t1.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+       then -10 else major.pro2_cate_beh1_cnt end as u_pro2_cate_beh1_cnt_fix,
+       case when t1.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+       then -10 else major.pro2_cate_beh2_cnt end as u_pro2_cate_beh2_cnt_fix,
+       case when t1.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+       then -10 else major.pro2_cate_beh3_cnt end as u_pro2_cate_beh3_cnt_fix,       
+       case when t1.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+       then -10 else major.pro2_cate_beh4_cnt end as u_pro2_cate_beh4_cnt_fix,         
+--------------------------------------------------------------------------------------       
+       case when t1.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-2,'dd') as string), 1, 10)
+       then -10 else major.pro3_cate_beh1_cnt end as u_pro3_cate_beh1_cnt_fix,
+       case when t1.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-2,'dd') as string), 1, 10)
+       then -10 else major.pro3_cate_beh2_cnt end as u_pro3_cate_beh2_cnt_fix,
+       case when t1.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-2,'dd') as string), 1, 10)
+       then -10 else major.pro3_cate_beh3_cnt end as u_pro3_cate_beh3_cnt_fix,       
+       case when t1.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-2,'dd') as string), 1, 10)
+       then -10 else major.pro3_cate_beh4_cnt end as u_pro3_cate_beh4_cnt_fix,
+--------------------------------------------------------------------------------------
+       case when t1.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-6,'dd') as string), 1, 10)
+       then -10 else major.pro7_span_cate_beh1_cnt end as u_pro7_span_cate_beh1_cnt_fix,
+       case when t1.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-6,'dd') as string), 1, 10)
+       then -10 else major.pro7_span_cate_beh2_cnt end as u_pro7_span_cate_beh2_cnt_fix,
+       case when t1.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-6,'dd') as string), 1, 10)
+       then -10 else major.pro7_span_cate_beh3_cnt end as u_pro7_span_cate_beh3_cnt_fix,       
+       case when t1.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-6,'dd') as string), 1, 10)
+       then -10 else major.pro7_span_cate_beh4_cnt end as u_pro7_span_cate_beh4_cnt_fix,
+       major.pro26_span_cate_beh1_cnt as u_pro26_span_cate_beh1_cnt,major.pro26_span_cate_beh2_cnt as u_pro26_span_cate_beh2_cnt,
+       major.pro26_span_cate_beh3_cnt as u_pro26_span_cate_beh3_cnt,major.pro26_span_cate_beh4_cnt as u_pro26_span_cate_beh4_cnt
+from(  
+select all_user.user_id,pro1.beh1 as pro1_cate_beh1_cnt,pro1.beh2 as pro1_cate_beh2_cnt,
+       pro1.beh3 as pro1_cate_beh3_cnt,pro1.beh4 as pro1_cate_beh4_cnt,
+       pro2.beh1 as pro2_cate_beh1_cnt,pro2.beh2 as pro2_cate_beh2_cnt,
+       pro2.beh3 as pro2_cate_beh3_cnt,pro2.beh4 as pro2_cate_beh4_cnt,
+       pro3.beh1 as pro3_cate_beh1_cnt,pro3.beh2 as pro3_cate_beh2_cnt,
+       pro3.beh3 as pro3_cate_beh3_cnt,pro3.beh4 as pro3_cate_beh4_cnt,       
+       pro7_span.beh1 as pro7_span_cate_beh1_cnt,pro7_span.beh2 as pro7_span_cate_beh2_cnt,
+       pro7_span.beh3 as pro7_span_cate_beh3_cnt,pro7_span.beh4 as pro7_span_cate_beh4_cnt,
+       pro26_span.beh1 as pro26_span_cate_beh1_cnt,pro26_span.beh2 as pro26_span_cate_beh2_cnt,
+       pro26_span.beh3 as pro26_span_cate_beh3_cnt,pro26_span.beh4 as pro26_span_cate_beh4_cnt
+from
+(    
+    select  user_id
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) = substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    group by user_id---17日前一天活跃用户
+) all_user
+left outer join
+(
+select user_id,
+      sum(case when behavior_type=1 then 1 else 0 end)  beh1,
+      sum(case when behavior_type=2 then 1 else 0 end)  beh2,
+      sum(case when behavior_type=3 then 1 else 0 end)  beh3,
+      sum(case when behavior_type=4 then 1 else 0 end)  beh4
+from
+    (
+    select  distinct user_id,item_category,behavior_type
+    from mobile_recommend_train_user_filter_item
+    where  substr(`time`, 1, 10) = substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    ) a
+group by user_id
+) pro1
+on all_user.user_id=pro1.user_id
+left outer join
+(
+select user_id,
+      sum(case when behavior_type=1 then 1 else 0 end)  beh1,
+      sum(case when behavior_type=2 then 1 else 0 end)  beh2,
+      sum(case when behavior_type=3 then 1 else 0 end)  beh3,
+      sum(case when behavior_type=4 then 1 else 0 end)  beh4
+from
+    (
+    select  distinct user_id,item_category,behavior_type
+    from mobile_recommend_train_user_filter_item
+    where  substr(`time`, 1, 10) = substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-2,'dd') as string), 1, 10)
+    ) a
+group by user_id
+) pro2
+on all_user.user_id=pro2.user_id
+left outer join
+(
+select user_id,
+      sum(case when behavior_type=1 then 1 else 0 end)  beh1,
+      sum(case when behavior_type=2 then 1 else 0 end)  beh2,
+      sum(case when behavior_type=3 then 1 else 0 end)  beh3,
+      sum(case when behavior_type=4 then 1 else 0 end)  beh4
+from
+    (
+    select  distinct user_id,item_category,behavior_type
+    from mobile_recommend_train_user_filter_item
+    where  substr(`time`, 1, 10) = substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+    ) a
+group by user_id
+) pro3
+on all_user.user_id=pro3.user_id
+left outer join
+(
+select user_id,
+      sum(case when behavior_type=1 then 1 else 0 end)  beh1,
+      sum(case when behavior_type=2 then 1 else 0 end)  beh2,
+      sum(case when behavior_type=3 then 1 else 0 end)  beh3,
+      sum(case when behavior_type=4 then 1 else 0 end)  beh4
+from
+    (
+    select  distinct user_id,item_category,behavior_type
+    from mobile_recommend_train_user_filter_item
+    where  substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    and substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-7,'dd') as string), 1, 10)
+    ) a
+group by user_id
+) pro7_span
+on all_user.user_id=pro7_span.user_id
+left outer join
+(
+select user_id,
+      sum(case when behavior_type=1 then 1 else 0 end)  beh1,
+      sum(case when behavior_type=2 then 1 else 0 end)  beh2,
+      sum(case when behavior_type=3 then 1 else 0 end)  beh3,
+      sum(case when behavior_type=4 then 1 else 0 end)  beh4
+from
+    (
+    select  distinct user_id,item_category,behavior_type
+    from mobile_recommend_train_user_filter_item
+    where  substr(`time`, 1, 10) = substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    and substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-26,'dd') as string), 1, 10)
+    ) a
+group by user_id
+) pro26_span
+on all_user.user_id=pro26_span.user_id
+) major
+left outer join
+(  
+    select * from user_firsttime_interactive 
+) t1
+on major.user_id=t1.user_id;
+
+------------------------------------------------------------------------------
+-----------------u不在初次访问品牌时进行购买的商品数/总商品数------------------
+-------------------------------------------------------------------------------
+drop table if exists uf_17day_notbuyinfrt_rate;
+create table uf_17day_notbuyinfrt_rate as
+select major.user_id,
+      case when t1.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-2,'dd') as string), 1, 10)
+       then -10 else major.u_pro3_span_notfrtbuy_cnt end as u_pro3_span_notfrtbuy_cnt_fix,
+      case when t1.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-2,'dd') as string), 1, 10)
+       then -10 else major.u_pro3_span_notfrt_rate end as u_pro3_span_notfrt_rate_fix,
+      case when t1.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-9,'dd') as string), 1, 10)
+       then -10 else major.u_pro10_span_notfrtbuy_cnt end as u_pro10_span_notfrtbuy_cnt_fix,
+      case when t1.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-9,'dd') as string), 1, 10)
+       then -10 else major.u_pro10_span_notfrt_rate end as u_pro10_span_notfrt_rate_fix,
+      major.u_pro26_span_notfrtbuy_cnt,major.u_pro26_span_notfrt_rate
+from
+(
+select all_ui.user_id,
+      case when pro3_span_notfrtbuy.cnt is null then 0 else pro3_span_notfrtbuy.cnt end as u_pro3_span_notfrtbuy_cnt,
+      case when  pro3_span_buy.cnt is null then -1 
+           when  pro3_span_notfrtbuy.cnt is null and  pro3_span_buy.cnt is not null then 0
+           else pro3_span_notfrtbuy.cnt/pro3_span_buy.cnt end as u_pro3_span_notfrt_rate,
+      case when pro10_span_notfrtbuy.cnt is null then 0 else pro10_span_notfrtbuy.cnt end as u_pro10_span_notfrtbuy_cnt,
+      case when  pro10_span_buy.cnt is null then -1 
+           when  pro10_span_notfrtbuy.cnt is null and  pro10_span_buy.cnt is not null then 0
+           else pro10_span_notfrtbuy.cnt/pro26_span_buy.cnt end as u_pro10_span_notfrt_rate,      
+      case when pro26_span_notfrtbuy.cnt is null then 0 else pro26_span_notfrtbuy.cnt end as u_pro26_span_notfrtbuy_cnt,
+      case when  pro26_span_buy.cnt is null then -1 
+           when  pro26_span_notfrtbuy.cnt is null and  pro26_span_buy.cnt is not null then 0
+           else pro26_span_notfrtbuy.cnt/pro26_span_buy.cnt end as u_pro26_span_notfrt_rate  
+from
+(
+select user_id
+from mobile_recommend_train_user_filter_item
+where substr(`time`, 1, 10) = substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+group by user_id
+) all_ui
+left outer join
+----------------------pro3----------------------------
+(select user_id,count(distinct item_id) as cnt
+from( select t1.user_id,t1.item_id,t1.min_intact,t2.min_buy
+      from
+        (
+        select user_id,item_id,min(cast(concat(substr(`time`, 6, 2),substr(`time`, 9, 2),substr(`time`,-2)) as bigint)) as min_intact
+        from mobile_recommend_train_user_filter_item
+        where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+        and  substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+        group by user_id,item_id
+        ) t1
+    join 
+        (
+        select user_id,item_id,min(cast(concat(substr(`time`, 6, 2),substr(`time`, 9, 2),substr(`time`,-2)) as bigint)) as min_buy
+        from mobile_recommend_train_user_filter_item
+        where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+        and  substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+        and behavior_type=4
+        group by user_id,item_id
+        ) t2
+    on t1.user_id=t2.user_id
+    and t1.item_id=t2.item_id
+    ) a1
+where min_buy-min_intact>100
+group by user_id
+) pro3_span_notfrtbuy
+on all_ui.user_id=pro3_span_notfrtbuy.user_id
+left outer join
+(
+select user_id,count(distinct item_id) as cnt
+from mobile_recommend_train_user_filter_item
+where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    and  substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+    and behavior_type=4
+group by user_id
+) pro3_span_buy
+on all_ui.user_id=pro3_span_buy.user_id
+left outer join
+----------------------pro10----------------------------
+(select user_id,count(distinct item_id) as cnt
+from(  select t1.user_id,t1.item_id,t1.min_intact,t2.min_buy
+       from
+        (
+        select user_id,item_id,min(cast(concat(substr(`time`, 6, 2),substr(`time`, 9, 2),substr(`time`,-2)) as bigint)) as min_intact
+        from mobile_recommend_train_user_filter_item
+        where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+        and  substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-10,'dd') as string), 1, 10)
+        group by user_id,item_id
+        ) t1
+    join 
+        (
+        select user_id,item_id,min(cast(concat(substr(`time`, 6, 2),substr(`time`, 9, 2),substr(`time`,-2)) as bigint)) as  min_buy
+        from mobile_recommend_train_user_filter_item
+        where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+        and  substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-10,'dd') as string), 1, 10)
+        and behavior_type=4
+        group by user_id,item_id
+        ) t2
+    on t1.user_id=t2.user_id
+    and t1.item_id=t2.item_id
+    ) a2
+where min_buy-min_intact>100
+group by  user_id
+) pro10_span_notfrtbuy
+on all_ui.user_id=pro10_span_notfrtbuy.user_id
+left outer join
+(
+select user_id,count(distinct item_id) as cnt
+from mobile_recommend_train_user_filter_item
+where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    and  substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-10,'dd') as string), 1, 10)
+    and behavior_type=4
+group by user_id
+) pro10_span_buy
+on all_ui.user_id=pro10_span_buy.user_id
+left outer join
+----------------------pro26----------------------------
+(select user_id,count(distinct item_id) as cnt
+from(select t1.user_id,t1.item_id,t1.min_intact,t2.min_buy
+    from
+        (
+        select user_id,item_id,min(cast(concat(substr(`time`, 6, 2),substr(`time`, 9, 2),substr(`time`,-2)) as bigint)) as min_intact
+        from mobile_recommend_train_user_filter_item
+        where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+        and  substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-26,'dd') as string), 1, 10)
+        group by user_id,item_id
+        ) t1
+    join 
+        (
+        select user_id,item_id,min(cast(concat(substr(`time`, 6, 2),substr(`time`, 9, 2),substr(`time`,-2)) as bigint)) min_buy
+        from mobile_recommend_train_user_filter_item
+        where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+        and  substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-26,'dd') as string), 1, 10)
+        and behavior_type=4
+        group by user_id,item_id
+        ) t2
+    on t1.user_id=t2.user_id
+    and t1.item_id=t2.item_id
+    ) a3
+where min_buy-min_intact>100
+group by user_id
+) pro26_span_notfrtbuy
+on all_ui.user_id=pro26_span_notfrtbuy.user_id
+left outer join
+(
+select user_id,count(distinct item_id) as cnt
+from mobile_recommend_train_user_filter_item
+where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    and  substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-26,'dd') as string), 1, 10)
+    and behavior_type=4
+group by user_id
+) pro26_span_buy
+on all_ui.user_id=pro26_span_buy.user_id
+) major
+left outer join
+(  
+    select * from user_firsttime_interactive 
+) t1
+on major.user_id=t1.user_id;
+------------------------------------------------------------------------
+---------------------------用户活跃天数/周期-----------------------
+---------------------------活跃指有5次及以上点击---------------------------
+drop table if exists uf_17day_active_rate;
+create table uf_17day_active_rate as
+select major.user_id,
+       case when t1.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-2,'dd') as string), 1, 10)
+       then -10 else major.u_pro3_span_act5_cnt end as u_pro3_span_act5_cnt_fix,
+       case when t1.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-9,'dd') as string), 1, 10)
+       then -10 else major.u_pro10_span_act5_cnt end as u_pro10_span_act5_cnt_fix,
+       major.u_pro26_span_act5_cnt
+from
+(
+select all_ui.user_id,
+      case when pro3_act5_span.cnt is null then 0 else pro3_act5_span.cnt/3 end as u_pro3_span_act5_cnt,
+      case when pro10_act5_span.cnt is null then 0 else pro10_act5_span.cnt/10 end as u_pro10_span_act5_cnt,
+      case when pro26_act5_span.cnt is null then 0 else pro26_act5_span.cnt/26 end as u_pro26_span_act5_cnt
+from
+(
+select user_id
+from mobile_recommend_train_user_filter_item
+where substr(`time`, 1, 10) = substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+group by user_id
+) all_ui
+left outer join
+(
+select user_id,count(day) as cnt
+from
+    (select user_id,substr(`time`, 1, 10) as day
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    and substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+    group by user_id,substr(`time`, 1, 10)
+    having count(1)>5) a
+group by user_id    
+) pro3_act5_span
+on all_ui.user_id=pro3_act5_span.user_id
+left outer join
+(
+select user_id,count(day) as cnt
+from
+    (select user_id,substr(`time`, 1, 10) as day
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    and substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-10,'dd') as string), 1, 10)
+    group by user_id,substr(`time`, 1, 10)
+    having count(1)>5) a
+group by user_id    
+) pro10_act5_span
+on all_ui.user_id=pro10_act5_span.user_id
+left outer join
+(
+select user_id,count(day) as cnt
+from
+    (select user_id,substr(`time`, 1, 10) as day
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    and substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-26,'dd') as string), 1, 10)
+    group by user_id,substr(`time`, 1, 10)
+    having count(1)>5) a
+group by user_id    
+) pro26_act5_span
+on all_ui.user_id=pro26_act5_span.user_id
+) major
+left outer join
+(  
+    select * from user_firsttime_interactive 
+) t1
+on major.user_id=t1.user_id;
+
+---------------------------------------------------------------------------------
+---------------跳出率（周期内用户只进行过1次点击操作的产品数/总产品数）----------
+---------------------------------------------------------------------------------
+drop table if exists uf_17day_jum_rate;
+create table uf_17day_jum_rate as
+select major.user_id,
+      case when t1.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-2,'dd') as string), 1, 10)
+       then -10 else major.u_pro3_span_jum_rate end as u_pro3_span_jum_rate_fix,
+       case when t1.u_first_interact_time>=substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-9,'dd') as string), 1, 10)
+       then -10 else major.u_pro10_span_jum_rate end as u_pro10_span_jum_rate_fix,
+       major.u_pro26_span_jum_rate
+from (
+select all_ui.user_id,
+        case  when  pro3_span_jum.cnt is null then 0 else pro3_span_jum.cnt/pro3_span_all.cnt end as u_pro3_span_jum_rate,
+       case  when  pro10_span_jum.cnt is null then 0 else pro10_span_jum.cnt/pro10_span_all.cnt end as u_pro10_span_jum_rate,
+       case  when  pro26_span_jum.cnt is null then 0 else pro26_span_jum.cnt/pro26_span_all.cnt end as u_pro26_span_jum_rate
+from      
+(
+select user_id
+from mobile_recommend_train_user_filter_item
+where substr(`time`, 1, 10) = substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+group by user_id
+) all_ui
+left outer join
+-------------------pro3----------------------
+(
+select user_id,count(item_id) as cnt
+   from
+   (
+   select user_id,item_id
+    from
+        (
+        select user_id,item_id,behavior_type
+        from mobile_recommend_train_user_filter_item
+            where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+            and  substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+        group by user_id,item_id,behavior_type
+        having count(1)=1
+        ) a
+    group by user_id,item_id
+    having max(behavior_type)=1
+   ) b
+group by user_id
+)  pro3_span_jum
+on all_ui.user_id=pro3_span_jum.user_id
+left outer join
+(       
+       select user_id,count(item_id) as cnt
+       from
+       (
+        select distinct user_id,item_id
+        from mobile_recommend_train_user_filter_item
+            where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+            and  substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)
+        ) a
+        group by user_id
+)pro3_span_all
+on all_ui.user_id=pro3_span_all.user_id
+left outer join
+-------------------pro10----------------------
+(
+select user_id,count(item_id) as cnt
+   from
+   (
+   select user_id,item_id
+    from
+        (
+        select user_id,item_id,behavior_type
+        from mobile_recommend_train_user_filter_item
+            where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+            and  substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-10,'dd') as string), 1, 10)
+        group by user_id,item_id,behavior_type
+        having count(1)=1
+        ) a
+    group by user_id,item_id
+    having max(behavior_type)=1
+   ) b
+group by user_id
+)  pro10_span_jum
+on all_ui.user_id=pro10_span_jum.user_id
+left outer join
+(       
+       select user_id,count(item_id) as cnt
+       from
+       (
+        select distinct user_id,item_id
+        from mobile_recommend_train_user_filter_item
+            where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+            and  substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-10,'dd') as string), 1, 10)
+        ) a
+        group by user_id
+)pro10_span_all
+on all_ui.user_id=pro10_span_all.user_id
+left outer join
+---------------------------pro26--------------------------
+(
+select user_id,count(item_id) as cnt
+   from
+   (
+   select user_id,item_id
+    from
+        (
+        select user_id,item_id,behavior_type
+        from mobile_recommend_train_user_filter_item
+            where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+            and  substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-26,'dd') as string), 1, 10)
+        group by user_id,item_id,behavior_type
+        having count(1)=1
+        ) a
+    group by user_id,item_id
+    having max(behavior_type)=1
+   ) b
+group by user_id
+)  pro26_span_jum
+on all_ui.user_id=pro26_span_jum.user_id
+left outer join
+(       
+       select user_id,count(item_id) as cnt
+       from
+       (
+        select distinct user_id,item_id
+        from mobile_recommend_train_user_filter_item
+            where substr(`time`, 1, 10) <= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+            and  substr(`time`, 1, 10) >= substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-26,'dd') as string), 1, 10)
+        ) a
+        group by user_id
+)pro26_span_all
+on all_ui.user_id=pro26_span_all.user_id
+) major
+left outer join
+(  
+    select * from user_firsttime_interactive 
+) t1
+on major.user_id=t1.user_id;
+
+
+
+

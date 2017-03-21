@@ -1,0 +1,738 @@
+---item转化率----
+drop table if exists if_rate1_bf_1218;
+create table if_rate1_bf_1218 as
+select t.*,
+    case 
+      when t1.item_cartTobuyRate is null then -1 
+      else t1.item_cartTobuyRate
+    end as item_cartTobuyRate,
+    case 
+      when t2.item_collectTobuyRate is null then -1 
+      else t2.item_collectTobuyRate
+    end as item_collectTobuyRate,
+    case 
+      when t3.item_browseTobuyRate is null then -1 
+      else t3.item_browseTobuyRate
+    end as item_browseTobuyRate,
+    case 
+      when t4.item_in_category_buy_rate is null then -1 
+      else t4.item_in_category_buy_rate
+    end as item_in_category_buy_rate,
+    case 
+      when t5.item_in_category_cart_rate is null then -1 
+      else t5.item_in_category_cart_rate
+    end as item_in_category_cart_rate,
+    case 
+      when  t6.item_in_category_collect_rate is null then -1 
+      else  t6.item_in_category_collect_rate
+    end as  item_in_category_collect_rate,
+    case 
+      when t7.item_in_category_browse_rate is null then -1 
+      else t7.item_in_category_browse_rate
+    end as item_in_category_browse_rate,
+    case 
+      when  t8.category_in_categoryies_buys_rate is null then -1 
+      else  t8.category_in_categoryies_buys_rate
+    end as  category_in_categoryies_buys_rate,
+    case 
+      when t9.category_in_categoryies_cart_rate is null then -1 
+      else t9.category_in_categoryies_cart_rate
+    end as category_in_categoryies_cart_rate,
+    case 
+      when  t10.category_in_categoryies_collect_rate is null then -1 
+      else  t10.category_in_categoryies_collect_rate
+    end as  category_in_categoryies_collect_rate,
+    case 
+      when t11.category_in_categoryies_browse_rate is null then -1 
+      else t11.category_in_categoryies_browse_rate
+    end as category_in_categoryies_browse_rate
+    from 
+    (select distinct item_id,item_category from mobile_recommend_train_user_filter_item where substr(time,1,10)=
+    substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)) t 
+    left outer join 
+    (select buy.item_id,(buy.item_id_count/cart.item_id_count) as item_cartTobuyRate 
+        from 
+        (select item_id,count(1) as item_id_count from mobile_recommend_train_user_filter_item where behavior_type=4 and time<'2014-12-18' group by item_id) buy
+        join
+        (select item_id,count(1) as item_id_count from mobile_recommend_train_user_filter_item where behavior_type=3 and time<'2014-12-18' group by item_id) cart 
+        on buy.item_id=cart.item_id
+    ) t1 on t1.item_id=t.item_id
+    left outer join 
+    (select buy.item_id,(buy.item_id_count/cart.item_id_count) as item_collectTobuyRate 
+        from ---collect to buy 转化率----有些item收藏一次后会发生多次购买
+        (select item_id,count(1) as item_id_count from mobile_recommend_train_user_filter_item where behavior_type=4 and time<'2014-12-18' group by item_id) buy 
+        join
+        (select item_id,count(1) as item_id_count from mobile_recommend_train_user_filter_item where behavior_type=2 and time<'2014-12-18' group by item_id) cart
+        on buy.item_id=cart.item_id
+    )t2 on t2.item_id=t.item_id
+    left outer join 
+    (
+    select buy.item_id,(buy.item_id_count/cart.item_id_count) as item_browseTobuyRate 
+        from ---browse to buy 转化率----
+        (select item_id,count(1) as item_id_count from mobile_recommend_train_user_filter_item where behavior_type=4 and time<'2014-12-18' group by item_id) buy 
+        join
+        (select item_id,count(1) as item_id_count from mobile_recommend_train_user_filter_item where behavior_type=1 and time<'2014-12-18' group by item_id) cart 
+        on buy.item_id=cart.item_id
+    )t3 on t3.item_id=t.item_id
+    left outer join 
+    (
+    select item_buy.item_id,(item_buy.item_id_count/category_buy.category_buys_count)as item_in_category_buy_rate 
+        from-----商品在同类商品中的销量占比----
+        (select item_id,item_category,count(1) as item_id_count from mobile_recommend_train_user_filter_item where behavior_type=4 and time<'2014-12-18' group by item_category,item_id) item_buy
+        join (select item_category,count(1) as category_buys_count from mobile_recommend_train_user_filter_item where behavior_type=4 and time<'2014-12-18' group by item_category) category_buy
+        on item_buy.item_category=category_buy.item_category 
+    )t4 on t4.item_id=t.item_id
+    left outer join 
+    (-----商品在同类商品中的cart量占比----
+    select item_buy.item_id,(item_buy.item_id_count/category_buy.category_buys_count)as item_in_category_cart_rate from
+        (select item_id,item_category,count(1) as item_id_count from mobile_recommend_train_user_filter_item where behavior_type=3 and time<'2014-12-18' group by item_category,item_id) item_buy
+        join (select item_category,count(1) as category_buys_count from mobile_recommend_train_user_filter_item where behavior_type=3 and time<'2014-12-18' group by item_category) category_buy
+        on item_buy.item_category=category_buy.item_category
+    )t5 on t5.item_id=t.item_id
+    left outer join 
+    (-----商品在同类商品中的collect量占比----
+    select item_buy.item_id,(item_buy.item_id_count/category_buy.category_buys_count)as item_in_category_collect_rate from
+        (select item_id,item_category,count(1) as item_id_count from mobile_recommend_train_user_filter_item where behavior_type=2 and time<'2014-12-18' group by item_category,item_id) item_buy
+        join (select item_category,count(1) as category_buys_count from mobile_recommend_train_user_filter_item where behavior_type=2 and time<'2014-12-18' group by item_category) category_buy
+         on item_buy.item_category=category_buy.item_category
+    )t6 on t6.item_id=t.item_id
+    left outer join 
+    (-----商品在同类商品中的browse量占比----
+    select item_buy.item_id,(item_buy.item_id_count/category_buy.category_buys_count)as item_in_category_browse_rate from
+        (select item_id,item_category,count(1) as item_id_count from mobile_recommend_train_user_filter_item where behavior_type=1 and time<'2014-12-18' group by item_category,item_id) item_buy
+        join (select item_category,count(1) as category_buys_count from mobile_recommend_train_user_filter_item where behavior_type=1 and time<'2014-12-18' group by item_category) category_buy
+         on item_buy.item_category=category_buy.item_category
+    )t7 on t7.item_id=t.item_id
+    left outer join 
+    ( ---销量占比---
+        select item_category,(count(1)/5856308) as category_in_categoryies_buys_rate from mobile_recommend_train_user_filter_item where behavior_type=4 and time<'2014-12-18' group by item_category 
+    )t8 on t8.item_category=t.item_category
+     left outer join 
+    (--购物车量占比--
+        select item_category,(count(1)/14550295) as category_in_categoryies_cart_rate from mobile_recommend_train_user_filter_item where behavior_type=3 and time<'2014-12-18' group by item_category
+    )t9 on t9.item_category=t.item_category
+    left outer join 
+    ( ---收藏占比---
+        select item_category,(count(1)/8425745) as category_in_categoryies_collect_rate from mobile_recommend_train_user_filter_item where behavior_type=2 and time<'2014-12-18' group by item_category
+    )t10 on t10.item_category=t.item_category
+     left outer join 
+    (--浏览量占比--
+        select item_category,(count(1)/495652028) as category_in_categoryies_browse_rate from mobile_recommend_train_user_filter_item where behavior_type=1 and time<'2014-12-18' group by item_category
+    )t11 on t11.item_category=t.item_category;
+------20150512------------
+------------------------------------------------end------------------------------------------------------------------------
+--------------------------------------------item转化率--最近3天------------------------------------------------------------
+drop table if exists if_rate123_bf_1218;
+create table if_rate123_bf_1218 as 
+select t.*,
+    case 
+      when t1.item_cartTobuyRate is null then -1 
+      else t1.item_cartTobuyRate
+    end as item_cartTobuyRate_recent3d,
+    case 
+      when t2.item_collectTobuyRate is null then -1 
+      else t2.item_collectTobuyRate
+    end as item_collectTobuyRate_recent3d,
+    case 
+      when t3.item_browseTobuyRate is null then -1 
+      else t3.item_browseTobuyRate
+    end as item_browseTobuyRate_recent3d,
+    case 
+      when t4.item_in_category_buy_rate is null then -1 
+      else t4.item_in_category_buy_rate
+    end as item_in_category_buy_rate_recent3d,
+    case 
+      when t5.item_in_category_cart_rate is null then -1 
+      else t5.item_in_category_cart_rate
+    end as item_in_category_cart_rate_recent3d,
+    case 
+      when  t6.item_in_category_collect_rate is null then -1 
+      else  t6.item_in_category_collect_rate
+    end as  item_in_category_collect_rate_recent3d,
+    case 
+      when t7.item_in_category_browse_rate is null then -1 
+      else t7.item_in_category_browse_rate
+    end as item_in_category_browse_rate_recent3d
+    from 
+    if_rate1_bf_1218 t 
+    left outer join 
+    (select buy.item_id,(buy.item_id_count/cart.item_id_count) as item_cartTobuyRate 
+        from 
+        (select item_id,count(1) as item_id_count from mobile_recommend_train_user_filter_item where behavior_type=4 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10) group by item_id) buy
+        join
+        (select item_id,count(1) as item_id_count from mobile_recommend_train_user_filter_item where behavior_type=3 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10) group by item_id) cart 
+        on buy.item_id=cart.item_id
+    ) t1 on t1.item_id=t.item_id
+    left outer join 
+    (select buy.item_id,(buy.item_id_count/cart.item_id_count) as item_collectTobuyRate 
+        from ---collect to buy 转化率----有些item收藏一次后会发生多次购买
+        (select item_id,count(1) as item_id_count from mobile_recommend_train_user_filter_item where behavior_type=4 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10) group by item_id) buy 
+        join
+        (select item_id,count(1) as item_id_count from mobile_recommend_train_user_filter_item where behavior_type=2 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10) group by item_id) cart
+        on buy.item_id=cart.item_id
+    )t2 on t2.item_id=t.item_id
+    left outer join 
+    (
+    select buy.item_id,(buy.item_id_count/cart.item_id_count) as item_browseTobuyRate 
+        from ---browse to buy 转化率----
+        (select item_id,count(1) as item_id_count from mobile_recommend_train_user_filter_item where behavior_type=4 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10) group by item_id) buy 
+        join
+        (select item_id,count(1) as item_id_count from mobile_recommend_train_user_filter_item where behavior_type=1 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10) group by item_id) cart 
+        on buy.item_id=cart.item_id
+    )t3 on t3.item_id=t.item_id
+    left outer join 
+    (
+    select item_buy.item_id,(item_buy.item_id_count/category_buy.category_buys_count)as item_in_category_buy_rate 
+        from-----商品在同类商品中的销量占比----
+        (select item_id,item_category,count(1) as item_id_count from mobile_recommend_train_user_filter_item where behavior_type=4 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10) group by item_category,item_id) item_buy
+        join (select item_category,count(1) as category_buys_count from mobile_recommend_train_user_filter_item where behavior_type=4 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10) group by item_category) category_buy
+        on item_buy.item_category=category_buy.item_category 
+    )t4 on t4.item_id=t.item_id
+    left outer join 
+    (-----商品在同类商品中的cart量占比----
+    select item_buy.item_id,(item_buy.item_id_count/category_buy.category_buys_count)as item_in_category_cart_rate from
+        (select item_id,item_category,count(1) as item_id_count from mobile_recommend_train_user_filter_item where behavior_type=3 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10) group by item_category,item_id) item_buy
+        join (select item_category,count(1) as category_buys_count from mobile_recommend_train_user_filter_item where behavior_type=3 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10) group by item_category) category_buy
+        on item_buy.item_category=category_buy.item_category
+    )t5 on t5.item_id=t.item_id
+    left outer join 
+    (-----商品在同类商品中的collect量占比----
+    select item_buy.item_id,(item_buy.item_id_count/category_buy.category_buys_count)as item_in_category_collect_rate from
+        (select item_id,item_category,count(1) as item_id_count from mobile_recommend_train_user_filter_item where behavior_type=2 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10) group by item_category,item_id) item_buy
+        join (select item_category,count(1) as category_buys_count from mobile_recommend_train_user_filter_item where behavior_type=2 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10) group by item_category) category_buy
+         on item_buy.item_category=category_buy.item_category
+    )t6 on t6.item_id=t.item_id
+    left outer join 
+    (-----商品在同类商品中的browse量占比----
+    select item_buy.item_id,(item_buy.item_id_count/category_buy.category_buys_count)as item_in_category_browse_rate from
+        (select item_id,item_category,count(1) as item_id_count from mobile_recommend_train_user_filter_item where behavior_type=1 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10) group by item_category,item_id) item_buy
+        join (select item_category,count(1) as category_buys_count from mobile_recommend_train_user_filter_item where behavior_type=1 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10) group by item_category) category_buy
+         on item_buy.item_category=category_buy.item_category
+    )t7 on t7.item_id=t.item_id;
+----------------------------
+---------删除原有表数据，用新加入特征的标代替原表----
+drop table if exists if_rate1_bf_1218;
+create table if_rate1_bf_1218 as 
+select * from if_rate123_bf_1218;
+
+select *  from if_rate1_bf_1218 limit 300;
+---------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------##############################----------item 三种不同转化率---------------###################################################--
+--------------------------------------------------#############################################----------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------
+
+drop table if exists if_rate123_bf_1218;
+create table if_rate123_bf_1218 as 
+select t.*,
+    case when t1.item_browsetobuyrate1 is null then -1
+         else t1.item_browsetobuyrate1
+    end as item_browsetobuyrate1,
+    case when t2.item_browsetobuyrate2 is null then -1
+         else t2.item_browsetobuyrate2
+    end as item_browsetobuyrate2,
+    case when t3.item_browsetobuyrate3 is null then -1
+         else t3.item_browsetobuyrate3
+    end as item_browsetobuyrate3,
+    case when t4.item_collecttobuyrate1 is null then -1
+         else t4.item_collecttobuyrate1
+    end as item_collecttobuyrate1,
+    case when t5.item_collecttobuyrate2 is null then -1
+         else t5.item_collecttobuyrate2
+    end as item_collecttobuyrate2,
+    case when t6.item_collecttobuyrate3 is null then -1
+         else t6.item_collecttobuyrate3
+    end as item_collecttobuyrate3,
+    case when t7.item_carttobuyrate1 is null then -1
+         else t7.item_carttobuyrate1
+    end as item_carttobuyrate1,
+    case when t8.item_carttobuyrate2 is null then -1
+         else t8.item_carttobuyrate2
+    end as item_carttobuyrate2,
+    case when t9.item_carttobuyrate3 is null then -1
+         else t9.item_carttobuyrate3
+    end as item_carttobuyrate3
+    from if_rate1_bf_1218 t
+------------------------------------item browse to buy rate 包含三种----------------------------------------------------------------------------------------
+-----item_browsetobuyrate1----
+    left outer join 
+    (select t1.item_id,buynum/cartnum as item_browsetobuyrate1
+    from (select t1.item_id,count(1) as cartnum---限制每个用户browse的商品最终都被购买了---
+            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=4 and time<'2014-12-18') t2---注意distinct
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=1 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18') t1 
+            group by t1.item_id) t1
+        left outer join  
+        (select t1.item_id,count(1) as buynum---限制购买的商品来自于浏览---
+            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=1 and time<'2014-12-18') t2
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=4 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18') t1 
+            group by t1.item_id) t2
+        on t1.item_id = t2.item_id
+    )t1 on t.item_id=t1.item_id
+-----item_browsetobuyrate1 end----  
+-----item_browsetobuyrate2----
+    left outer join
+    (select t1.item_id,buynum/cartnum as item_browsetobuyrate2
+    from (select t1.item_id,count(1) as cartnum---限制每个用户browse的商品最终都被购买了---
+            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=4 and time<'2014-12-18') t2---注意没有distinct，会根据用户购买的次数加倍
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=1 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18') t1 
+            group by t1.item_id) t1
+        join  
+        (select t1.item_id,count(1) as buynum---限制购买的商品来自于浏览---
+            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=1 and time<'2014-12-18') t2
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=4 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18') t1 
+            group by t1.item_id) t2
+        on t1.item_id = t2.item_id
+    ) t2 on t.item_id=t2.item_id
+-----item_browsetobuyrate2 end----  
+
+-----item_browsetobuyrate3----
+    left outer join 
+    (select t1.item_id,
+        case 
+            when buynum is null then 0 
+            else buynum/cartnum 
+        end as item_browsetobuyrate3
+    from (select item_id,count(1) as cartnum---限制每个用户browse的商品最终都被购买了---
+            from
+                mobile_recommend_train_user_filter_item 
+                where behavior_type=1 and time<'2014-12-18' 
+            group by item_id) t1
+        left outer join  
+        (select t1.item_id,count(1) as buynum---限制购买的商品来自于浏览---
+            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=1 and time<'2014-12-18') t2
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=4 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18') t1 
+            group by t1.item_id) t2
+        on t1.item_id = t2.item_id
+    ) t3 on t.item_id=t3.item_id
+-----item_browsetobuyrate3 end----  
+
+---select behavior_type,count(1) from mobile_recommend_train_user_filter_item where item_id=1488825 group by behavior_type ---4
+---select * from mobile_recommend_train_user_filter_item where item_id=1488825 ---两个用户其中一个-2014-12-11 14浏览3次，另一个浏览一次
+------------------------------------item browse to buy rate 包含三种---------------end--end-----------------------------------------------------------------------
+
+------------------------------------item collect to buy rate 包含三种----------------------------------------------------------------------------------------
+-----item_collecttobuyrate1----
+    left outer join 
+    (select t1.item_id,buynum/cartnum as item_collecttobuyrate1
+    from (select t1.item_id,count(1) as cartnum---限制每个用户collect的商品最终都被购买了---
+            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=4 and time<'2014-12-18') t2---注意distinct
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=2 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18') t1 
+            group by t1.item_id) t1
+        left outer join  
+        (select t1.item_id,count(1) as buynum---限制购买的商品来自于浏览---
+            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=2 and time<'2014-12-18') t2
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=4 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18') t1 
+            group by t1.item_id) t2
+        on t1.item_id = t2.item_id
+    )t4 on t.item_id=t4.item_id
+-----item_collecttobuyrate1 end----  
+-----item_collecttobuyrate2----
+    left outer join
+    (select t1.item_id,buynum/cartnum as item_collecttobuyrate2
+    from (select t1.item_id,count(1) as cartnum---限制每个用户collect的商品最终都被购买了---
+            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=4 and time<'2014-12-18') t2---注意没有distinct，会根据用户购买的次数加倍
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=2 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18') t1 
+            group by t1.item_id) t1
+        join  
+        (select t1.item_id,count(1) as buynum---限制购买的商品来自于浏览---
+            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=2 and time<'2014-12-18') t2
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=4 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18') t1 
+            group by t1.item_id) t2
+        on t1.item_id = t2.item_id
+    ) t5 on t.item_id=t5.item_id
+-----item_collecttobuyrate2 end----  
+
+-----item_collecttobuyrate3----
+    left outer join 
+    (select t1.item_id,
+        case 
+            when buynum is null then 0 
+            else buynum/cartnum 
+        end as item_collecttobuyrate3
+    from (select item_id,count(1) as cartnum---限制每个用户collect的商品最终都被购买了---
+            from
+                mobile_recommend_train_user_filter_item 
+                where behavior_type=2 and time<'2014-12-18' 
+            group by item_id) t1
+        left outer join  
+        (select t1.item_id,count(1) as buynum---限制购买的商品来自于浏览---
+            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=2 and time<'2014-12-18') t2
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=4 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18') t1 
+            group by t1.item_id) t2
+        on t1.item_id = t2.item_id
+    ) t6 on t.item_id=t6.item_id
+-----item_collecttobuyrate3 end----  
+------------------------------------item collect to buy rate 包含三种----------end------------------------------------------------------------------------------
+------------------------------------item cart to cart rate 包含三种----------------------------------------------------------------------------------------
+-----item_carttobuyrate1----
+    left outer join 
+    (select t1.item_id,buynum/cartnum as item_carttobuyrate1
+    from (select t1.item_id,count(1) as cartnum---限制每个用户cart的商品最终都被购买了---
+            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=4 and time<'2014-12-18') t2---注意distinct
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=3 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18') t1 
+            group by t1.item_id) t1
+        left outer join  
+        (select t1.item_id,count(1) as buynum---限制购买的商品来自于浏览---
+            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=3 and time<'2014-12-18') t2
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=4 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18') t1 
+            group by t1.item_id) t2
+        on t1.item_id = t2.item_id
+    )t7 on t.item_id=t7.item_id
+-----item_carttobuyrate1 end----  
+-----item_carttobuyrate2----
+    left outer join
+    (select t1.item_id,buynum/cartnum as item_carttobuyrate2
+    from (select t1.item_id,count(1) as cartnum---限制每个用户cart的商品最终都被购买了---
+            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=4 and time<'2014-12-18') t2---注意没有distinct，会根据用户购买的次数加倍
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=3 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18') t1 
+            group by t1.item_id) t1
+        join  
+        (select t1.item_id,count(1) as buynum---限制购买的商品来自于浏览---
+            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=3 and time<'2014-12-18') t2
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=4 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18') t1 
+            group by t1.item_id) t2
+        on t1.item_id = t2.item_id
+    ) t8 on t.item_id=t8.item_id
+-----item_carttobuyrate2 end----  
+
+-----item_carttobuyrate3----
+    left outer join 
+    (select t1.item_id,
+        case 
+            when buynum is null then 0 
+            else buynum/cartnum 
+        end as item_carttobuyrate3
+    from (select item_id,count(1) as cartnum---限制每个用户cart的商品最终都被购买了---
+            from
+                mobile_recommend_train_user_filter_item 
+                where behavior_type=3 and time<'2014-12-18' 
+            group by item_id) t1
+        left outer join  
+        (select t1.item_id,count(1) as buynum---限制购买的商品来自于浏览---
+            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=3 and time<'2014-12-18') t2
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=4 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18') t1 
+            group by t1.item_id) t2
+        on t1.item_id = t2.item_id
+    ) t9 on t.item_id=t9.item_id;
+-----item_carttobuyrate3 end----  
+------------------------------------item cart to buy rate 包含三种----------end------------------------------------------------------------------------------
+drop table if exists if_rate1_bf_1218;
+create table if_rate1_bf_1218 as 
+select * from if_rate123_bf_1218;
+
+drop table if exists if_rate123_bf_1218;
+create table if_rate123_bf_1218 as 
+select t.*,
+    case when t1.item_browsetobuyrate1 is null then -1
+         else t1.item_browsetobuyrate1
+    end as item_browsetobuyrate1_recent3d,
+    case when t2.item_browsetobuyrate2 is null then -1
+         else t2.item_browsetobuyrate2
+    end as item_browsetobuyrate2_recent3d,
+    case when t3.item_browsetobuyrate3 is null then -1
+         else t3.item_browsetobuyrate3
+    end as item_browsetobuyrate3_recent3d,
+    case when t4.item_collecttobuyrate1 is null then -1
+         else t4.item_collecttobuyrate1
+    end as item_collecttobuyrate1_recent3d,
+    case when t5.item_collecttobuyrate2 is null then -1
+         else t5.item_collecttobuyrate2
+    end as item_collecttobuyrate2_recent3d,
+    case when t6.item_collecttobuyrate3 is null then -1
+         else t6.item_collecttobuyrate3
+    end as item_collecttobuyrate3_recent3d,
+    case when t7.item_carttobuyrate1 is null then -1
+         else t7.item_carttobuyrate1
+    end as item_carttobuyrate1_recent3d,
+    case when t8.item_carttobuyrate2 is null then -1
+         else t8.item_carttobuyrate2
+    end as item_carttobuyrate2_recent3d,
+    case when t9.item_carttobuyrate3 is null then -1
+         else t9.item_carttobuyrate3
+    end as item_carttobuyrate3_recent3d
+    from if_rate1_bf_1218 t
+------------------------------------item browse to buy rate 包含三种----------------------------------------------------------------------------------------
+-----item_browsetobuyrate1----
+    left outer join 
+    (select t1.item_id,buynum/cartnum as item_browsetobuyrate1
+    from (select t1.item_id,count(1) as cartnum---限制每个用户browse的商品最终都被购买了---
+            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=4 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t2---注意distinct
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=1 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t1 
+            group by t1.item_id) t1
+        left outer join  
+        (select t1.item_id,count(1) as buynum---限制购买的商品来自于浏览---
+            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=1 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t2
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=4 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t1 
+            group by t1.item_id) t2
+        on t1.item_id = t2.item_id
+    )t1 on t.item_id=t1.item_id
+-----item_browsetobuyrate1 end----  
+-----item_browsetobuyrate2----
+    left outer join
+    (select t1.item_id,buynum/cartnum as item_browsetobuyrate2
+    from (select t1.item_id,count(1) as cartnum---限制每个用户browse的商品最终都被购买了---
+            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=4 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t2---注意没有distinct，会根据用户购买的次数加倍
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=1 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t1 
+            group by t1.item_id) t1
+        join  
+        (select t1.item_id,count(1) as buynum---限制购买的商品来自于浏览---
+            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=1 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t2
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=4 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t1 
+            group by t1.item_id) t2
+        on t1.item_id = t2.item_id
+    ) t2 on t.item_id=t2.item_id
+-----item_browsetobuyrate2 end----  
+
+-----item_browsetobuyrate3----
+    left outer join 
+    (select t1.item_id,
+        case 
+            when buynum is null then 0 
+            else buynum/cartnum 
+        end as item_browsetobuyrate3
+    from (select item_id,count(1) as cartnum---限制每个用户browse的商品最终都被购买了---
+            from
+                mobile_recommend_train_user_filter_item 
+                where behavior_type=1 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10) 
+            group by item_id) t1
+        left outer join  
+        (select t1.item_id,count(1) as buynum---限制购买的商品来自于浏览---
+            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=1 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t2
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=4 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t1 
+            group by t1.item_id) t2
+        on t1.item_id = t2.item_id
+    ) t3 on t.item_id=t3.item_id
+-----item_browsetobuyrate3 end----  
+
+---select behavior_type,count(1) from mobile_recommend_train_user_filter_item where item_id=1488825 group by behavior_type ---4
+---select * from mobile_recommend_train_user_filter_item where item_id=1488825 ---两个用户其中一个-2014-12-11 14浏览3次，另一个浏览一次
+------------------------------------item browse to buy rate 包含三种---------------end--end-----------------------------------------------------------------------
+
+------------------------------------item collect to buy rate 包含三种----------------------------------------------------------------------------------------
+-----item_collecttobuyrate1----
+    left outer join 
+    (select t1.item_id,buynum/cartnum as item_collecttobuyrate1
+    from (select t1.item_id,count(1) as cartnum---限制每个用户collect的商品最终都被购买了---
+            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=4 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t2---注意distinct
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=2 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t1 
+            group by t1.item_id) t1
+        left outer join  
+        (select t1.item_id,count(1) as buynum---限制购买的商品来自于浏览---
+            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=2 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t2
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=4 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t1 
+            group by t1.item_id) t2
+        on t1.item_id = t2.item_id
+    )t4 on t.item_id=t4.item_id
+-----item_collecttobuyrate1 end----  
+-----item_collecttobuyrate2----
+    left outer join
+    (select t1.item_id,buynum/cartnum as item_collecttobuyrate2
+    from (select t1.item_id,count(1) as cartnum---限制每个用户collect的商品最终都被购买了---
+            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=4 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t2---注意没有distinct，会根据用户购买的次数加倍
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=2 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t1 
+            group by t1.item_id) t1
+        join  
+        (select t1.item_id,count(1) as buynum---限制购买的商品来自于浏览---
+            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=2 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t2
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=4 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t1 
+            group by t1.item_id) t2
+        on t1.item_id = t2.item_id
+    ) t5 on t.item_id=t5.item_id
+-----item_collecttobuyrate2 end----  
+
+-----item_collecttobuyrate3----
+    left outer join 
+    (select t1.item_id,
+        case 
+            when buynum is null then 0 
+            else buynum/cartnum 
+        end as item_collecttobuyrate3
+    from (select item_id,count(1) as cartnum---限制每个用户collect的商品最终都被购买了---
+            from
+                mobile_recommend_train_user_filter_item 
+                where behavior_type=2 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10) 
+            group by item_id) t1
+        left outer join  
+        (select t1.item_id,count(1) as buynum---限制购买的商品来自于浏览---
+            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=2 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t2
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=4 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t1 
+            group by t1.item_id) t2
+        on t1.item_id = t2.item_id
+    ) t6 on t.item_id=t6.item_id
+-----item_collecttobuyrate3 end----  
+------------------------------------item collect to buy rate 包含三种----------end------------------------------------------------------------------------------
+------------------------------------item cart to cart rate 包含三种----------------------------------------------------------------------------------------
+-----item_carttobuyrate1----
+    left outer join 
+    (select t1.item_id,buynum/cartnum as item_carttobuyrate1
+    from (select t1.item_id,count(1) as cartnum---限制每个用户cart的商品最终都被购买了---
+            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=4 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t2---注意distinct
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=3 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t1 
+            group by t1.item_id) t1
+        left outer join  
+        (select t1.item_id,count(1) as buynum---限制购买的商品来自于浏览---
+            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=3 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t2
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=4 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t1 
+            group by t1.item_id) t2
+        on t1.item_id = t2.item_id
+    )t7 on t.item_id=t7.item_id
+-----item_carttobuyrate1 end----  
+-----item_carttobuyrate2----
+    left outer join
+    (select t1.item_id,buynum/cartnum as item_carttobuyrate2
+    from (select t1.item_id,count(1) as cartnum---限制每个用户cart的商品最终都被购买了---
+            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=4 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t2---注意没有distinct，会根据用户购买的次数加倍
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=3 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t1 
+            group by t1.item_id) t1
+        join  
+        (select t1.item_id,count(1) as buynum---限制购买的商品来自于浏览---
+            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=3 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t2
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=4 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t1 
+            group by t1.item_id) t2
+        on t1.item_id = t2.item_id
+    ) t8 on t.item_id=t8.item_id
+-----item_carttobuyrate2 end----  
+
+-----item_carttobuyrate3----
+    left outer join 
+    (select t1.item_id,
+        case 
+            when buynum is null then 0 
+            else buynum/cartnum 
+        end as item_carttobuyrate3
+    from (select item_id,count(1) as cartnum---限制每个用户cart的商品最终都被购买了---
+            from
+                mobile_recommend_train_user_filter_item 
+                where behavior_type=3 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10) 
+            group by item_id) t1
+        left outer join  
+        (select t1.item_id,count(1) as buynum---限制购买的商品来自于浏览---
+            from(select t1.item_id,t1.user_id from
+                mobile_recommend_train_user_filter_item t1 
+                left outer join
+                (select distinct user_id,item_id from mobile_recommend_train_user_filter_item where behavior_type=3 and time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t2
+                on t1.user_id = t2.user_id and t1.item_id=t2.item_id
+                where t1.behavior_type=4 and t2.user_id is not null and t2.item_id is not null and t1.time<'2014-12-18' and time>substr(cast( dateadd(cast(concat('2014-12-18',' 00:00:00') as datetime),-3,'dd') as string), 1, 10)) t1 
+            group by t1.item_id) t2
+        on t1.item_id = t2.item_id
+    ) t9 on t.item_id=t9.item_id;
+-----item_carttobuyrate3 end----  
+
+
+
+

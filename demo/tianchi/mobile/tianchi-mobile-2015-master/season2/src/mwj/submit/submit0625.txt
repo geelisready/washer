@@ -1,0 +1,51 @@
+drop table if exists tianchi_mobile_recommendation_predict;--17.1598w
+create table tianchi_mobile_recommendation_predict as  
+select distinct tt.user_id,tt.item_id from (
+ select t0.user_id,t0.item_id from (select t1.*  from 19combine_0623_zgm_last_finalsolution2 t1 where prediction_result=1
+                                    order by t1.prediction_score desc limit 170000) t0 ---共98888
+  union all
+ select t2.user_id,t2.item_id from (select * from 17day_combine_backup_0521_buy_0601_solution
+  where prediction_result=1 order by prediction_score desc limit 1500) t2
+ union all select * from tianchi_mobile_recommendation_predict_Friday
+ union all select * from tianchi_mobile_recommendation_predict_Friday_temp_0523_4day_mwj 
+) tt ;
+-------------------------------------------------------------------------------------------------
+drop table if exists tianchi_mobile_recommendation_predict;--176598  
+create table tianchi_mobile_recommendation_predict as  
+select distinct tt.user_id,tt.item_id from (
+ select t0.user_id,t0.item_id from (select t1.*  from 19combine_0621_majorsolution t1 where prediction_result=1
+                                    order by t1.prediction_score desc limit 170000) t0 ---共98888
+  union all
+ select t2.user_id,t2.item_id from (select * from 17day_combine_backup_0521_buy_0601_solution
+  where prediction_result=1 order by prediction_score desc limit 1500) t2
+ union all
+ select t3.user_id,t3.item_id from (select * from  predict_19_interval2day_355f_0602_gdbt_sum t  order by t.s desc limit 5000) t3 
+ union all select * from tianchi_mobile_recommendation_predict_Friday
+ union all select * from tianchi_mobile_recommendation_predict_Friday_temp_0523_4day_mwj 
+) tt ;
+
+
+
+-- input#2: 43  (min: 7, max: 12, avg: 8)
+-- input: 1500  (min: 282, max: 314, avg: 301)
+-- input#1: 245  (min: 42, max: 52, avg: 50)
+-- input#4: 5000  (min: 975, max: 1045, avg: 993)
+-- input#3: 170000  (min: 33752, max: 34260, avg: 33996)
+
+
+
+
+--------隔两天购买--------
+--select t3.user_id,t3.item_id from (select * from mwj_gbdt_sum_inter2_cart 
+--order by p desc limit 300) t3
+
+--------1：1rebuy融合2：5rebuy------------------
+drop table if exists mwj_gbdt_sumbuy_0624;
+create table mwj_gbdt_sumbuy_0624 as 
+select user_id,item_id,sum(ps) as p 
+from
+(select user_id,item_id,prediction_score as ps from 17day_combine_backup_0521_buy_0601_solution where prediction_result=1
+union all
+select user_id,item_id,prediction_score as ps from 19day_combine_backup_0521_buy_0601_0622solution  where prediction_result=1
+) t
+group by user_id,item_id;

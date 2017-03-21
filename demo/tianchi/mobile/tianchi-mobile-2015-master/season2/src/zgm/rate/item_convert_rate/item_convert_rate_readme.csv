@@ -1,0 +1,15 @@
+---------##################table£ºif_rate123_bf_1219###########################-----------
+--item_id,item_category,
+--item_carttobuyrate,item_collecttobuyrate,item_browsetobuyrate,
+--item_in_category_buy_rate,item_in_category_cart_rate,item_in_category_collect_rate,item_in_category_browse_rate,
+--category_in_categoryies_buys_rate,category_in_categoryies_cart_rate,category_in_categoryies_collect_rate,category_in_categoryies_browse_rate,
+--item_browsetobuyrate1,item_browsetobuyrate2,item_browsetobuyrate3,
+--item_collecttobuyrate1,item_collecttobuyrate2,item_collecttobuyrate3,
+--item_carttobuyrate1,item_carttobuyrate2,item_carttobuyrate3,
+--item_browsetobuyrate1_recent3d,item_browsetobuyrate2_recent3d,
+--item_browsetobuyrate3_recent3d,item_collecttobuyrate1_recent3d,
+--item_collecttobuyrate2_recent3d,item_collecttobuyrate3_recent3d,
+--item_carttobuyrate1_recent3d,item_carttobuyrate2_recent3d,item_carttobuyrate3_recent3d,
+
+--item_carttobuyrate_recent3d,item_collecttobuyrate_recent3d,item_browsetobuyrate_recent3d,
+--item_in_category_buy_rate_recent3d,item_in_category_cart_rate_recent3d,item_in_category_collect_rate_recent3d,item_in_category_browse_rate_recent3d

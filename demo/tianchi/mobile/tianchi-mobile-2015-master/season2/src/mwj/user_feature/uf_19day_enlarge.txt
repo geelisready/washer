@@ -1,0 +1,71 @@
+select all_u.user_id,
+    coalesce(pro4_span.beh1, 0) pro4_span_item_beh1,
+    coalesce(pro4_span.beh2, 0) pro4_span_item_beh2,
+    coalesce(pro4_span.beh3, 0) pro4_span_item_beh3,
+    coalesce(pro4_span.beh4, 0) pro4_span_item_beh4,
+---------------------------------------------------------------    
+    coalesce(pro12_span.beh1, 0) pro12_span_item_beh1,
+    coalesce(pro12_span.beh2, 0) pro12_span_item_beh2,
+    coalesce(pro12_span.beh3, 0) pro12_span_item_beh3,
+    coalesce(pro12_span.beh4, 0) pro12_span_item_beh4,
+    ---------------------------------------------------------------    
+    coalesce(pro26_span.beh1, 0) pro26_span_item_beh1,
+    coalesce(pro26_span.beh2, 0) pro26_span_item_beh2,
+    coalesce(pro26_span.beh3, 0) pro26_span_item_beh3,
+    coalesce(pro26_span.beh4, 0) pro26_span_item_beh4
+from
+(    
+    select  user_id
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10) = substr(cast(dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    group by user_id---19日前一天活跃商品
+
+) all_u
+left outer join
+(
+select user_id,
+    sum(case when behavior_type=1 then 1 else 0 end)  beh1,
+    sum(case when behavior_type=2 then 1 else 0 end)  beh2,
+    sum(case when behavior_type=3 then 1 else 0 end)  beh3,
+    sum(case when behavior_type=4 then 1 else 0 end)  beh4
+from(
+    select distinct user_id,item_id,behavior_type
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10)<= substr(cast(dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    and substr(`time`, 1, 10)>=substr(cast(dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-4,'dd') as string), 1, 10)
+    ) t
+group by user_id
+) pro4_span
+on all_u.user_id=pro4_span.user_id
+left outer join
+(
+select user_id,
+    sum(case when behavior_type=1 then 1 else 0 end)  beh1,
+    sum(case when behavior_type=2 then 1 else 0 end)  beh2,
+    sum(case when behavior_type=3 then 1 else 0 end)  beh3,
+    sum(case when behavior_type=4 then 1 else 0 end)  beh4
+from(
+    select distinct user_id,item_id,behavior_type
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10)<= substr(cast(dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    and substr(`time`, 1, 10)>=substr(cast(dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-12,'dd') as string), 1, 10)
+    ) t
+group by user_id
+) pro12_span
+on all_u.user_id=pro12_span.user_id
+left outer join
+(
+select user_id,
+    sum(case when behavior_type=1 then 1 else 0 end)  beh1,
+    sum(case when behavior_type=2 then 1 else 0 end)  beh2,
+    sum(case when behavior_type=3 then 1 else 0 end)  beh3,
+    sum(case when behavior_type=4 then 1 else 0 end)  beh4
+from(
+    select distinct user_id,item_id,behavior_type
+    from mobile_recommend_train_user_filter_item
+    where substr(`time`, 1, 10)<= substr(cast(dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    and substr(`time`, 1, 10)>=substr(cast(dateadd(cast(concat('2014-12-19',' 00:00:00') as datetime),-26,'dd') as string), 1, 10)
+    ) t
+group by user_id
+) pro26_span
+on all_u.user_id=pro26_span.user_id;

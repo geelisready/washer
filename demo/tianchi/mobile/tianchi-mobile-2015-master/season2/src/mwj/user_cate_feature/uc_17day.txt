@@ -1,0 +1,260 @@
+--------------------------------------------------------
+----------前一天对同类商品购买的商品数-----检查后，一个物品仅对应一个类-----------------
+--------------------------------------------------------
+drop table if exists pro_17day_buyincate;
+create table pro_17day_buyincate as
+select all_ui.user_id,all_ui.item_id,all_ui.cate,
+       pro1_buy.buyincate_cnt as pro1_buyincate_cnt,pro2_buy.buyincate_cnt as pro2_buyincate_cnt,
+       pro1_crt.buyincate_cnt as pro1_crtincate_cnt,pro2_crt.buyincate_cnt as pro2_crtincate_cnt,
+       pro1_col.buyincate_cnt as pro1_colincate_cnt,pro2_col.buyincate_cnt as pro2_colincate_cnt,
+       pro1_bws.buyincate_cnt as pro1_bwsincate_cnt,pro2_bws.buyincate_cnt as pro2_bwsincate_cnt
+from
+(
+select user_id,item_id,max(item_category) as cate
+from mobile_recommend_train_user_filter_item
+where substr(`time`, 1, 10) = substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+group by user_id,item_id
+) all_ui
+left outer join
+(
+select user_id,item_category,count(distinct item_id) as buyincate_cnt
+from mobile_recommend_train_user_filter_item
+where substr(`time`, 1, 10) = substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+and behavior_type=4
+group by user_id,item_category
+) pro1_buy
+-------------------------------------------
+on all_ui.cate=pro1_buy.item_category
+and all_ui.user_id=pro1_buy.user_id
+left outer join
+---------------------------------------------
+(
+select user_id,item_category,count(distinct item_id) as buyincate_cnt
+from mobile_recommend_train_user_filter_item
+where substr(`time`, 1, 10) = substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-2,'dd') as string), 1, 10)
+and behavior_type=4
+group by user_id,item_category
+) pro2_buy
+on all_ui.cate=pro2_buy.item_category
+and all_ui.user_id=pro2_buy.user_id
+--------------------------------------------
+left outer join
+---------------------------------------------
+(
+select user_id,item_category,count(distinct item_id) as buyincate_cnt
+from mobile_recommend_train_user_filter_item
+where substr(`time`, 1, 10) = substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+and behavior_type=3
+group by user_id,item_category
+) pro1_crt
+-------------------------------------------
+on all_ui.cate=pro1_crt.item_category
+and all_ui.user_id=pro1_crt.user_id
+left outer join
+---------------------------------------------
+(
+select user_id,item_category,count(distinct item_id) as buyincate_cnt
+from mobile_recommend_train_user_filter_item
+where substr(`time`, 1, 10) = substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-2,'dd') as string), 1, 10)
+and behavior_type=3
+group by user_id,item_category
+) pro2_crt
+on all_ui.cate=pro2_crt.item_category
+and all_ui.user_id=pro2_crt.user_id
+--------------------------------------------
+left outer join
+---------------------------------------------
+(
+select user_id,item_category,count(distinct item_id) as buyincate_cnt
+from mobile_recommend_train_user_filter_item
+where substr(`time`, 1, 10) = substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+and behavior_type=2
+group by user_id,item_category
+) pro1_col
+-------------------------------------------
+on all_ui.cate=pro1_col.item_category
+and all_ui.user_id=pro1_col.user_id
+left outer join
+---------------------------------------------
+(
+select user_id,item_category,count(distinct item_id) as buyincate_cnt
+from mobile_recommend_train_user_filter_item
+where substr(`time`, 1, 10) = substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-2,'dd') as string), 1, 10)
+and behavior_type=2
+group by user_id,item_category
+) pro2_col
+on all_ui.cate=pro2_col.item_category
+and all_ui.user_id=pro2_col.user_id
+--------------------------------------------
+left outer join
+---------------------------------------------
+(
+select user_id,item_category,count(distinct item_id) as buyincate_cnt
+from mobile_recommend_train_user_filter_item
+where substr(`time`, 1, 10) = substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+and behavior_type=1
+group by user_id,item_category
+) pro1_bws
+-------------------------------------------
+on all_ui.cate=pro1_bws.item_category
+and all_ui.user_id=pro1_bws.user_id
+left outer join
+---------------------------------------------
+(
+select user_id,item_category,count(distinct item_id) as buyincate_cnt
+from mobile_recommend_train_user_filter_item
+where substr(`time`, 1, 10) = substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-2,'dd') as string), 1, 10)
+and behavior_type=1
+group by user_id,item_category
+) pro2_bws
+on all_ui.cate=pro2_bws.item_category
+and all_ui.user_id=pro2_bws.user_id;
+--------------------------------------------
+-------------------------------------------------------------------
+--------------前1天crt-前1天cate完bry的item数incate-----------
+----------------------------------------------------------------------
+drop table if exists pro1_17day_nobuy_behincate;
+create table pro1_17day_nobuy_behincate as
+select all_ui.user_id,all_ui.item_id,
+      case when crt_buy.cnt is null then 0 else crt_buy.cnt end as crt_buy_cnt,
+      case when crt_nobuy.cnt is null then 0 else crt_nobuy.cnt end as crt_nobuy_cnt,
+      case when col_buy.cnt is null then 0 else col_buy.cnt end  as col_buy_cnt,
+      case when col_nobuy.cnt is null then 0 else col_nobuy.cnt end as col_nobuy_cnt,
+      case when bws_buy.cnt is null then 0 else bws_buy.cnt end as bws_buy_cnt,
+      case when bws_nobuy.cnt is null then 0 else bws_nobuy.cnt end as bws_nobuy_cnt
+from
+(select user_id,item_id,max(item_category) as cate
+from mobile_recommend_train_user_filter_item
+where substr(`time`, 1, 10) = substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+group by user_id,item_id
+) all_ui
+left outer join
+(select user_id,category,count(item_id) as cnt
+from
+(select user_id,item_id,max(cate) as category
+from
+(select user_id,item_id,behavior_type,max(item_category) as cate
+from mobile_recommend_train_user_filter_item
+where (behavior_type=3 or behavior_type=4) 
+and  substr(`time`, 1, 10) = substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+group by user_id,item_id,behavior_type) crt_buy
+group by user_id,item_id
+having count(behavior_type)>1
+) cnt_crtbuy
+group by user_id,category
+) crt_buy
+---------crt完buy-------------
+on all_ui.user_id=crt_buy.user_id
+and all_ui.cate=crt_buy.category
+left outer join
+(
+select user_id,category,count(item_id) as cnt
+from
+(
+select user_id,item_id,max(cate) as category
+from
+    (select user_id,item_id,behavior_type,max(item_category) as cate
+    from mobile_recommend_train_user_filter_item
+    where (behavior_type=3 or behavior_type=4) 
+    and  substr(`time`, 1, 10) = substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+    group by user_id,item_id,behavior_type
+    ) crt_buy
+group by user_id,item_id
+having max(behavior_type)=3
+)cnt_crtnobuy
+group by user_id,category
+) crt_nobuy
+---------crt完没买--------------------------
+---------------------------------------------
+on all_ui.user_id=crt_nobuy.user_id
+and all_ui.cate=crt_nobuy.category
+left outer join
+--------------------------------------------
+(select user_id,category,count(item_id) as cnt
+from
+(select user_id,item_id,max(cate) as category
+from
+(select user_id,item_id,behavior_type,max(item_category) as cate
+from mobile_recommend_train_user_filter_item
+where (behavior_type=2 or behavior_type=4) 
+and  substr(`time`, 1, 10) = substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+group by user_id,item_id,behavior_type) crt_buy
+group by user_id,item_id
+having count(behavior_type)>1
+) cnt_colbuy
+group by user_id,category
+) col_buy
+---------col完buy-------------
+on all_ui.user_id=col_buy.user_id
+and all_ui.cate=col_buy.category
+left outer join
+(
+select user_id,category,count(item_id) as cnt
+from
+(
+select user_id,item_id,max(cate) as category
+from
+(select user_id,item_id,behavior_type,max(item_category) as cate
+from mobile_recommend_train_user_filter_item
+where (behavior_type=2 or behavior_type=4) 
+and  substr(`time`, 1, 10) = substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+group by user_id,item_id,behavior_type) crt_buy
+group by user_id,item_id
+having max(behavior_type)=2
+) cnt_colnobuy
+group by user_id,category
+) col_nobuy
+---------col完没买--------------------------
+on all_ui.user_id=col_nobuy.user_id
+and all_ui.cate=col_nobuy.category
+left outer join
+--------------------------------------------
+(select user_id,category,count(item_id) as cnt
+from
+(select user_id,item_id,max(cate) as category
+from
+(select user_id,item_id,behavior_type,max(item_category) as cate
+from mobile_recommend_train_user_filter_item
+where (behavior_type=1 or behavior_type=4) 
+and  substr(`time`, 1, 10) = substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+group by user_id,item_id,behavior_type) crt_buy
+group by user_id,item_id
+having count(behavior_type)>1
+) cnt_bwsbuy
+group by user_id,category
+) bws_buy
+---------bws完buy-------------
+on all_ui.user_id=bws_buy.user_id
+and all_ui.cate=bws_buy.category
+left outer join
+(
+select user_id,category,count(item_id) as cnt
+from
+(
+select user_id,item_id,max(cate) as category
+from
+(select user_id,item_id,behavior_type,max(item_category) as cate
+from mobile_recommend_train_user_filter_item
+where (behavior_type=1 or behavior_type=4) 
+and  substr(`time`, 1, 10) = substr(cast(dateadd(cast(concat('2014-12-17',' 00:00:00') as datetime),-1,'dd') as string), 1, 10)
+group by user_id,item_id,behavior_type) crt_buy
+group by user_id,item_id
+having  max(behavior_type)=1
+)cnt_bwsnobuy
+group by user_id,category
+) bws_nobuy
+---------bws完没买--------------------------
+on all_ui.user_id=bws_nobuy.user_id
+and all_ui.cate=bws_nobuy.category;
+
+
+
+
+
+
+
+
+
+
+
+
