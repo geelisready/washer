@@ -1,4 +1,4 @@
-# washer（施工中）
+# washer（重构中）
  总结最近一些比赛的常用数据操作，下面是文件夹对面的模块及功能
 ### 整个框架共有三个核心模块：explore、feature、model
 * explore：包含常用数据探索的api
